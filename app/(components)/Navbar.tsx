@@ -3,19 +3,27 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ChevronDown, Menu, X } from "lucide-react";
+import { HiOutlineAcademicCap } from "react-icons/hi";
+import { FiBriefcase } from "react-icons/fi";
+import { FiZap } from "react-icons/fi";
+
+
+
 
 export default function Navbar() {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  const [openSub, setOpenSub] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [openSub, setOpenSub] = useState<string | null>(null); // 👈 NEW
 
   return (
-    <nav className="w-full shadow-sm backdrop-blur-md bg-white/60 fixed top-0 left-0 z-50 border-b">
-      <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between p-8">
+    <nav className="w-full shadow-sm backdrop-blur-md bg-white/60 fixed top-0 left-0 z-40 border-b">
+      <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
 
-        {/* LEFT — LOGO */}
+        {/* LOGO */}
         <div className="flex items-center gap-2">
-          <img src="/logo.png" alt="Collexa Edu" className="h-16 w-auto" />
+          <Link href="/">
+          <img src="/logo.png" alt="Collexa Edu" className="h-14 w-auto" />
+          </Link>
         </div>
 
         {/* HAMBURGER — MOBILE ONLY */}
@@ -26,8 +34,9 @@ export default function Navbar() {
           {mobileOpen ? <X size={30} /> : <Menu size={30} />}
         </button>
 
-        {/* CENTER — MENU (Desktop) */}
+        {/* ================= DESKTOP MENU ================= */}
         <ul className="hidden md:flex items-center gap-8 text-md text-gray-800 font-semibold">
+
           <li
             className="relative flex items-center gap-1 cursor-pointer hover:bg-[#f0f4ffe8] px-4 py-2 rounded-md"
             onMouseEnter={() => setOpenMenu("campus")}
@@ -36,7 +45,7 @@ export default function Navbar() {
               setOpenSub(null);
             }}
           >
-            🎓 Campus Courses <ChevronDown size={16} />
+            <HiOutlineAcademicCap className="text-gray-900 text-xl" /> Campus Courses <ChevronDown size={16} />
 
             {openMenu === "campus" && (
               <div className="absolute top-8 bg-gray-100 shadow-md rounded-md p-8 text-nowrap gap-2">
@@ -190,7 +199,7 @@ export default function Navbar() {
     setOpenSub(null);
   }}
 >
-  💼 Earning <ChevronDown size={16} />
+  <FiBriefcase className="text-gray-900 text-lg mr-2" /> Earning <ChevronDown size={16} />
 
   {/* MAIN DROPDOWN */}
   {openMenu === "earning" && (
@@ -566,7 +575,7 @@ export default function Navbar() {
               setOpenSub(null);
             }}
           >
-            ⚡ Learn Skills <ChevronDown size={16} />
+            <FiZap className="text-gray-900 text-lg mr-2" /> Learn Skills <ChevronDown size={16} />
 
             {openMenu === "learn" && (
               <div className="absolute top-8 bg-gray-100 shadow-md rounded-md p-8 text-nowrap gap-2">
@@ -763,18 +772,136 @@ export default function Navbar() {
 
           
         </ul>
-            <div className="flex gap-4 pt-3 text-nowrap">
-              <Link href="#" className="w-full text-center px-5 py-2 rounded-md bg-[#163683] text-white text-md">
-              Student Login
-            </Link>
-
-            <Link href="#" className="w-full text-center px-5 py-2 rounded-md bg-[#163683] text-white text-md">
-              Employer Login
-            </Link>
-          </div>
         
+        {/* DESKTOP BUTTONS */}
+        <div className="hidden md:flex gap-4">
+          <Link href="/student-login" className="px-5 py-2 rounded-md bg-[#163683] text-white text-md">
+            Student Login
+          </Link>
+          <Link href="/employer-login" className="px-5 py-2 rounded-md bg-[#163683] text-white text-md">
+            Employer Login
+          </Link>
         </div>
-      
+      </div>
+
+      {/* ================= MOBILE MENU ================= */}
+      {mobileOpen && (
+        <div className="md:hidden bg-white shadow-lg border-t animate-slideDown">
+
+  <div className="px-6 py-3 space-y-4 text-gray-800 font-medium">
+
+    {/* Campus */}
+    <details>
+      <summary className="cursor-pointer py-2 flex items-center gap-2">
+        <HiOutlineAcademicCap className="text-gray-900 text-xl" />
+        <span>Campus Courses</span>
+      </summary>
+
+      <div className="pl-8 py-2 space-y-2 text-sm">
+
+        <Link href="/engineering-courses" onClick={() => setMobileOpen(false)} className="block hover:text-blue-700">
+          Engineering Courses
+        </Link>
+
+        <Link href="/management-courses" onClick={() => setMobileOpen(false)} className="block hover:text-blue-700">
+          Management Courses
+        </Link>
+
+        <Link href="/computer-science" onClick={() => setMobileOpen(false)} className="block hover:text-blue-700">
+          Computer Science
+        </Link>
+
+        <Link href="/data-science" onClick={() => setMobileOpen(false)} className="block hover:text-blue-700">
+          Data Science
+        </Link>
+
+      </div>
+    </details>
+
+
+    {/* Earning */}
+    <details>
+      <summary className="cursor-pointer py-2 flex items-center gap-2">
+        <FiBriefcase className="text-gray-900 text-lg" />
+        <span>Earning</span>
+      </summary>
+
+      <div className="pl-8 py-2 space-y-2 text-sm">
+
+        <Link href="/internship" onClick={() => setMobileOpen(false)} className="block hover:text-blue-700">
+          Internships
+        </Link>
+
+        <Link href="/jobs" onClick={() => setMobileOpen(false)} className="block hover:text-blue-700">
+          Jobs
+        </Link>
+
+        <Link href="/placement-courses" onClick={() => setMobileOpen(false)} className="block hover:text-blue-700">
+          Placement Courses
+        </Link>
+
+      </div>
+    </details>
+
+
+    {/* Learn */}
+    <details>
+      <summary className="cursor-pointer py-2 flex items-center gap-2">
+        <FiZap className="text-gray-900 text-lg" />
+        <span>Learn Skills</span>
+      </summary>
+
+      <div className="pl-8 py-2 space-y-2 text-sm">
+
+        <Link href="/skills/programming" onClick={() => setMobileOpen(false)} className="block hover:text-blue-700">
+          Programming
+        </Link>
+
+        <Link href="/skills/web-development" onClick={() => setMobileOpen(false)} className="block hover:text-blue-700">
+          Web Dev
+        </Link>
+
+        <Link href="/skills/data-ai" onClick={() => setMobileOpen(false)} className="block hover:text-blue-700">
+          Data & AI
+        </Link>
+
+        <Link href="/skills/marketing" onClick={() => setMobileOpen(false)} className="block hover:text-blue-700">
+          Marketing
+        </Link>
+
+        <Link href="/skills/design" onClick={() => setMobileOpen(false)} className="block hover:text-blue-700">
+          Design
+        </Link>
+
+      </div>
+    </details>
+
+
+    {/* LOGIN BUTTONS */}
+    <div className="pt-4 flex flex-col gap-3">
+
+      <Link
+        href="/student-login"
+        onClick={() => setMobileOpen(false)}
+        className="w-full text-center px-5 py-2 rounded-md bg-[#163683] text-white"
+      >
+        Student Login
+      </Link>
+
+      <Link
+        href="/employer-login"
+        onClick={() => setMobileOpen(false)}
+        className="w-full text-center px-5 py-2 rounded-md bg-[#163683] text-white"
+      >
+        Employer Login
+      </Link>
+
+    </div>
+
+  </div>
+</div>
+
+      )}
     </nav>
   );
 }
