@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { FaFacebookF, FaInstagram, FaLinkedinIn, FaTwitter } from "react-icons/fa";
 
+
 export default function Footer() {
   return (
     <footer className="bg-white border-t border-gray-200">
@@ -44,10 +45,10 @@ export default function Footer() {
         <div>
           <h3 className="font-semibold text-blue-900 mb-4">Explore</h3>
           <ul className="space-y-2 text-gray-600 text-lg">
-            <li><Link href="#" className="hover:text-blue-700">Campus Jobs</Link></li>
-            <li><Link href="#" className="hover:text-blue-700">Internships</Link></li>
-            <li><Link href="#" className="hover:text-blue-700">Skill Courses</Link></li>
-            <li><Link href="#" className="hover:text-blue-700">For Employers</Link></li>
+            <li><Link href="/jobs" className="hover:text-blue-700">Campus Jobs</Link></li>
+            <li><Link href="/internship" className="hover:text-blue-700">Internships</Link></li>
+            <li><Link href="/campus-courses" className="hover:text-blue-700">Skill Courses</Link></li>
+            <li><Link href="/register" className="hover:text-blue-700">For Employers</Link></li>
           </ul>
         </div>
 
@@ -55,9 +56,9 @@ export default function Footer() {
         <div>
           <h3 className="font-semibold text-blue-900 mb-4">Company</h3>
           <ul className="space-y-2 text-gray-600 text-lg">
-            <li><Link href="#" className="hover:text-blue-700">About</Link></li>
-            <li><Link href="#" className="hover:text-blue-700">Contact</Link></li>
-            <li><Link href="#" className="hover:text-blue-700">Careers</Link></li>
+            <li><Link href="/about" className="hover:text-blue-700">About</Link></li>
+            <li><Link href="/contact" className="hover:text-blue-700">Contact</Link></li>
+            <li><Link href="/jobs" className="hover:text-blue-700">Careers</Link></li>
             <li><Link href="#" className="hover:text-blue-700">Blog</Link></li>
           </ul>
         </div>
@@ -95,9 +96,9 @@ export default function Footer() {
           <p>© 2025 <span className="font-semibold">Collexa Edu.</span> All rights reserved.</p>
 
           <div className="flex gap-6 mt-2 md:mt-0">
-            <Link href="#" className="hover:text-blue-700">Privacy</Link>
-            <Link href="#" className="hover:text-blue-700">Terms</Link>
-            <Link href="#" className="hover:text-blue-700">Support</Link>
+            <Link href="/privacy-policy" className="hover:text-blue-700">Privacy</Link>
+            <Link href="/terms" className="hover:text-blue-700">Terms</Link>
+            <Link href="/contact" className="hover:text-blue-700">Support</Link>
           </div>
         </div>
       </div>

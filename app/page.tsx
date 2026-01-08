@@ -1,5 +1,7 @@
 "use client";
 import "./globals.css";
+import Link from "next/link";
+import { FiUsers, FiHome, FiGlobe, FiBriefcase } from "react-icons/fi";
 
 import { useState } from "react";
 import {
@@ -14,8 +16,10 @@ import {
   Building2,
   Award, Clock3 , MapPin, Wallet , ChevronLeft, ChevronRight
 } from "lucide-react";
-
+import { useEffect } from "react";
 import Image from "next/image";
+
+import TestimonialsMarquee from "./(components)/TestimonialsMarquee";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState("engineering");
@@ -58,6 +62,26 @@ export default function Home() {
       duration: "8 weeks • Digital Marketing",
       price: "₹1,999",
       old: "₹5,999",
+    },
+    {
+      tag: "Popular",
+      level: "Intermediate",
+      title: "Social Media Marketing Mastery",
+      institute: "Social Experts",
+      rating: "4.6 (12.3k students)",
+      duration: "6 weeks • Social Media",
+      price: "₹1,499",
+      old: "₹3,999",
+    },
+    {
+      tag: "Popular",
+      level: "Intermediate",
+      title: "Social Media Marketing Mastery",
+      institute: "Social Experts",
+      rating: "4.6 (12.3k students)",
+      duration: "6 weeks • Social Media",
+      price: "₹1,499",
+      old: "₹3,999",
     },
     {
       tag: "Popular",
@@ -124,11 +148,57 @@ export default function Home() {
       type: "Work From Home",
       salary: "₹3,00,000 - 3,50,000 /year",
     },
+    {
+      title: "B2C Sales Associate",
+      company: "AI Certs",
+      type: "Work From Home",
+      salary: "₹2,00,000 - 3,00,000 /year",
+    },
+    {
+      title: "Machine Learning & Deep Learning Developer",
+      company: "Qriocity Ventures Private Limited",
+      type: "Work From Home",
+      salary: "₹3,00,000 - 3,50,000 /year",
+    },
+    {
+      title: "B2C Sales Associate",
+      company: "AI Certs",
+      type: "Work From Home",
+      salary: "₹2,00,000 - 3,00,000 /year",
+    },
+    {
+      title: "Machine Learning & Deep Learning Developer",
+      company: "Qriocity Ventures Private Limited",
+      type: "Work From Home",
+      salary: "₹3,00,000 - 3,50,000 /year",
+    },
   ];
 
   const [activeCourseTab, setActiveCourseTab] = useState("Engineering");
 
   const courses2 = [
+    
+      
+    {
+      university: "IIT Bombay",
+      type: "B.Tech",
+      title: "B.Tech Mechanical",
+      desc: "Learn design, manufacturing, and thermal systems",
+      rating: "4.8",
+      duration: "4 Years",
+      enrolled: "950",
+      level: "Undergraduate",
+    },
+    {
+      university: "IIT Madras",
+      type: "B.Tech",
+      title: "B.Tech Civil",
+      desc: "Build infrastructure and construction expertise",
+      rating: "4.7",
+      duration: "4 Years",
+      enrolled: "800",
+      level: "Undergraduate",
+    },
     {
       university: "IIT Delhi",
       type: "B.Tech",
@@ -190,13 +260,17 @@ export default function Home() {
           </p>
 
           <div className="mt-6 flex md:flex-row flex-col gap-4">
+            <Link href="/campus-courses">
             <button className="bg-blue-900 text-white px-6 py-3 cursor-pointer rounded-lg">
-              Explore Courses
-              
+              Explore Courses           
             </button>
+            </Link>
+            
+            <Link href="/jobs">
             <button className="border px-6 py-3 hover:text-green-500 border-gray-700 text-gray-700 cursor-pointer rounded-lg">
               Find Jobs
             </button>
+            </Link>
           </div>
         </div>
 
@@ -215,16 +289,37 @@ export default function Home() {
       {/* ------------------------------------------------ */}
       {/* ⭐ STATS STRIP */}
       {/* ------------------------------------------------ */}
-      <section className="bg-white border-y py-8">
-        <div className="max-w-7xl text-gray-700 mx-auto grid grid-cols-2 md:grid-cols-4 text-center gap-6">
+     <section className="bg-white border-y py-8">
+  <div className="max-w-7xl text-gray-700 mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
 
-          <Stat number="50K+" label="Students" />
-          <Stat number="150+" label="Institutions" />
-          <Stat number="10+" label="Countries" />
-          <Stat number="100+" label="Recruiters" />
+    {/* Students */}
+    <div className="flex flex-col items-center text-center gap-2">
+      <FiUsers size={22} className="text-[#163683]" />
+      <Stat number="500+" label="Students" />
+    </div>
 
-        </div>
-      </section>
+    {/* Institutions */}
+    <div className="flex flex-col items-center text-center gap-2">
+      <FiHome size={22} className="text-[#163683]" />
+      <Stat number="150+" label="Institutions" />
+    </div>
+
+    {/* Countries */}
+    <div className="flex flex-col items-center text-center gap-2">
+      <FiGlobe size={22} className="text-[#163683]" />
+      <Stat number="10+" label="Countries" />
+    </div>
+
+    {/* Recruiters */}
+    <div className="flex flex-col items-center text-center gap-2">
+      <FiBriefcase size={22} className="text-[#163683]" />
+      <Stat number="100+" label="Recruiters" />
+    </div>
+
+  </div>
+</section>
+
+
 
       {/* ------------------------------------------------ */}
       {/* ⭐ TRENDING NOW */}
@@ -247,7 +342,7 @@ export default function Home() {
               behavior: "smooth",
             })
           }
-          className="hidden md:flex absolute -left-4 top-1/2 -translate-y-1/2 bg-white shadow-lg p-2 rounded-full z-10"
+          className="hidden md:flex absolute text-gray-700 -left-4 top-1/2 -translate-y-1/2 bg-white shadow-lg p-2 rounded-full z-10" 
         >
           <ChevronLeft />
         </button>
@@ -279,7 +374,7 @@ export default function Home() {
               behavior: "smooth",
             })
           }
-          className="hidden md:flex absolute -right-4 top-1/2 -translate-y-1/2 bg-white shadow-lg p-2 rounded-full z-10"
+          className="hidden md:flex text-gray-700 absolute -right-4 top-1/2 -translate-y-1/2 bg-white shadow-lg p-2 rounded-full z-10"
         >
           <ChevronRight />
         </button>
@@ -341,7 +436,7 @@ export default function Home() {
               behavior: "smooth",
             })
           }
-          className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 bg-white shadow-md p-2 rounded-full z-10"
+          className="hidden md:flex text-gray-700 absolute left-0 top-1/2 -translate-y-1/2 bg-white shadow-md p-2 rounded-full z-10"
         >
           ◀
         </button>
@@ -410,7 +505,7 @@ export default function Home() {
               behavior: "smooth",
             })
           }
-          className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 bg-white shadow-md p-2 rounded-full z-10"
+          className="hidden md:flex text-gray-700 absolute right-0 top-1/2 -translate-y-1/2 bg-white shadow-md p-2 rounded-full z-10"
         >
           ▶
         </button>
@@ -469,7 +564,7 @@ export default function Home() {
               behavior: "smooth",
             })
           }
-          className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 bg-white shadow-md p-2 rounded-full z-10"
+          className="hidden md:flex text-gray-700 absolute left-0 top-1/2 -translate-y-1/2 bg-white shadow-md p-2 rounded-full z-10"
         >
           ◀
         </button>
@@ -490,7 +585,7 @@ export default function Home() {
               </span>
 
               {/* TITLE */}
-              <h3 className="text-lg font-semibold mt-3">{job.title}</h3>
+              <h3 className="text-lg text-gray-700 font-semibold mt-3">{job.title}</h3>
               <p className="text-gray-500">{job.company}</p>
 
               {/* DETAILS */}
@@ -509,7 +604,7 @@ export default function Home() {
 
               {/* CTA ROW */}
               <div className="flex justify-between items-center">
-                <span className="border px-3 py-1 rounded-full text-xs">
+                <span className="border px-3 text-gray-700 py-1 rounded-full text-xs">
                   Job
                 </span>
 
@@ -529,7 +624,7 @@ export default function Home() {
               behavior: "smooth",
             })
           }
-          className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 bg-white shadow-md p-2 rounded-full z-10"
+          className="hidden md:flex text-gray-700 absolute right-0 top-1/2 -translate-y-1/2 bg-white shadow-md p-2 rounded-full z-10"
         >
           ▶
         </button>
@@ -718,7 +813,7 @@ export default function Home() {
           behavior: "smooth",
         })
       }
-      className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 bg-white shadow-md p-2 rounded-full z-10"
+      className="hidden md:flex text-gray-700 absolute left-0 top-1/2 -translate-y-1/2 bg-white shadow-md p-2 rounded-full z-10"
     >
       ◀
     </button>
@@ -782,7 +877,7 @@ export default function Home() {
           behavior: "smooth",
         })
       }
-      className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 bg-white shadow-md p-2 rounded-full z-10"
+      className="hidden md:flex text-gray-700 absolute right-0 top-1/2 -translate-y-1/2 bg-white shadow-md p-2 rounded-full z-10"
     >
       ▶
     </button>
@@ -790,18 +885,13 @@ export default function Home() {
 </div>
 
 
-      {/* ⭐ WHY CHOOSE US */}
-      {/* ------------------------------------------------ */}
-      <SectionTitle title="Why Choose Collexa?" icon={<Award />} />
+      {/* Testimonials Marquee */}
 
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-6 pb-16">
+      
 
-        <WhyBox title="Skilled Mentors" />
-        <WhyBox title="Industry Connect" />
-        <WhyBox title="Placement Focused" />
-        <WhyBox title="AI-Guided Learning" />
+        <TestimonialsMarquee />
 
-      </div>
+      
     </div>
   );
 }
@@ -810,70 +900,39 @@ export default function Home() {
    REUSABLE COMPONENTS
 =================================================================== */
 
-function Stat({ number, label }: any) {
+function Stat({ number, label }: { number: string; label: string }) {
+  const numericValue = parseInt(number.replace(/\D/g, ""), 10);
+  const suffix = number.replace(/[0-9]/g, "");
+
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    let start = 0;
+    const duration = 1200; // animation duration (ms)
+    const increment = Math.ceil(numericValue / (duration / 16));
+
+    const counter = setInterval(() => {
+      start += increment;
+      if (start >= numericValue) {
+        setCount(numericValue);
+        clearInterval(counter);
+      } else {
+        setCount(start);
+      }
+    }, 16);
+
+    return () => clearInterval(counter);
+  }, [numericValue]);
+
   return (
     <div>
-      <h3 className="text-2xl font-bold">{number}</h3>
+      <h3 className="text-2xl font-bold">
+        {count}
+        {suffix}
+      </h3>
       <p className="text-gray-500">{label}</p>
     </div>
   );
 }
 
-function SectionTitle({ title, icon }: any) {
-  return (
-    <div className="max-w-7xl mx-auto px-6 py-10">
-      <h2 className="text-3xl font-bold flex items-center gap-2">
-        {icon} {title}
-      </h2>
-    </div>
-  );
-}
 
-function Tabs({ tabs, active, setActive }: any) {
-  return (
-    <div className="max-w-7xl mx-auto px-6 flex gap-3 pb-6">
-      {tabs.map((tab: any) => (
-        <button
-          key={tab.key}
-          onClick={() => setActive(tab.key)}
-          className={`px-4 py-2 rounded-full border ${
-            active === tab.key
-              ? "bg-blue-900 text-white"
-              : "bg-white text-gray-600"
-          }`}
-        >
-          {tab.label}
-        </button>
-      ))}
-    </div>
-  );
-}
-
-function CardGrid({ items }: any) {
-  return (
-    <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-6 pb-16">
-      {items.map((v: any, i: number) => (
-        <div
-          key={i}
-          className="bg-white shadow-md border rounded-xl p-5 hover:shadow-lg transition"
-        >
-          <h3 className="font-semibold text-lg">{v.title}</h3>
-          <p className="text-gray-500">{v.company}</p>
-
-          <button className="mt-4 text-blue-700 flex items-center gap-2">
-            View Details <ArrowRight size={16} />
-          </button>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function WhyBox({ title }: any) {
-  return (
-    <div className="bg-white border rounded-xl p-6 text-center shadow">
-      <CheckCircle className="mx-auto text-green-500" size={28} />
-      <p className="mt-3 font-semibold">{title}</p>
-    </div>
-  );
-}

@@ -10,16 +10,15 @@ import {
   Phone,
   ChevronDown,
   ShieldCheck,
-  Link
+  Link,
 } from "lucide-react";
-
 
 import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
   const [showPass, setShowPass] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-const router = useRouter();
+  const router = useRouter();
   const [form, setForm] = useState({
     fname: "",
     lname: "",
@@ -39,6 +38,7 @@ const router = useRouter();
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
+
     setError("");
 
     // ⭐ REQUIRED FIELD VALIDATION
@@ -61,6 +61,16 @@ const router = useRouter();
       setTimeout(() => {
         setLoading(false);
         alert("Account Created Successfully 🎉");
+        setForm({
+          fname: "",
+          lname: "",
+          email: "",
+          phone: "",
+          role: "Student",
+          password: "",
+          confirm: "",
+        });
+        router.push("/");
       }, 800);
     } catch (err) {
       setLoading(false);
@@ -70,9 +80,7 @@ const router = useRouter();
 
   return (
     <div className="min-h-screen w-full bg-[#f8fbff] flex items-center justify-center px-6">
-
       <div className="max-w-7xl mt-25 mb-10 w-full grid grid-cols-1 md:grid-cols-2 gap-10">
-
         {/* LEFT SECTION */}
         <div className=" md:block mt-16">
           <div className="flex items-center gap-2 text-xl font-bold text-[#0c2c66]">
@@ -80,11 +88,13 @@ const router = useRouter();
           </div>
 
           <h1 className="text-3xl font-extrabold mt-6 text-[#0c2c66]">
-            Start Your Journey with <span className="text-emerald-500">Collexa</span>
+            Start Your Journey with{" "}
+            <span className="text-emerald-500">Collexa</span>
           </h1>
 
           <p className="text-gray-600 mt-3">
-            Join our community of learners and unlock your potential with world-class education.
+            Join our community of learners and unlock your potential with
+            world-class education.
           </p>
 
           <ul className="mt-6 space-y-3 text-gray-700">
@@ -96,7 +106,6 @@ const router = useRouter();
 
           {/* STATS */}
           <div className="grid grid-cols-2 md:grid-cols-2 gap-6 mt-10 text-center">
-
             <div>
               <h3 className="text-2xl text-black font-bold">50K+</h3>
               <p className="text-gray-500 text-sm">Students</p>
@@ -116,19 +125,22 @@ const router = useRouter();
               <h3 className="text-2xl text-black font-bold">4.9/5</h3>
               <p className="text-gray-500 text-sm">Rating</p>
             </div>
-
           </div>
         </div>
 
         {/* RIGHT — FORM */}
-        <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-2xl p-8 space-y-4">
-
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white shadow-md rounded-2xl p-8 space-y-4"
+        >
           <h2 className="text-center text-xl font-bold text-[#0c2c66]">
             Create Account
           </h2>
 
           {error && (
-            <p className="text-red-500 bg-red-50 p-2 rounded-md text-sm">{error}</p>
+            <p className="text-red-500 bg-red-50 p-2 rounded-md text-sm">
+              {error}
+            </p>
           )}
 
           {/* NAME */}
@@ -174,6 +186,11 @@ const router = useRouter();
             <input
               name="phone"
               placeholder="Phone Number *"
+              className="w-full text-gray-700 p-2 outline-none"
+              value={form.phone}
+              maxLength={10}
+              inputMode="numeric"
+              pattern="[0-9]*"
               className="w-full  text-gray-700 p-2 outline-none"
               value={form.phone}
               onChange={handleChange}
@@ -192,7 +209,6 @@ const router = useRouter();
               <option value="Instructor">Company</option>
               <option value="Recruiter">Institution</option>
             </select>
-            
           </div>
 
           {/* PASSWORD */}
@@ -208,9 +224,17 @@ const router = useRouter();
             />
 
             {showPass ? (
-              <EyeOff size={16} className="cursor-pointer text-gray-700" onClick={() => setShowPass(false)} />
+              <EyeOff
+                size={16}
+                className="cursor-pointer text-gray-700"
+                onClick={() => setShowPass(false)}
+              />
             ) : (
-              <Eye size={16} className="cursor-pointer text-gray-700" onClick={() => setShowPass(true)} />
+              <Eye
+                size={16}
+                className="cursor-pointer text-gray-700"
+                onClick={() => setShowPass(true)}
+              />
             )}
           </div>
 
@@ -227,9 +251,17 @@ const router = useRouter();
             />
 
             {showConfirm ? (
-              <EyeOff size={16} className="cursor-pointer text-gray-700" onClick={() => setShowConfirm(false)} />
+              <EyeOff
+                size={16}
+                className="cursor-pointer text-gray-700"
+                onClick={() => setShowConfirm(false)}
+              />
             ) : (
-              <Eye size={16} className="cursor-pointer text-gray-700" onClick={() => setShowConfirm(true)} />
+              <Eye
+                size={16}
+                className="cursor-pointer text-gray-700"
+                onClick={() => setShowConfirm(true)}
+              />
             )}
           </div>
 
@@ -243,50 +275,44 @@ const router = useRouter();
           </button>
 
           {/* DIV — Already Have Account Section */}
-<div className="w-full mt-3">
+          <div className="w-full mt-3">
+            {/* Divider line with text */}
+            <div className="flex items-center gap-3 my-3">
+              <span className="flex-1 h-px bg-gray-200" />
+              <p className="text-gray-500 text-sm whitespace-nowrap">
+                Already have an account?
+              </p>
+              <span className="flex-1 h-px bg-gray-200" />
+            </div>
 
-  {/* Divider line with text */}
-  <div className="flex items-center gap-3 my-3">
-    <span className="flex-1 h-px bg-gray-200" />
-    <p className="text-gray-500 text-sm whitespace-nowrap">
-      Already have an account?
-    </p>
-    <span className="flex-1 h-px bg-gray-200" />
-  </div>
+            {/* Sign In Button */}
 
-  {/* Sign In Button */}
-  
-  <button 
-     onClick={() => router.push("/")}
-    type="button"
-    className="w-full border text-gray-700 rounded-md py-2 flex items-center justify-center gap-2 hover:bg-gray-50 transition"
-  >
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-      <circle cx="8.5" cy="7" r="4" />
-      <polyline points="17 11 19 13 23 9" />
-    </svg>
+            <button
+              onClick={() => router.push("/")}
+              type="button"
+              className="w-full border text-gray-700 rounded-md py-2 flex items-center justify-center gap-2 hover:bg-gray-50 transition"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="8.5" cy="7" r="4" />
+                <polyline points="17 11 19 13 23 9" />
+              </svg>
 
-  
-  <span className="text-sm font-medium text-gray-700">
-      Sign In Instead
-    </span>
-  
-    
-  </button>
-
-</div>
-
+              <span className="text-sm font-medium text-gray-700">
+                Sign In Instead
+              </span>
+            </button>
+          </div>
         </form>
       </div>
     </div>
