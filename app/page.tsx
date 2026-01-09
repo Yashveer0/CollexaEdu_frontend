@@ -358,8 +358,10 @@ export default function Home() {
               className="min-w-65 sm:min-w-75 md:min-w-85 snap-start"
             >
               <img
+                loading="eager"
                 src={src}
                 alt="Trending"
+                width= "auto"
                 className="w-full h-[180px] md:h-[220px] object-cover rounded-2xl shadow-sm hover:shadow-xl transition"
               />
             </div>
