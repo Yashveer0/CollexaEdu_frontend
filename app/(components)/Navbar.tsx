@@ -6,22 +6,22 @@ import { ChevronDown, Menu, X } from "lucide-react";
 import { HiOutlineAcademicCap } from "react-icons/hi";
 import { FiBriefcase } from "react-icons/fi";
 import { FiZap } from "react-icons/fi";
+import { User, Briefcase } from "lucide-react";
 
-
-import {
-  HiOutlineHome,
-  
-} from "react-icons/hi";
-import {  FiChevronDown } from "react-icons/fi";
+import { HiOutlineHome } from "react-icons/hi";
+import { FiChevronDown } from "react-icons/fi";
 
 export default function Navbar() {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [openSub, setOpenSub] = useState<string | null>(null);
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  const [showLoginDropdown, setShowLoginDropdown] = useState(false);
+  const [activeRole, setActiveRole] = useState<"student" | "employer" | null>(
+    null
+  );
 
-
-const [open, setOpen] = useState<string | null>(null);
+  const [open, setOpen] = useState<string | null>(null);
 
   return (
     <nav className="w-full shadow-sm backdrop-blur-md bg-white/60 fixed top-0 left-0 z-40 border-b">
@@ -52,7 +52,13 @@ const [open, setOpen] = useState<string | null>(null);
             }}
           >
             <HiOutlineAcademicCap className="text-gray-900 text-xl" /> Campus
-            Courses <ChevronDown size={16} />
+            Courses{" "}
+            <ChevronDown
+              size={18}
+              className={`transition-transform duration-300 ${
+                openMenu === "campus" ? "rotate-180" : "rotate-0"
+              }`}
+            />
             {openMenu === "campus" && (
               <div className="absolute top-8 bg-gray-100 shadow-md rounded-md p-8 text-nowrap gap-2">
                 {/* Engineering — HOVER HERE */}
@@ -697,10 +703,6 @@ const [open, setOpen] = useState<string | null>(null);
             )}
           </li>
 
-
-
-
-
           {/* ⚡ Learn Skills */}
           <li
             className="relative flex items-center gap-1 cursor-pointer hover:bg-[#f0f4ffe8] px-4 py-2 rounded-md"
@@ -951,363 +953,427 @@ const [open, setOpen] = useState<string | null>(null);
         </ul>
 
         {/* DESKTOP BUTTONS */}
-        <div className="hidden md:flex gap-4">
-          <Link
-            href="/student-login"
-            className="px-5 py-2 rounded-md bg-[#163683] text-white text-md"
+        <div className="hidden md:flex relative">
+          {/* Login Button */}
+          <button
+            onClick={() => setShowLoginDropdown(!showLoginDropdown)}
+            className="w-full mt-4 bg-gradient-to-r from-blue-900 to-emerald-400
+  text-white font-bold py-3 px-8 rounded-lg
+  flex items-center justify-center gap-2 transition"
           >
-            Student Login
-          </Link>
-          <Link
-            href="/employer-login"
-            className="px-5 py-2 rounded-md bg-[#163683] text-white text-md"
-          >
-            Employer Login
-          </Link>
+            Login
+            <ChevronDown
+              size={18}
+              className={`transition-transform duration-300 ${
+                showLoginDropdown ? "rotate-180" : "rotate-0"
+              }`}
+            />
+          </button>
+
+          {/* Dropdown */}
+          <div className="relative">
+            {/* Main Login Button */}
+
+            {/* Dropdown */}
+            {showLoginDropdown && (
+              <div className="absolute right-0   top-full mt-16 w-64 bg-white border rounded-xl shadow-lg z-50 p-3">
+                <p className="text-md font-semibold text-gray-900 mb-3 text-center">
+                  Login As
+                </p>
+
+                {/* Buttons */}
+                <div className="flex gap-2">
+                  <Link
+                    href="/student-login"
+                    onClick={() => {
+                      setActiveRole("student");
+                      setShowLoginDropdown(false);
+                    }}
+                    className={`flex-1 p-2 flex items-center justify-center gap-2 py-2.5  rounded-lg
+              text-sm font-medium transition
+              ${
+                activeRole === "student"
+                  ? "bg-blue-900 text-white"
+                  : "bg-blue-900 text-white hover:bg-blue-600"
+              }`}
+                  >
+                    <User size={16} />
+                    Student
+                  </Link>
+
+                  <Link
+                    href="/employer-login"
+                    onClick={() => {
+                      setActiveRole("employer");
+                      setShowLoginDropdown(false);
+                    }}
+                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg
+              text-sm font-medium transition
+              ${
+                activeRole === "employer"
+                  ? "bg-blue-900 text-white"
+                  : "bg-blue-900 text-white hover:bg-blue-600"
+              }`}
+                  >
+                    <Briefcase size={16} />
+                    Employer
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
       {/* ================= MOBILE MENU ================= */}
       {/* ================= MOBILE MENU ================= */}
-{mobileOpen && (
-  <div className="md:hidden bg-white border-t shadow-lg">
-    <div className="px-5 py-4 space-y-4 text-sm font-medium text-gray-800">
+      {mobileOpen && (
+        <div className="md:hidden bg-white border-t shadow-lg">
+          <div className="px-5 py-4 space-y-4 text-sm font-medium text-gray-800">
+            {/* HOME */}
+            <Link
+              href="/"
+              onClick={() => setMobileOpen(false)}
+              className="flex items-center gap-3 text-emerald-600 font-semibold"
+            >
+              <HiOutlineHome className="text-xl" />
+              Home
+            </Link>
 
-      {/* HOME */}
-      <Link
-        href="/"
-        onClick={() => setMobileOpen(false)}
-        className="flex items-center gap-3 text-emerald-600 font-semibold"
-      >
-        <HiOutlineHome className="text-xl" />
-        Home
-      </Link>
+            {/* CAMPUS COURSES */}
+            <div>
+              <button
+                onClick={() => setOpen(open === "campus" ? null : "campus")}
+                className="flex w-full items-center justify-between py-2"
+              >
+                <span className="flex items-center gap-3">
+                  <HiOutlineAcademicCap className="text-xl" />
+                  Campus Courses
+                </span>
+                <FiChevronDown
+                  className={`transition-transform ${
+                    open === "campus" ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
 
-      {/* CAMPUS COURSES */}
-      <div>
-        <button
-          onClick={() => setOpen(open === "campus" ? null : "campus")}
-          className="flex w-full items-center justify-between py-2"
-        >
-          <span className="flex items-center gap-3">
-            <HiOutlineAcademicCap className="text-xl" />
-            Campus Courses
-          </span>
-          <FiChevronDown
-            className={`transition-transform ${
-              open === "campus" ? "rotate-180" : ""
-            }`}
-          />
-        </button>
+              <div
+                className={`overflow-hidden transition-all duration-300 ${
+                  open === "campus" ? "max-h-[1000px]" : "max-h-0"
+                }`}
+              >
+                {/* ENGINEERING */}
+                <div className="pl-5 py-3">
+                  <div className="flex gap-3 mb-2">
+                    <span className="w-1 h-5 bg-[#163683] rounded" />
+                    <p className="text-xs font-semibold text-[#163683]">
+                      ENGINEERING COURSES
+                    </p>
+                  </div>
+                  <div className="pl-4 space-y-2">
+                    {[
+                      ["B.Tech Computer Science", "/btech-cs"],
+                      ["B.Tech Electronics", "/btech-ece"],
+                      ["B.Tech Mechanical", "/btech-mech"],
+                      ["M.Tech Programs", "/mtech"],
+                      ["Diploma Engineering", "/diploma"],
+                    ].map(([label, href]) => (
+                      <Link
+                        key={label}
+                        href={href}
+                        onClick={() => setMobileOpen(false)}
+                        className="block text-sm hover:text-emerald-600"
+                      >
+                        {label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
 
-        <div
-          className={`overflow-hidden transition-all duration-300 ${
-            open === "campus" ? "max-h-[1000px]" : "max-h-0"
-          }`}
-        >
-          {/* ENGINEERING */}
-          <div className="pl-5 py-3">
-            <div className="flex gap-3 mb-2">
-              <span className="w-1 h-5 bg-[#163683] rounded" />
-              <p className="text-xs font-semibold text-[#163683]">
-                ENGINEERING COURSES
-              </p>
-            </div>
-            <div className="pl-4 space-y-2">
-              {[
-                ["B.Tech Computer Science", "/btech-cs"],
-                ["B.Tech Electronics", "/btech-ece"],
-                ["B.Tech Mechanical", "/btech-mech"],
-                ["M.Tech Programs", "/mtech"],
-                ["Diploma Engineering", "/diploma"],
-              ].map(([label, href]) => (
-                <Link
-                  key={label}
-                  href={href}
-                  onClick={() => setMobileOpen(false)}
-                  className="block text-sm hover:text-emerald-600"
-                >
-                  {label}
-                </Link>
-              ))}
-            </div>
-          </div>
+                {/* MANAGEMENT */}
+                <div className="pl-5 py-3">
+                  <div className="flex gap-3 mb-2">
+                    <span className="w-1 h-5 bg-[#163683] rounded" />
+                    <p className="text-xs font-semibold text-[#163683]">
+                      MANAGEMENT COURSES
+                    </p>
+                  </div>
+                  <div className="pl-4 space-y-2">
+                    {[
+                      ["MBA Programs", "/mba"],
+                      ["BBA Programs", "/bba"],
+                      ["PGDM", "/pgdm"],
+                      ["Executive MBA", "/executive-mba"],
+                    ].map(([label, href]) => (
+                      <Link
+                        key={label}
+                        href={href}
+                        onClick={() => setMobileOpen(false)}
+                        className="block text-sm hover:text-emerald-600"
+                      >
+                        {label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
 
-          {/* MANAGEMENT */}
-          <div className="pl-5 py-3">
-            <div className="flex gap-3 mb-2">
-              <span className="w-1 h-5 bg-[#163683] rounded" />
-              <p className="text-xs font-semibold text-[#163683]">
-                MANAGEMENT COURSES
-              </p>
+                {/* DATA SCIENCE */}
+                <div className="pl-5 py-3">
+                  <div className="flex gap-3 mb-2">
+                    <span className="w-1 h-5 bg-[#163683] rounded" />
+                    <p className="text-xs font-semibold text-[#163683]">
+                      DATA SCIENCE
+                    </p>
+                  </div>
+                  <div className="pl-4 space-y-2">
+                    {[
+                      ["B.Sc Data Science", "/bsc-ds"],
+                      ["M.Sc Data Science", "/msc-ds"],
+                      ["AI / ML Programs", "/ai-ml"],
+                      ["Business Analytics", "/business-analytics"],
+                    ].map(([label, href]) => (
+                      <Link
+                        key={label}
+                        href={href}
+                        onClick={() => setMobileOpen(false)}
+                        className="block text-sm hover:text-emerald-600"
+                      >
+                        {label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="pl-4 space-y-2">
-              {[
-                ["MBA Programs", "/mba"],
-                ["BBA Programs", "/bba"],
-                ["PGDM", "/pgdm"],
-                ["Executive MBA", "/executive-mba"],
-              ].map(([label, href]) => (
-                <Link
-                  key={label}
-                  href={href}
-                  onClick={() => setMobileOpen(false)}
-                  className="block text-sm hover:text-emerald-600"
-                >
-                  {label}
-                </Link>
-              ))}
-            </div>
-          </div>
 
-          {/* DATA SCIENCE */}
-          <div className="pl-5 py-3">
-            <div className="flex gap-3 mb-2">
-              <span className="w-1 h-5 bg-[#163683] rounded" />
-              <p className="text-xs font-semibold text-[#163683]">
-                DATA SCIENCE
-              </p>
+            {/* jobs */}
+            {/* ================= JOBS ================= */}
+            <div>
+              <button
+                onClick={() => setOpen(open === "jobs" ? null : "jobs")}
+                className="flex w-full items-center justify-between py-2"
+              >
+                <span className="flex items-center gap-3">
+                  <FiBriefcase className="text-lg" />
+                  Jobs
+                </span>
+                <FiChevronDown
+                  className={`transition-transform ${
+                    open === "jobs" ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              <div
+                className={`overflow-hidden transition-all duration-300 ${
+                  open === "jobs" ? "max-h-300" : "max-h-0"
+                }`}
+              >
+                {/* TOP LOCATIONS */}
+                <div className="pl-5 py-3">
+                  <div className="flex gap-3 mb-2">
+                    <span className="w-1 h-5 bg-[#163683] rounded" />
+                    <p className="text-xs font-semibold text-[#163683]">
+                      TOP LOCATIONS
+                    </p>
+                  </div>
+                  <div className="pl-4 space-y-2">
+                    {[
+                      ["Work from Home", "/jobs"],
+                      ["Jobs in Delhi", "/jobs"],
+                      ["Jobs in Mumbai", "/jobs"],
+                      ["Jobs in Bangalore", "/jobs"],
+                      ["Jobs in Hyderabad", "/jobs"],
+                      ["Jobs in Kolkata", "/jobs"],
+                      ["Jobs in Chennai", "/jobs"],
+                      ["Jobs in Pune", "/jobs"],
+                      ["Jobs in Jaipur", "/jobs"],
+                    ].map(([label, href]) => (
+                      <Link
+                        key={label}
+                        href={href}
+                        onClick={() => setMobileOpen(false)}
+                        className="block text-sm hover:text-emerald-600"
+                      >
+                        {label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+
+                {/* TOP CATEGORIES */}
+                <div className="pl-5 py-3">
+                  <div className="flex gap-3 mb-2">
+                    <span className="w-1 h-5 bg-[#163683] rounded" />
+                    <p className="text-xs font-semibold text-[#163683]">
+                      TOP CATEGORIES
+                    </p>
+                  </div>
+                  <div className="pl-4 space-y-2">
+                    {[
+                      "Software Engineer",
+                      "Data Analyst",
+                      "Product Manager",
+                      "Marketing Specialist",
+                      "UI/UX Designer",
+                      "DevOps Engineer",
+                      "Business Analyst",
+                      "Sales Executive",
+                    ].map((label) => (
+                      <Link
+                        key={label}
+                        href={`/jobs/${label
+                          .toLowerCase()
+                          .replace(/\s/g, "-")}`}
+                        onClick={() => setMobileOpen(false)}
+                        className="block text-sm hover:text-emerald-600"
+                      >
+                        {label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+
+                {/* EXPLORE MORE JOBS */}
+                <div className="pl-5 py-3">
+                  <div className="flex gap-3 mb-2">
+                    <span className="w-1 h-5 bg-[#163683] rounded" />
+                    <p className="text-xs font-semibold text-[#163683]">
+                      EXPLORE MORE JOBS
+                    </p>
+                  </div>
+                  <div className="pl-4 space-y-2">
+                    {[
+                      ["View all jobs", "/jobs"],
+                      ["Remote Jobs", "/jobs/remote"],
+                      ["Part-time Jobs", "/jobs/part-time"],
+                      ["Freelance Jobs", "/jobs/freelance"],
+                    ].map(([label, href]) => (
+                      <Link
+                        key={label}
+                        href={href}
+                        onClick={() => setMobileOpen(false)}
+                        className="block text-sm hover:text-emerald-600"
+                      >
+                        {label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+
+                {/* PLACEMENT COURSES WITH AI */}
+                <div className="pl-5 py-3">
+                  <div className="flex gap-3 mb-2">
+                    <span className="w-1 h-5 bg-[#163683] rounded" />
+                    <p className="text-xs font-semibold text-[#163683]">
+                      PLACEMENT COURSES WITH AI
+                    </p>
+                  </div>
+                  <div className="pl-4 space-y-2">
+                    {[
+                      ["AI Placement Course", "/campus-courses"],
+                      ["Data Science Bootcamp", "/campus-courses"],
+                      ["Full Stack Development", "/campus-courses"],
+                      ["Digital Marketing", "/campus-courses"],
+                    ].map(([label, href]) => (
+                      <Link
+                        key={label}
+                        href={href}
+                        onClick={() => setMobileOpen(false)}
+                        className="block text-sm hover:text-emerald-600"
+                      >
+                        {label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="pl-4 space-y-2">
-              {[
-                ["B.Sc Data Science", "/bsc-ds"],
-                ["M.Sc Data Science", "/msc-ds"],
-                ["AI / ML Programs", "/ai-ml"],
-                ["Business Analytics", "/business-analytics"],
-              ].map(([label, href]) => (
-                <Link
-                  key={label}
-                  href={href}
-                  onClick={() => setMobileOpen(false)}
-                  className="block text-sm hover:text-emerald-600"
-                >
-                  {label}
-                </Link>
-              ))}
+
+            {/* INTERNSHIPS */}
+            <div>
+              <button
+                onClick={() =>
+                  setOpen(open === "internships" ? null : "internships")
+                }
+                className="flex w-full items-center justify-between py-2"
+              >
+                <span className="flex items-center gap-3">
+                  <FiBriefcase className="text-lg" />
+                  Internships
+                </span>
+                <FiChevronDown
+                  className={`transition-transform ${
+                    open === "internships" ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              <div
+                className={`overflow-hidden transition-all duration-300 ${
+                  open === "internships" ? "max-h-[800px]" : "max-h-0"
+                }`}
+              >
+                <div className="pl-5 py-3">
+                  <div className="flex gap-3 mb-2">
+                    <span className="w-1 h-5 bg-[#163683] rounded" />
+                    <p className="text-xs font-semibold text-[#163683]">
+                      TECH INTERNSHIPS
+                    </p>
+                  </div>
+                  <div className="pl-4 space-y-2">
+                    {[
+                      ["Software Development", "/internships/software"],
+                      ["Web Development", "/internships/web"],
+                      ["Data Science", "/internships/data"],
+                      ["AI / ML", "/internships/ai"],
+                    ].map(([label, href]) => (
+                      <Link
+                        key={label}
+                        href={href}
+                        onClick={() => setMobileOpen(false)}
+                        className="block text-sm hover:text-emerald-600"
+                      >
+                        {label}
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* LEARN SKILLS */}
+            <Link
+              href="/skills"
+              onClick={() => setMobileOpen(false)}
+              className="flex items-center gap-3 py-2"
+            >
+              <FiZap className="text-lg" />
+              Learn Skills
+            </Link>
+
+            {/* LOGIN */}
+            <div className="pt-4 border-t">
+              <Link
+                href="/student-login"
+                onClick={() => setMobileOpen(false)}
+                className="block text-center py-2 rounded-md bg-[#163683] text-white"
+              >
+                Student Login
+              </Link>
+            </div>
+            <div className="pt-4 ">
+              <Link
+                href="/employer-login"
+                onClick={() => setMobileOpen(false)}
+                className="block text-center py-2 rounded-md bg-[#163683] text-white"
+              >
+                Employer Login
+              </Link>
             </div>
           </div>
         </div>
-      </div>
-
-      {/* jobs */}
-      {/* ================= JOBS ================= */}
-<div>
-  <button
-    onClick={() => setOpen(open === "jobs" ? null : "jobs")}
-    className="flex w-full items-center justify-between py-2"
-  >
-    <span className="flex items-center gap-3">
-      <FiBriefcase className="text-lg" />
-      Jobs
-    </span>
-    <FiChevronDown
-      className={`transition-transform ${
-        open === "jobs" ? "rotate-180" : ""
-      }`}
-    />
-  </button>
-
-  <div
-    className={`overflow-hidden transition-all duration-300 ${
-      open === "jobs" ? "max-h-300" : "max-h-0"
-    }`}
-  >
-    {/* TOP LOCATIONS */}
-    <div className="pl-5 py-3">
-      <div className="flex gap-3 mb-2">
-        <span className="w-1 h-5 bg-[#163683] rounded" />
-        <p className="text-xs font-semibold text-[#163683]">
-          TOP LOCATIONS
-        </p>
-      </div>
-      <div className="pl-4 space-y-2">
-        {[
-          ["Work from Home", "/jobs"],
-          ["Jobs in Delhi", "/jobs"],
-          ["Jobs in Mumbai", "/jobs"],
-          ["Jobs in Bangalore", "/jobs"],
-          ["Jobs in Hyderabad", "/jobs"],
-          ["Jobs in Kolkata", "/jobs"],
-          ["Jobs in Chennai", "/jobs"],
-          ["Jobs in Pune", "/jobs"],
-          ["Jobs in Jaipur", "/jobs"],
-        ].map(([label, href]) => (
-          <Link
-            key={label}
-            href={href}
-            onClick={() => setMobileOpen(false)}
-            className="block text-sm hover:text-emerald-600"
-          >
-            {label}
-          </Link>
-        ))}
-      </div>
-    </div>
-
-    {/* TOP CATEGORIES */}
-    <div className="pl-5 py-3">
-      <div className="flex gap-3 mb-2">
-        <span className="w-1 h-5 bg-[#163683] rounded" />
-        <p className="text-xs font-semibold text-[#163683]">
-          TOP CATEGORIES
-        </p>
-      </div>
-      <div className="pl-4 space-y-2">
-        {[
-          "Software Engineer",
-          "Data Analyst",
-          "Product Manager",
-          "Marketing Specialist",
-          "UI/UX Designer",
-          "DevOps Engineer",
-          "Business Analyst",
-          "Sales Executive",
-        ].map((label) => (
-          <Link
-            key={label}
-            href={`/jobs/${label.toLowerCase().replace(/\s/g, "-")}`}
-            onClick={() => setMobileOpen(false)}
-            className="block text-sm hover:text-emerald-600"
-          >
-            {label}
-          </Link>
-        ))}
-      </div>
-    </div>
-
-    {/* EXPLORE MORE JOBS */}
-    <div className="pl-5 py-3">
-      <div className="flex gap-3 mb-2">
-        <span className="w-1 h-5 bg-[#163683] rounded" />
-        <p className="text-xs font-semibold text-[#163683]">
-          EXPLORE MORE JOBS
-        </p>
-      </div>
-      <div className="pl-4 space-y-2">
-        {[
-          ["View all jobs", "/jobs"],
-          ["Remote Jobs", "/jobs/remote"],
-          ["Part-time Jobs", "/jobs/part-time"],
-          ["Freelance Jobs", "/jobs/freelance"],
-        ].map(([label, href]) => (
-          <Link
-            key={label}
-            href={href}
-            onClick={() => setMobileOpen(false)}
-            className="block text-sm hover:text-emerald-600"
-          >
-            {label}
-          </Link>
-        ))}
-      </div>
-    </div>
-
-    {/* PLACEMENT COURSES WITH AI */}
-    <div className="pl-5 py-3">
-      <div className="flex gap-3 mb-2">
-        <span className="w-1 h-5 bg-[#163683] rounded" />
-        <p className="text-xs font-semibold text-[#163683]">
-          PLACEMENT COURSES WITH AI
-        </p>
-      </div>
-      <div className="pl-4 space-y-2">
-        {[
-          ["AI Placement Course", "/campus-courses"],
-          ["Data Science Bootcamp", "/campus-courses"],
-          ["Full Stack Development", "/campus-courses"],
-          ["Digital Marketing", "/campus-courses"],
-        ].map(([label, href]) => (
-          <Link
-            key={label}
-            href={href}
-            onClick={() => setMobileOpen(false)}
-            className="block text-sm hover:text-emerald-600"
-          >
-            {label}
-          </Link>
-        ))}
-      </div>
-    </div>
-  </div>
-</div>
-
-
-      {/* INTERNSHIPS */}
-      <div>
-        <button
-          onClick={() => setOpen(open === "internships" ? null : "internships")}
-          className="flex w-full items-center justify-between py-2"
-        >
-          <span className="flex items-center gap-3">
-            <FiBriefcase className="text-lg" />
-            Internships
-          </span>
-          <FiChevronDown
-            className={`transition-transform ${
-              open === "internships" ? "rotate-180" : ""
-            }`}
-          />
-        </button>
-
-        <div
-          className={`overflow-hidden transition-all duration-300 ${
-            open === "internships" ? "max-h-[800px]" : "max-h-0"
-          }`}
-        >
-          <div className="pl-5 py-3">
-            <div className="flex gap-3 mb-2">
-              <span className="w-1 h-5 bg-[#163683] rounded" />
-              <p className="text-xs font-semibold text-[#163683]">
-                TECH INTERNSHIPS
-              </p>
-            </div>
-            <div className="pl-4 space-y-2">
-              {[
-                ["Software Development", "/internships/software"],
-                ["Web Development", "/internships/web"],
-                ["Data Science", "/internships/data"],
-                ["AI / ML", "/internships/ai"],
-              ].map(([label, href]) => (
-                <Link
-                  key={label}
-                  href={href}
-                  onClick={() => setMobileOpen(false)}
-                  className="block text-sm hover:text-emerald-600"
-                >
-                  {label}
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* LEARN SKILLS */}
-      <Link
-        href="/skills"
-        onClick={() => setMobileOpen(false)}
-        className="flex items-center gap-3 py-2"
-      >
-        <FiZap className="text-lg" />
-        Learn Skills
-      </Link>
-
-      {/* LOGIN */}
-      <div className="pt-4 border-t">
-        <Link
-          href="/student-login"
-          onClick={() => setMobileOpen(false)}
-          className="block text-center py-2 rounded-md bg-[#163683] text-white"
-        >
-          Login / Signup
-        </Link>
-      </div>
-    </div>
-  </div>
-)}
-
-
-
+      )}
     </nav>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Mail, Lock, Eye, EyeOff, ShieldCheck } from "lucide-react";
+import ForgotPasswordModal from "../(components)/ForgotPasswordModal";
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState("");
@@ -9,6 +10,7 @@ export default function AdminLoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [open, setOpen] = useState(false);
 
   // 🔐 DEMO API (replace later with real API)
   const handleAdminLogin = async () => {
@@ -150,7 +152,18 @@ export default function AdminLoginPage() {
             </div>
           </div>
 
-          
+          {/* Forgot Password */}
+          <div className="mt-4 text-left">
+            <button
+              onClick={() => setOpen(true)}
+              className="text-sm text-blue-600 hover:underline"
+            >
+              Forgot Password?
+            </button>
+            <ForgotPasswordModal open={open} setOpen={setOpen} />
+          </div>
+
+
 
           {/* Button */}
           <button
