@@ -7,7 +7,7 @@ import BackToTop from "./(components)/BackToTop";
 
 import ClientLayout from "./ClientLayout/page";
 
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider } from "./context_api/AuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

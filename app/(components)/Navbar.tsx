@@ -238,7 +238,12 @@ export default function Navbar() {
             }}
           >
             <FiBriefcase className="text-gray-900 text-lg mr-2" /> Earning{" "}
-            <ChevronDown size={16} />
+            <ChevronDown
+              size={18}
+              className={`transition-transform duration-300 ${
+                openMenu === "earning" ? "rotate-180" : "rotate-0"
+              }`}
+            />
             {/* MAIN DROPDOWN */}
             {openMenu === "earning" && (
               <div className="absolute top-8 bg-gray-100 shadow-md rounded-md p-8 text-nowrap gap-2">
@@ -713,7 +718,12 @@ export default function Navbar() {
             }}
           >
             <FiZap className="text-gray-900 text-lg mr-2" /> Learn Skills{" "}
-            <ChevronDown size={16} />
+            <ChevronDown
+              size={18}
+              className={`transition-transform duration-300 ${
+                openMenu === "learn" ? "rotate-180" : "rotate-0"
+              }`}
+            />
             {openMenu === "learn" && (
               <div className="absolute top-8 bg-gray-100 shadow-md rounded-md p-8 text-nowrap gap-2">
                 {/* Engineering — HOVER HERE */}

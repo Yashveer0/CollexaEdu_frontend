@@ -12,6 +12,9 @@ import {
   ShieldCheck,
   Link,
 } from "lucide-react";
+import { useAuth } from "../context_api/AuthContext";
+
+import Swal from "sweetalert2";
 
 import { useRouter } from "next/navigation";
 
@@ -31,52 +34,84 @@ export default function RegisterPage() {
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+   const { register } = useAuth();
+    const [employerType, setEmployerType] = useState("");
 
   const handleChange = (e: any) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e: any) => {
-    e.preventDefault();
+  e.preventDefault();
+  setError("");
 
-    setError("");
+  // REQUIRED FIELD VALIDATION
+  if (!form.fname) return setError("First Name is required");
+  if (!form.email) return setError("Email is required");
+  if (!form.phone) return setError("Phone Number is required");
+  if (!form.role) return setError("Please select your role");
+  if (!form.password) return setError("Password is required");
+  if (!form.confirm) return setError("Please confirm your password");
 
-    // ⭐ REQUIRED FIELD VALIDATION
-    if (!form.fname) return setError("First Name is required");
-    if (!form.email) return setError("Email is required");
-    if (!form.phone) return setError("Phone Number is required");
-    if (!form.role) return setError("Please select your role");
-    if (!form.password) return setError("Password is required");
-    if (!form.confirm) return setError("Please confirm your password");
+  if (form.password !== form.confirm)
+    return setError("Passwords do not match");
 
-    if (form.password !== form.confirm)
-      return setError("Passwords do not match");
+  try {
+    setLoading(true);
 
-    try {
-      setLoading(true);
+    // 🔥 BACKEND PAYLOAD (exact as you provided)
+    const payload = {
+      firstName: form.fname,
+      lastName: form.lname,
+      emailId: form.email,
+      phoneNumber: form.phone,
+      password: form.password,
+      role:
+    form.role === "Student"
+      ? "student"
+      : form.role === "Employer"
+      ? "employer"
+      : "student",
+   jobType:
+    form.role === "Employer" ? employerType : null, // internship | job
+};
 
-      // 🔥 API CONNECT HERE LATER
-      // await fetch("/api/register", { ... })
+    await register(payload);
 
-      setTimeout(() => {
-        setLoading(false);
-        alert("Account Created Successfully 🎉");
-        setForm({
-          fname: "",
-          lname: "",
-          email: "",
-          phone: "",
-          role: "Student",
-          password: "",
-          confirm: "",
-        });
-        router.push("/");
-      }, 800);
-    } catch (err) {
-      setLoading(false);
-      setError("Something went wrong");
-    }
-  };
+Swal.fire({
+  icon: "success",
+  title: "Account Created Successfully 🎉",
+  text: "Redirecting to login page...",
+  timer: 2000,
+  showConfirmButton: false,
+}).then(() => {
+  if (form.role === "Student") {
+    router.push("/student-login");
+  } else {
+    router.push("/employer-login");
+  }
+});
+
+
+setForm({
+  fname: "",
+  lname: "",
+  email: "",
+  phone: "",
+  role: "Student",
+  password: "",
+  confirm: "",
+});
+
+
+
+  } catch (err: any) {
+    setError(err?.response?.data?.message || "Registration failed");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="min-h-screen w-full bg-[#f8fbff] flex items-center justify-center px-6">
@@ -190,26 +225,46 @@ export default function RegisterPage() {
               value={form.phone}
               maxLength={10}
               inputMode="numeric"
-              pattern="[0-9]*"
-              className="w-full  text-gray-700 p-2 outline-none"
-              value={form.phone}
+              pattern="[0-9]*"            
               onChange={handleChange}
             />
           </div>
 
           {/* ROLE (Required) */}
           <div className="border text-gray-700 rounded-md flex items-center justify-between px-3">
-            <select
-              name="role"
-              className="w-full p-2 outline-none"
-              value={form.role}
-              onChange={handleChange}
-            >
-              <option value="Student">Student</option>
-              <option value="Instructor">Company</option>
-              <option value="Recruiter">Institution</option>
-            </select>
-          </div>
+  <select
+    name="role"
+    className="w-full p-2 outline-none"
+    value={form.role}
+    onChange={(e) => {
+      handleChange(e);
+      if (e.target.value !== "Employer") {
+        setEmployerType("");
+      }
+    }}
+  >
+    <option value="Student">Student</option>
+    <option value="Employer">Employer</option>
+  </select>
+
+  
+</div>
+{form.role === "Employer" && (
+  <div className="border text-gray-700 rounded-md flex items-center justify-between px-3 mt-2">
+    <select
+      name="employerType"
+      className="w-full p-2 outline-none"
+      value={employerType}
+      onChange={(e) => setEmployerType(e.target.value)}
+    >
+      <option value="">Select Employer Type</option>
+      <option value="internship">Internship</option>
+      <option value="job">Job</option>
+    </select>
+  </div>
+)}
+
+
 
           {/* PASSWORD */}
           <div className="border text-gray-700 rounded-md flex items-center gap-2 px-2">

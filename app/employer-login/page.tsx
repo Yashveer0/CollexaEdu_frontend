@@ -4,15 +4,73 @@ import ForgotPasswordModal from "../(components)/ForgotPasswordModal";
 import { useState } from "react";
 import { Eye, EyeOff, Mail, Lock, UserPlus, LogIn } from "lucide-react";
 
+import { useAuth } from "../context_api/AuthContext";
+import Swal from "sweetalert2";
+import { useRouter } from "next/navigation";
+
 export default function EmployerLogin() {
   const [showPass, setShowPass] = useState(false);
   const [open, setOpen] = useState(false);
 
+  const { login } = useAuth();
+  const router = useRouter();
+
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+  });
+
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e: any) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleLogin = async (e: any) => {
+    e.preventDefault();
+    setError("");
+
+    if (!form.email) return setError("Email is required");
+    if (!form.password) return setError("Password is required");
+
+    try {
+      setLoading(true);
+
+      const res = await login({
+        email: form.email,
+        password: form.password,
+      });
+
+      // ✅ SUCCESS POPUP
+      Swal.fire({
+        icon: "success",
+        title: "Login Successful 🎉",
+        text: "Redirecting to dashboard...",
+        timer: 1500,
+        showConfirmButton: false,
+      }).then(() => {
+        // 🔁 ROLE BASED REDIRECT
+        if (res.user.role === "student") {
+          router.push("/student-dashboard");
+        } else if (res.user.role === "employer") {
+          router.push("/employer-dashboard");
+        }
+      });
+    } catch (err: any) {
+      Swal.fire({
+        icon: "error",
+        title: "Login Failed",
+        text: err?.response?.data?.message || "Invalid email or password",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f7faff] to-[#eef5ff] flex items-center justify-center px-4">
-      
       <div className="max-w-7xl mt-35 mb-10 w-full grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-
         {/* ---------------- LEFT SECTION ---------------- */}
         <div>
           <div className="flex items-center gap-2 mb-6">
@@ -23,12 +81,13 @@ export default function EmployerLogin() {
           </div>
 
           <h2 className="text-4xl font-extrabold text-gray-900 leading-snug">
-            Transform Your Future<br />
+            Transform Your Future
+            <br />
             with <span className="text-emerald-500">Expert Education</span>
           </h2>
 
           <p className="text-gray-600 mt-4 max-w-lg">
-            Join thousands of students who have already transformed their 
+            Join thousands of students who have already transformed their
             careers with our industry-leading courses.
           </p>
 
@@ -50,7 +109,6 @@ export default function EmployerLogin() {
 
           {/* STATS */}
           <div className="grid grid-cols-2 md:grid-cols-2 gap-6 mt-10 text-center">
-
             <div>
               <h3 className="text-2xl text-black font-bold">50K+</h3>
               <p className="text-gray-500 text-sm">Students</p>
@@ -70,13 +128,11 @@ export default function EmployerLogin() {
               <h3 className="text-2xl text-black font-bold">4.9/5</h3>
               <p className="text-gray-500 text-sm">Rating</p>
             </div>
-
           </div>
         </div>
 
         {/* ---------------- RIGHT LOGIN CARD ---------------- */}
         <div className="bg-white shadow-xl rounded-2xl p-8 border">
-          
           <h2 className="text-center text-lg md:text-4xl font-bold text-blue-900">
             Welcome Back
           </h2>
@@ -92,7 +148,10 @@ export default function EmployerLogin() {
             <Mail className="text-gray-700" size={18} />
             <input
               type="email"
+              name="email"
               placeholder="Enter your email"
+              value={form.email}
+              onChange={handleChange}
               className="w-full px-3 text-black py-2 outline-none"
             />
           </div>
@@ -105,8 +164,11 @@ export default function EmployerLogin() {
             <Lock className="text-gray-700" size={18} />
             <input
               type={showPass ? "text" : "password"}
+              name="password"
               placeholder="Enter your password"
               className="w-full px-3 text-black py-2 outline-none"
+              value={form.password}
+              onChange={handleChange}
             />
             {showPass ? (
               <EyeOff
@@ -124,32 +186,39 @@ export default function EmployerLogin() {
           </div>
 
           {/* Trigger Button Example */}
-      <button
-        onClick={() => setOpen(true)}
-        className="text-sm text-blue-700 hover:underline"
-      >
-        Forgot password?
-      </button>
-
-      <ForgotPasswordModal open={open} setOpen={setOpen} />
-
-          {/* SIGN-IN BUTTON */}
-          <button className="w-full mt-4 bg-gradient-to-r from-blue-900 to-emerald-400 text-white py-2 rounded-lg flex items-center justify-center gap-2">
-            <LogIn size={18} /> Sign In
+          <button
+            onClick={() => setOpen(true)}
+            className="text-sm text-blue-700 hover:underline"
+          >
+            Forgot password?
           </button>
 
+          <ForgotPasswordModal open={open} setOpen={setOpen} />
+
+          {/* SIGN-IN BUTTON */}
+          <button
+            type="submit"
+            disabled={loading}
+            onClick={handleLogin}
+            className="w-full mt-4 bg-gradient-to-r from-blue-900 to-emerald-400 text-white py-2 rounded-lg flex items-center justify-center gap-2"
+          >
+            <LogIn size={18} />
+            {loading ? "Signing In..." : "Sign In"}
+          </button>
           {/* DIVIDER */}
           <div className="flex items-center my-4">
             <hr className="w-full" />
-            <span className="px-2 text-gray-700 text-nowrap text-sm">New to Collexa?</span>
+            <span className="px-2 text-gray-700 text-nowrap text-sm">
+              New to Collexa?
+            </span>
             <hr className="w-full" />
           </div>
 
           {/* CREATE ACCOUNT */}
           <Link href="/register">
-          <button className="w-full border text-nowrap text-black py-2 rounded-lg flex items-center justify-center gap-2">          
-            <UserPlus size={18} /> Create New Account       
-          </button>
+            <button className="w-full border text-nowrap text-black py-2 rounded-lg flex items-center justify-center gap-2">
+              <UserPlus size={18} /> Create New Account
+            </button>
           </Link>
         </div>
       </div>
