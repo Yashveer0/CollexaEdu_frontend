@@ -10,6 +10,8 @@ import { User, Briefcase } from "lucide-react";
 
 import { HiOutlineHome } from "react-icons/hi";
 import { FiChevronDown } from "react-icons/fi";
+import { useAuth } from "../context_api/AuthContext";
+
 
 export default function Navbar() {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
@@ -22,6 +24,10 @@ export default function Navbar() {
   );
 
   const [open, setOpen] = useState<string | null>(null);
+
+  const { user, logout, loading } = useAuth();
+  if (loading) return null;
+
 
   return (
     <nav className="w-full shadow-sm backdrop-blur-md bg-white/60 fixed top-0 left-0 z-40 border-b">
@@ -963,76 +969,104 @@ export default function Navbar() {
         </ul>
 
         {/* DESKTOP BUTTONS */}
-        <div className="hidden md:flex relative">
-          {/* Login Button */}
-          <button
-            onClick={() => setShowLoginDropdown(!showLoginDropdown)}
-            className="w-full mt-4 bg-gradient-to-r from-blue-900 to-emerald-400
-  text-white font-bold py-3 px-8 rounded-lg
-  flex items-center justify-center gap-2 transition"
-          >
-            Login
-            <ChevronDown
-              size={18}
-              className={`transition-transform duration-300 ${
-                showLoginDropdown ? "rotate-180" : "rotate-0"
-              }`}
-            />
-          </button>
+        {/* DESKTOP AUTH AREA */}
+<div className="hidden md:flex relative items-center">
+  {!user ? (
+    // 🔒 NOT LOGGED IN
+    <div className="relative">
+      <button
+        onClick={() => setShowLoginDropdown(!showLoginDropdown)}
+        className="bg-gradient-to-r from-blue-900 to-emerald-400
+        text-white font-bold py-3 px-8 rounded-lg flex items-center gap-2"
+      >
+        Login
+        <ChevronDown
+          size={18}
+          className={`transition-transform ${
+            showLoginDropdown ? "rotate-180" : ""
+          }`}
+        />
+      </button>
 
-          {/* Dropdown */}
-          <div className="relative">
-            {/* Main Login Button */}
+      {showLoginDropdown && (
+        <div className="absolute right-0 top-full mt-3 w-64 bg-white border rounded-xl shadow-lg z-50 p-3">
+          <p className="text-md font-semibold text-center mb-3">Login As</p>
 
-            {/* Dropdown */}
-            {showLoginDropdown && (
-              <div className="absolute right-0   top-full mt-16 w-64 bg-white border rounded-xl shadow-lg z-50 p-3">
-                <p className="text-md font-semibold text-gray-900 mb-3 text-center">
-                  Login As
-                </p>
+          <div className="flex gap-2">
+            <Link
+              href="/student-login"
+              onClick={() => setShowLoginDropdown(false)}
+              className="flex-1 text-center py-2 rounded-lg bg-blue-900 text-white"
+            >
+              Student
+            </Link>
 
-                {/* Buttons */}
-                <div className="flex gap-2">
-                  <Link
-                    href="/student-login"
-                    onClick={() => {
-                      setActiveRole("student");
-                      setShowLoginDropdown(false);
-                    }}
-                    className={`flex-1 p-2 flex items-center justify-center gap-2 py-2.5  rounded-lg
-              text-sm font-medium transition
-              ${
-                activeRole === "student"
-                  ? "bg-blue-900 text-white"
-                  : "bg-blue-900 text-white hover:bg-blue-600"
-              }`}
-                  >
-                    <User size={16} />
-                    Student
-                  </Link>
-
-                  <Link
-                    href="/employer-login"
-                    onClick={() => {
-                      setActiveRole("employer");
-                      setShowLoginDropdown(false);
-                    }}
-                    className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg
-              text-sm font-medium transition
-              ${
-                activeRole === "employer"
-                  ? "bg-blue-900 text-white"
-                  : "bg-blue-900 text-white hover:bg-blue-600"
-              }`}
-                  >
-                    <Briefcase size={16} />
-                    Employer
-                  </Link>
-                </div>
-              </div>
-            )}
+            <Link
+              href="/employer-login"
+              onClick={() => setShowLoginDropdown(false)}
+              className="flex-1 text-center py-2 rounded-lg bg-blue-900 text-white"
+            >
+              Employer
+            </Link>
           </div>
         </div>
+      )}
+    </div>
+  ) : (
+    // ✅ LOGGED IN USER
+    <div className="relative text-gray-700">
+      <button
+        onClick={() => setShowLoginDropdown(!showLoginDropdown)}
+        className="flex items-center gap-3"
+      >
+       {user.profileImage ? (
+  <img
+    src={user.profileImage}
+    className="w-10 h-10 rounded-full object-cover"
+  />
+) : (
+  <div className="w-10 h-10 rounded-full bg-blue-900 text-white flex items-center justify-center">
+    {user.firstName?.[0]}
+  </div>
+)}
+
+
+        <span className="font-semibold text-gray-800">
+          {user.firstName}
+        </span>
+
+        <ChevronDown
+              size={18}
+              className={`transition-transform duration-300 ${
+                showLoginDropdown ?  "rotate-180" : "rotate-0"
+              }`}
+            />
+      </button>
+
+      {showLoginDropdown && (
+        <div className="absolute right-0 mt-3 w-48 bg-white border rounded-lg shadow z-50">
+          <Link
+            href="/profile"
+            className="block px-4 py-2 hover:bg-gray-100"
+          >
+            My Profile
+          </Link>
+
+          <button
+            onClick={logout}
+            className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600"
+          >
+            Logout
+          </button>
+        </div>
+      )}
+    </div>
+  )}
+</div>
+
+
+
+
       </div>
 
       {/* ================= MOBILE MENU ================= */}
@@ -1363,24 +1397,61 @@ export default function Navbar() {
             </Link>
 
             {/* LOGIN */}
-            <div className="pt-4 border-t">
-              <Link
-                href="/student-login"
-                onClick={() => setMobileOpen(false)}
-                className="block text-center py-2 rounded-md bg-[#163683] text-white"
-              >
-                Student Login
-              </Link>
-            </div>
-            <div className="pt-4 ">
-              <Link
-                href="/employer-login"
-                onClick={() => setMobileOpen(false)}
-                className="block text-center py-2 rounded-md bg-[#163683] text-white"
-              >
-                Employer Login
-              </Link>
-            </div>
+            {/* MOBILE AUTH */}
+<div className="pt-4 border-t">
+  {!user ? (
+    <>
+      <Link
+        href="/student-login"
+        onClick={() => setMobileOpen(false)}
+        className="block text-center py-2 rounded-md bg-[#163683] text-white"
+      >
+        Student Login
+      </Link>
+
+      <Link
+        href="/employer-login"
+        onClick={() => setMobileOpen(false)}
+        className="block text-center py-2 mt-2 rounded-md bg-[#163683] text-white"
+      >
+        Employer Login
+      </Link>
+    </>
+  ) : (
+    <>
+      {/* USER INFO */}
+      <div className="flex items-center gap-3 py-2">
+        <div className="w-10 h-10 rounded-full bg-blue-900 text-white flex items-center justify-center font-bold">
+          {user.firstName?.[0]}
+        </div>
+        <div>
+          <p className="font-semibold">{user.firstName}</p>
+          <p className="text-xs text-gray-500">{user.role}</p>
+        </div>
+      </div>
+
+      <Link
+        href="/profile"
+        onClick={() => setMobileOpen(false)}
+        className="block py-2 text-sm hover:text-emerald-600"
+      >
+        My Profile
+      </Link>
+
+      <button
+        onClick={() => {
+          logout();
+          setMobileOpen(false);
+        }}
+        className="block w-full text-left py-2 text-sm text-red-600"
+      >
+        Logout
+      </button>
+    </>
+  )}
+</div>
+
+
           </div>
         </div>
       )}

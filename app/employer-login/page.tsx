@@ -38,7 +38,7 @@ export default function EmployerLogin() {
       setLoading(true);
 
       const res = await login({
-        email: form.email,
+        emailId: form.email,
         password: form.password,
       });
 
@@ -54,7 +54,7 @@ export default function EmployerLogin() {
         if (res.user.role === "student") {
           router.push("/student-dashboard");
         } else if (res.user.role === "employer") {
-          router.push("/employer-dashboard");
+          router.push("/");
         }
       });
     } catch (err: any) {
