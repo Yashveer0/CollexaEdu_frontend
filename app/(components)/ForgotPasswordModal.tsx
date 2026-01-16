@@ -1,28 +1,52 @@
 "use client";
+
 import { useState } from "react";
 import { FiMail } from "react-icons/fi";
+import Swal from "sweetalert2";
+import { useAuth } from "@/app/context_api/AuthContext";
 
 export default function ForgotPasswordModal({ open, setOpen }: any) {
+  const { forgotPassword } = useAuth();
 
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   if (!open) return null;
 
-  const handleSubmit = (e: any) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
 
-    if (!email.trim()) return alert("Please enter email 🙂");
+    if (!email.trim()) {
+      return Swal.fire({
+        icon: "warning",
+        title: "Email required",
+        text: "Please enter your registered email 🙂",
+      });
+    }
 
-    // 👇 API baad me laga lena
-    // await fetch("/api/forgot-password", { method:"POST", body: JSON.stringify({email}) })
+    try {
+      setLoading(true);
 
-    setSent(true);
+      // 🔥 REAL API CALL
+      await forgotPassword(email);
+
+      setSent(true);
+    } catch (err: any) {
+      Swal.fire({
+        icon: "error",
+        title: "Failed",
+        text:
+          err?.response?.data?.message ||
+          "Unable to send reset link. Please try again.",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
-
       <div className="bg-white rounded-2xl shadow-xl w-[90%] max-w-md p-6 relative">
 
         {/* CLOSE BUTTON */}
@@ -52,19 +76,21 @@ export default function ForgotPasswordModal({ open, setOpen }: any) {
                 className="w-full text-gray-800 outline-none"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                disabled={loading}
               />
             </div>
 
             <button
               type="submit"
-              className="w-full bg-[#163683] text-white py-2 rounded-lg hover:bg-blue-900 transition"
+              disabled={loading}
+              className="w-full bg-[#163683] text-white py-2 rounded-lg
+              hover:bg-blue-900 transition disabled:opacity-60"
             >
-              Send Reset Link
+              {loading ? "Sending..." : "Send Reset Link"}
             </button>
           </form>
         ) : (
           <div className="text-center space-y-3">
-
             <p className="text-green-600 font-semibold">
               Reset link sent successfully 🎉
             </p>
@@ -82,9 +108,7 @@ export default function ForgotPasswordModal({ open, setOpen }: any) {
             </button>
           </div>
         )}
-
       </div>
-
     </div>
   );
 }

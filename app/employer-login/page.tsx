@@ -52,7 +52,7 @@ export default function EmployerLogin() {
       }).then(() => {
         // 🔁 ROLE BASED REDIRECT
         if (res.user.role === "student") {
-          router.push("/student-dashboard");
+          router.push("/");
         } else if (res.user.role === "employer") {
           router.push("/");
         }
@@ -70,7 +70,7 @@ export default function EmployerLogin() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#f7faff] to-[#eef5ff] flex items-center justify-center px-4">
-      <div className="max-w-7xl mt-35 mb-10 w-full grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+      <div className="max-w-7xl mt-4 mb-10 w-full grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
         {/* ---------------- LEFT SECTION ---------------- */}
         <div>
           <div className="flex items-center gap-2 mb-6">

@@ -990,7 +990,7 @@ export default function Navbar() {
 
       {showLoginDropdown && (
         <div className="absolute right-0 top-full mt-3 w-64 bg-white border rounded-xl shadow-lg z-50 p-3">
-          <p className="text-md font-semibold text-center mb-3">Login As</p>
+          <p className="text-md font-semibold text-gray-700 text-center mb-3">Login As</p>
 
           <div className="flex gap-2">
             <Link
@@ -1044,22 +1044,30 @@ export default function Navbar() {
       </button>
 
       {showLoginDropdown && (
-        <div className="absolute right-0 mt-3 w-48 bg-white border rounded-lg shadow z-50">
-          <Link
-            href="/profile"
-            className="block px-4 py-2 hover:bg-gray-100"
-          >
-            My Profile
-          </Link>
+  <div className="absolute right-0 mt-3 w-48 bg-white border rounded-lg shadow z-50">
+    
+    <Link
+      href="/profile"
+      onClick={() => setShowLoginDropdown(false)} // ✅ CLOSE DROPDOWN
+      className="block px-4 py-2 hover:bg-gray-100"
+    >
+      My Profile
+    </Link>
 
-          <button
-            onClick={logout}
-            className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600"
-          >
-            Logout
-          </button>
-        </div>
-      )}
+    <button
+      onClick={() => {
+        setShowLoginDropdown(false); // ✅ CLOSE DROPDOWN
+        logout();                    // ✅ LOGOUT
+      }}
+      className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600"
+    >
+      Logout
+    </button>
+  </div>
+)}
+
+
+
     </div>
   )}
 </div>
@@ -1116,11 +1124,11 @@ export default function Navbar() {
                   </div>
                   <div className="pl-4 space-y-2">
                     {[
-                      ["B.Tech Computer Science", "/btech-cs"],
-                      ["B.Tech Electronics", "/btech-ece"],
-                      ["B.Tech Mechanical", "/btech-mech"],
-                      ["M.Tech Programs", "/mtech"],
-                      ["Diploma Engineering", "/diploma"],
+                      ["B.Tech Computer Science", "/campus-courses"],
+                      ["B.Tech Electronics", "/campus-courses"],
+                      ["B.Tech Mechanical", "/campus-courses"],
+                      ["M.Tech Programs", "/campus-courses"],
+                      ["Diploma Engineering", "/campus-coursess"],
                     ].map(([label, href]) => (
                       <Link
                         key={label}
@@ -1144,10 +1152,10 @@ export default function Navbar() {
                   </div>
                   <div className="pl-4 space-y-2">
                     {[
-                      ["MBA Programs", "/mba"],
-                      ["BBA Programs", "/bba"],
-                      ["PGDM", "/pgdm"],
-                      ["Executive MBA", "/executive-mba"],
+                      ["MBA Programs", "/campus-courses"],
+                      ["BBA Programs", "/campus-courses"],
+                      ["PGDM", "/campus-courses"],
+                      ["Executive MBA", "/campus-courses"],
                     ].map(([label, href]) => (
                       <Link
                         key={label}
@@ -1171,10 +1179,10 @@ export default function Navbar() {
                   </div>
                   <div className="pl-4 space-y-2">
                     {[
-                      ["B.Sc Data Science", "/bsc-ds"],
-                      ["M.Sc Data Science", "/msc-ds"],
-                      ["AI / ML Programs", "/ai-ml"],
-                      ["Business Analytics", "/business-analytics"],
+                      ["B.Sc Data Science", "/campus-courses"],
+                      ["M.Sc Data Science", "/campus-courses"],
+                      ["AI / ML Programs", "/campus-courses"],
+                      ["Business Analytics", "/campus-courses"],
                     ].map(([label, href]) => (
                       <Link
                         key={label}
@@ -1266,9 +1274,7 @@ export default function Navbar() {
                     ].map((label) => (
                       <Link
                         key={label}
-                        href={`/jobs/${label
-                          .toLowerCase()
-                          .replace(/\s/g, "-")}`}
+                        href={`/jobs`}
                         onClick={() => setMobileOpen(false)}
                         className="block text-sm hover:text-emerald-600"
                       >
@@ -1289,9 +1295,9 @@ export default function Navbar() {
                   <div className="pl-4 space-y-2">
                     {[
                       ["View all jobs", "/jobs"],
-                      ["Remote Jobs", "/jobs/remote"],
-                      ["Part-time Jobs", "/jobs/part-time"],
-                      ["Freelance Jobs", "/jobs/freelance"],
+                      ["Remote Jobs", "/jobs"],
+                      ["Part-time Jobs", "/jobs"],
+                      ["Freelance Jobs", "/jobs"],
                     ].map(([label, href]) => (
                       <Link
                         key={label}
@@ -1367,10 +1373,10 @@ export default function Navbar() {
                   </div>
                   <div className="pl-4 space-y-2">
                     {[
-                      ["Software Development", "/internships/software"],
-                      ["Web Development", "/internships/web"],
-                      ["Data Science", "/internships/data"],
-                      ["AI / ML", "/internships/ai"],
+                      ["Software Development", "/internship"],
+                      ["Web Development", "/internship"],
+                      ["Data Science", "/internship"],
+                      ["AI / ML", "/internship"],
                     ].map(([label, href]) => (
                       <Link
                         key={label}

@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import API from "../lib/axios";
+import { API }from "../lib/axios";
 
 type UserType = {
   id: string;
@@ -11,39 +11,63 @@ type UserType = {
   phoneNumber?: string;
   role: "student" | "employer" | "admin";
 
-  // future
   profileImage?: string;
   gender?: string;
-  skills?: string[];
+
+  profile?: {
+    skills?: string[];
+  };
 };
+
 
 const AuthContext = createContext<any>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserType | null>(null);
   const [loading, setLoading] = useState(true); // 🔥 start true
+  
 
-  // 🔁 Load user on refresh
   useEffect(() => {
+  if (typeof window === "undefined") return;
+
+  try {
     const storedUser = localStorage.getItem("collexa_user");
-    if (storedUser) {
+
+    if (storedUser && storedUser !== "undefined") {
       setUser(JSON.parse(storedUser));
+    } else {
+      setUser(null);
+      localStorage.removeItem("collexa_user");
     }
+  } catch (err) {
+    console.error("Invalid user in localStorage", err);
+    localStorage.removeItem("collexa_user");
+    setUser(null);
+  } finally {
     setLoading(false);
-  }, []);
+  }
+}, []);
+
 
   // 🔐 LOGIN
   const login = async (data: { emailId: string; password: string }) => {
-    const res = await API.post("/api/auth/login", data);
+  const res = await API.post("/api/auth/login", data);
 
-    setUser(res.data.user);
-    localStorage.setItem(
-      "collexa_user",
-      JSON.stringify(res.data.user)
-    );
+  setUser(res.data.user);
+  localStorage.setItem(
+    "collexa_user",
+    JSON.stringify(res.data.user)
+  );
 
-    return res.data;
-  };
+  // 🔐 JWT SAVE
+  localStorage.setItem(
+    "collexa_token",
+    res.data.token
+  );
+
+  return res.data;
+};
+
 
   // 📝 REGISTER
   const register = async (data: any) => {
@@ -62,10 +86,74 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   // 🚪 LOGOUT
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("collexa_user");
-  };
+const logout = () => {
+  setUser(null);
+  localStorage.removeItem("collexa_user");
+  localStorage.removeItem("collexa_token");
+
+  if (typeof window !== "undefined") {
+    window.location.href = "/";
+  }
+};
+
+  // GET PROFILE
+const getProfile = async () => {
+  const res = await API.get("/api/userprofile");
+
+  setUser(res.data.data);
+
+  localStorage.setItem(
+    "collexa_user",
+    JSON.stringify(res.data.data)
+  );
+
+  return res.data.data;
+};
+
+ const updateProfile = async (data: any) => {
+  const res = await API.patch("/api/userprofile", data);
+
+  // 🔥 SAFETY CHECK
+  if (res.data?.data) {
+    setUser(res.data.data);
+    localStorage.setItem(
+      "collexa_user",
+      JSON.stringify(res.data.data)
+    );
+    return res.data.data;
+  }
+
+  // ❌ agar backend data nahi bhej raha
+  console.error("Profile update response invalid", res.data);
+  throw new Error("Profile update failed");
+};
+
+const forgotPassword = async (emailId: string) => {
+  try {
+    const res = await API.post("/api/auth/forgetPassword", { emailId });
+    return res.data; // { message: "Reset link sent" }
+  } catch (err: any) {
+    throw err;
+  }
+};
+
+const resetPassword = async (
+  token: string,
+  newPassword: string
+) => {
+  try {
+    const res = await API.post("/api/auth/resetPassword", {
+      token,
+      password: newPassword,
+    });
+
+    return res.data; // { message: "Password reset successful" }
+  } catch (err: any) {
+    throw err;
+  }
+};
+
+
 
   return (
     <AuthContext.Provider
@@ -75,6 +163,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         register,
         logout,
+        updateProfile,
+        getProfile,     
+         forgotPassword,   
+          resetPassword,    
       }}
     >
       {children}
