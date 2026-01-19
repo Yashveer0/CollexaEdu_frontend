@@ -68,6 +68,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return res.data;
 };
 
+ const Admin_login = async (data: { emailId: string; password: string }) => {
+  const res = await API.post("/api/auth/admin/login", data);
+
+  setUser(res.data.user);
+  localStorage.setItem(
+    "collexa_user",
+    JSON.stringify(res.data.user)
+  );
+
+  // 🔐 JWT SAVE
+  localStorage.setItem(
+    "collexa_token",
+    res.data.token
+  );
+
+  return res.data;
+};
+
+ const addJob = async (data: any) => {
+  const token = localStorage.getItem("collexa_token");
+
+  const res = await API.post(
+    "/api/jobs/addjob",
+    data,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  return res.data;
+};
+
+ 
 
   // 📝 REGISTER
   const register = async (data: any) => {
@@ -165,8 +200,10 @@ const resetPassword = async (
         logout,
         updateProfile,
         getProfile,     
-         forgotPassword,   
-          resetPassword,    
+        forgotPassword,   
+        resetPassword, 
+        Admin_login,
+        addJob,
       }}
     >
       {children}

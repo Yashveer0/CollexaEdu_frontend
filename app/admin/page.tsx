@@ -3,8 +3,13 @@
 import { useState } from "react";
 import { Mail, Lock, Eye, EyeOff, ShieldCheck } from "lucide-react";
 import ForgotPasswordModal from "../(components)/ForgotPasswordModal";
+import { useRouter } from "next/navigation";
+import Swal from "sweetalert2";
+import { useAuth } from "../context_api/AuthContext";
+
 
 export default function AdminLoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -12,34 +17,56 @@ export default function AdminLoginPage() {
   const [error, setError] = useState("");
   const [open, setOpen] = useState(false);
 
-  // 🔐 DEMO API (replace later with real API)
+  const { Admin_login } = useAuth();
+
+  
+
+  // 🔐   real API
   const handleAdminLogin = async () => {
-    setError("");
+  setError("");
 
-    if (!email || !password) {
-      setError("Email and password are required");
-      return;
-    }
+  if (!email || !password) {
+    setError("Email and password are required");
+    return;
+  }
 
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
-      // ⏳ fake delay (API demo)
-      await new Promise((res) => setTimeout(res, 1500));
+    // 🔐 AUTH CONTEXT API CALL
+    const res = await Admin_login({
+      emailId: email,
+      password,
+    });
 
-      // ✅ demo validation
-      if (email === "admin@collexa.com" && password === "admin123") {
-        alert("Admin login successful ✅");
-        // later: router.push("/admin/dashboard")
-      } else {
-        throw new Error("Invalid admin credentials");
-      }
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+    // ✅ SUCCESS
+    Swal.fire({
+      icon: "success",
+      title: "Login Successful",
+      text: "Welcome Admin 🎉",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+
+    setTimeout(() => {
+      router.push("/admin-dashboard");
+    }, 1500);
+
+  } catch (err: any) {
+    Swal.fire({
+      icon: "error",
+      title: "Login Failed",
+      text:
+        err?.response?.data?.message ||
+        err.message ||
+        "Invalid admin credentials",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sky-50 to-white flex items-center justify-center px-6">

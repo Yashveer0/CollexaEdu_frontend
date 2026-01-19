@@ -2,14 +2,15 @@
 
 import { useState } from "react";
 
-/**
- * SINGLE FILE ADMIN PANEL UI
- * Covers ALL 20 requirements (UI only)
- */
+
+
 
 import { useRouter } from "next/navigation";
 import { Bell,  UserCircle } from "lucide-react";
+import { useAuth } from "../context_api/AuthContext";
 
+
+import "../globals.css";
 
 import {
   LayoutDashboard,
@@ -44,7 +45,7 @@ type Screen =
   | "blogs"
   | "create-blog"
   | "testimonials"
-  | "careers"
+  | "Jobs"
   | "applications"
   | "settings";
 
@@ -52,6 +53,7 @@ export default function AdminPage() {
   const [screen, setScreen] = useState<Screen>("dashboard");
   const [loading, setLoading] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   
 const router = useRouter();
@@ -59,6 +61,7 @@ const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const [status, setStatus] = useState<"Pending" | "Approved" | "Rejected">("Pending");
   const [showRequestInfo, setShowRequestInfo] = useState(false);
+  const { addJob } = useAuth();
 
   const [activeSettingTab, setActiveSettingTab] = useState<
   "General" |
@@ -69,6 +72,22 @@ const [showLogoutModal, setShowLogoutModal] = useState(false);
   "Roles & Permissions"
 >("General");
 
+ const [showAddJobModal, setShowAddJobModal] = useState(false);
+
+
+const [jobForm, setJobForm] = useState({
+  title: "",
+  description: "",
+  companyName: "",
+  
+  location: "",
+  type: "remote",
+  salaryMin: "",
+  salaryMax: "",
+  skillsRequired: "",
+  openings: "",
+  experienceLevel: "Fresher",
+});
 
   /* ================= LAYOUT ================= */
   return (
@@ -92,7 +111,7 @@ const [showLogoutModal, setShowLogoutModal] = useState(false);
       { label: "Blog Categories", key: "blog-categories", icon: FolderOpen },
       { label: "Blogs", key: "blogs", icon: FileText },
       { label: "Testimonials", key: "testimonials", icon: Star },
-      { label: "Careers", key: "careers", icon: Briefcase },
+      { label: "Jobs", key: "Jobs", icon: Briefcase },
       { label: "Applications", key: "applications", icon: FileText },
       { label: "Settings", key: "settings", icon: Settings },
     ].map(({ label, key, icon: Icon }) => (
@@ -114,14 +133,22 @@ const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   
 </aside>
-
+    
 
       {/* ========== MAIN ========== */}
       <main className="flex-1">
         {/* Top Bar */}
-      <header className="bg-white border-b px-6 py-4 flex justify-between items-center">
+      <header className="bg-white border-b px-3 sm:px-4 md:px-6 py-3 md:py-4 flex gap-3 justify-between items-center">
+        {/* MOBILE HAMBURGER */}
+<button
+  onClick={() => setMobileMenuOpen(true)}
+  className="md:hidden text-gray-600 hover:text-blue-600 text-2xl"
+>
+  ☰
+</button>
+
   {/* LEFT : PAGE TITLE */}
-  <div className="font-semibold uppercase text-gray-800 text-lg">
+  <div className="font-semibold uppercase text-gray-800 text-sm sm:text-base md:text-lg truncate">
     {screen.replace("-", " ")}
   </div>
 
@@ -198,7 +225,7 @@ const [showLogoutModal, setShowLogoutModal] = useState(false);
 
 
 
-        <div className="p-6">
+        <div className="p-3 sm:p-4 md:p-6">
           {/* ================= DASHBOARD ================= */}
           {screen === "dashboard" && (
   <>
@@ -243,7 +270,7 @@ const [showLogoutModal, setShowLogoutModal] = useState(false);
 
     {/* ================= CHARTS ================= */}
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-      <div className="bg-white p-6 rounded-xl shadow">
+      <div className="bg-white p-3 sm:p-4 md:p-6 rounded-xl shadow">
         <h3 className="font-semibold mb-3">
           User Growth
         </h3>
@@ -252,7 +279,7 @@ const [showLogoutModal, setShowLogoutModal] = useState(false);
         </div>
       </div>
 
-      <div className="bg-white p-6 rounded-xl shadow">
+      <div className="bg-white p-3 sm:p-4 md:p-6 rounded-xl shadow">
         <h3 className="font-semibold mb-3">
           Leads vs Conversions
         </h3>
@@ -265,7 +292,7 @@ const [showLogoutModal, setShowLogoutModal] = useState(false);
     {/* ================= BOTTOM TABLES ================= */}
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Recent Users */}
-      <div className="bg-white p-6 rounded-xl shadow">
+      <div className="bg-white p-3 sm:p-4 md:p-6 rounded-xl shadow">
         <div className="flex justify-between items-center mb-4">
           <h3 className="font-semibold">
             Recent Users
@@ -286,7 +313,7 @@ const [showLogoutModal, setShowLogoutModal] = useState(false);
       </div>
 
       {/* Recent Admission Requests */}
-      <div className="bg-white p-6 rounded-xl shadow">
+      <div className="bg-white p-3 sm:p-4 md:p-6 rounded-xl shadow">
         <div className="flex justify-between items-center mb-4">
           <h3 className="font-semibold">
             Recent Admission Requests
@@ -339,7 +366,7 @@ const [showLogoutModal, setShowLogoutModal] = useState(false);
     </div>
 
     {/* ================= TABLE ================= */}
-    <div className="bg-white rounded-xl shadow overflow-x-auto">
+    <div className="bg-white rounded-xl shadow overflow-x-auto max-w-full">
       <table className="w-full text-sm">
         <thead className="bg-gray-50 text-gray-600">
           <tr>
@@ -450,7 +477,7 @@ const [showLogoutModal, setShowLogoutModal] = useState(false);
 {screen === "user-detail" && (
   <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
     {/* ================= LEFT PANEL ================= */}
-    <div className="bg-white rounded-xl shadow p-6">
+    <div className="bg-white rounded-xl shadow p-3 sm:p-4 md:p-6">
       {/* Profile */}
       <div className="flex flex-col items-center text-center">
         <div className="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center text-3xl font-bold text-blue-700">
@@ -495,7 +522,7 @@ const [showLogoutModal, setShowLogoutModal] = useState(false);
     </div>
 
     {/* ================= RIGHT PANEL ================= */}
-    <div className="lg:col-span-3 text-gray-800 bg-white rounded-xl shadow p-6">
+    <div className="lg:col-span-3 text-gray-800 bg-white rounded-xl shadow p-3 sm:p-4 md:p-6">
       {/* Tabs */}
       <div className="flex gap-2 border-b mb-6 text-sm">
         {[
@@ -633,7 +660,7 @@ const [showLogoutModal, setShowLogoutModal] = useState(false);
 {screen === "lead-detail" && (
   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
     {/* ================= LEFT ================= */}
-    <div className="bg-white rounded-xl shadow p-6">
+    <div className="bg-white rounded-xl shadow p-3 sm:p-4 md:p-6">
       <h3 className="font-semibold mb-4">
         Lead Information
       </h3>
@@ -666,7 +693,7 @@ const [showLogoutModal, setShowLogoutModal] = useState(false);
     {/* ================= RIGHT ================= */}
     <div className="lg:col-span-2 space-y-6">
       {/* Course Interest */}
-      <div className="bg-white rounded-xl shadow p-6">
+      <div className="bg-white rounded-xl shadow p-3 sm:p-4 md:p-6">
         <h3 className="font-semibold mb-3">
           Course Interest
         </h3>
@@ -676,7 +703,7 @@ const [showLogoutModal, setShowLogoutModal] = useState(false);
       </div>
 
       {/* Notes Timeline */}
-      <div className="bg-white rounded-xl shadow p-6">
+      <div className="bg-white rounded-xl shadow p-3 sm:p-4 md:p-6">
         <h3 className="font-semibold mb-3">
           Notes & Remarks
         </h3>
@@ -703,7 +730,7 @@ const [showLogoutModal, setShowLogoutModal] = useState(false);
       </div>
 
       {/* Follow-up History */}
-      <div className="bg-white rounded-xl shadow p-6">
+      <div className="bg-white rounded-xl shadow p-3 sm:p-4 md:p-6">
         <h3 className="font-semibold mb-3">
           Follow-up History
         </h3>
@@ -745,7 +772,7 @@ const [showLogoutModal, setShowLogoutModal] = useState(false);
                 ].map((t) => (
                   <div
                     key={t}
-                    className="bg-white p-6 rounded-xl shadow"
+                    className="bg-white p-3 sm:p-4 md:p-6 rounded-xl shadow"
                   >
                     <p className="text-sm text-gray-500">{t}</p>
                     <h2 className="text-2xl font-bold mt-2">0</h2>
@@ -760,7 +787,7 @@ const [showLogoutModal, setShowLogoutModal] = useState(false);
           {/* ================= CREATE / EDIT PACKAGE ================= */}
 {/* ================= CREATE / EDIT PACKAGE ================= */}
 {screen === "create-package" && (
-  <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow p-6 md:p-8">
+  <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow p-3 sm:p-4 md:p-6 md:p-8">
     {/* Header */}
     <div className="mb-6">
       <h2 className="text-xl font-bold">
@@ -1088,7 +1115,7 @@ const [showLogoutModal, setShowLogoutModal] = useState(false);
       {/* ================= CONTENT ================= */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* ================= STUDENT ================= */}
-        <div className="bg-white rounded-xl shadow p-6">
+        <div className="bg-white rounded-xl shadow p-3 sm:p-4 md:p-6">
           <div className="flex items-center gap-4 mb-4">
             <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-2xl font-bold text-blue-700">
               S
@@ -1118,7 +1145,7 @@ const [showLogoutModal, setShowLogoutModal] = useState(false);
         </div>
 
         {/* ================= COURSE ================= */}
-        <div className="bg-white rounded-xl shadow p-6">
+        <div className="bg-white rounded-xl shadow p-3 sm:p-4 md:p-6">
           <h3 className="font-semibold mb-3">Course Details</h3>
           <div className="text-sm text-gray-600 space-y-2">
             <p><b>Course:</b> MBA – Marketing</p>
@@ -1129,7 +1156,7 @@ const [showLogoutModal, setShowLogoutModal] = useState(false);
         </div>
 
         {/* ================= DOCUMENTS ================= */}
-        <div className="bg-white rounded-xl shadow p-6">
+        <div className="bg-white rounded-xl shadow p-3 sm:p-4 md:p-6">
           <h3 className="font-semibold mb-3">Uploaded Documents</h3>
           <ul className="space-y-2 text-sm">
             {[
@@ -1153,7 +1180,7 @@ const [showLogoutModal, setShowLogoutModal] = useState(false);
       </div>
 
       {/* ================= COUNSELOR NOTES ================= */}
-      <div className="bg-white rounded-xl shadow p-6">
+      <div className="bg-white rounded-xl shadow p-3 sm:p-4 md:p-6">
         <h3 className="font-semibold mb-4">Counselor Notes</h3>
 
         <div className="space-y-3 text-sm">
@@ -1282,7 +1309,7 @@ const [showLogoutModal, setShowLogoutModal] = useState(false);
 
 
 {screen === "add-course" && (
-  <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow p-6 md:p-8">
+  <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow p-3 sm:p-4 md:p-6 md:p-8">
     {/* ================= HEADER ================= */}
     <div className="mb-6">
       <h2 className="text-xl font-bold">
@@ -1599,7 +1626,7 @@ const [showLogoutModal, setShowLogoutModal] = useState(false);
 )}
 
 {screen === "create-blog" && (
-  <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow p-6 md:p-8">
+  <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow p-3 sm:p-4 md:p-6 md:p-8">
     {/* ================= HEADER ================= */}
     <div className="mb-6">
       <h2 className="text-xl font-bold">
@@ -1662,7 +1689,7 @@ const [showLogoutModal, setShowLogoutModal] = useState(false);
             Featured Image
           </label>
 
-          <div className="mt-2 border-2 border-dashed rounded-lg p-6 text-center hover:border-blue-600 transition cursor-pointer">
+          <div className="mt-2 border-2 border-dashed rounded-lg p-3 sm:p-4 md:p-6 text-center hover:border-blue-600 transition cursor-pointer">
             <p className="text-sm text-gray-500">
               Click to upload image
             </p>
@@ -1884,22 +1911,26 @@ const [showLogoutModal, setShowLogoutModal] = useState(false);
   </>
 )}
 
-{screen === "careers" && (
+{screen === "Jobs" && (
   <>
     {/* ================= HEADER ================= */}
     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
       <div>
         <h2 className="text-xl font-bold">
-          Careers
+          Jobs
         </h2>
         <p className="text-sm text-gray-500">
           Manage job openings and hiring status
         </p>
       </div>
 
-      <button className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition">
-        + Add Job
-      </button>
+      <button
+  onClick={() => setShowAddJobModal(true)}
+  className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+>
+  + Add Job
+</button>
+
     </div>
 
     {/* ================= TABLE ================= */}
@@ -1993,6 +2024,192 @@ const [showLogoutModal, setShowLogoutModal] = useState(false);
       </table>
     </div>
   </>
+)}
+
+
+{/* job from */}
+{showAddJobModal && (
+  <div className="fixed inset-0 z-50  bg-black/50 flex items-center justify-center">
+    <div className="bg-white text-black w-full max-w-2xl rounded-xl shadow-lg p-6 relative">
+      
+      {/* Header */}
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-bold">Add New Job</h3>
+        <button
+          onClick={() => setShowAddJobModal(false)}
+          className="text-gray-500 hover:text-gray-700"
+        >
+          ✕
+        </button>
+      </div>
+
+      {/* Form */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        <input
+          placeholder="Job Title"
+          className="input"
+          value={jobForm.title}
+          onChange={(e) => setJobForm({ ...jobForm, title: e.target.value })}
+        />
+
+        <input
+          placeholder="Company Name"
+          className="input"
+          value={jobForm.companyName}
+          onChange={(e) =>
+            setJobForm({ ...jobForm, companyName: e.target.value })
+          }
+        />
+
+        <input
+          placeholder="Location"
+          className="input"
+          value={jobForm.location}
+          onChange={(e) =>
+            setJobForm({ ...jobForm, location: e.target.value })
+          }
+        />
+
+        <select
+          className="input"
+          value={jobForm.type}
+          onChange={(e) => setJobForm({ ...jobForm, type: e.target.value })}
+        >
+          <option value="remote">Remote</option>
+          <option value="onsite">Onsite</option>
+          <option value="hybrid">Hybrid</option>
+        </select>
+
+        <input
+          placeholder="Salary Min"
+          className="input"
+          value={jobForm.salaryMin}
+          onChange={(e) =>
+            setJobForm({ ...jobForm, salaryMin: e.target.value })
+          }
+        />
+
+        <input
+          placeholder="Salary Max"
+          className="input"
+          value={jobForm.salaryMax}
+          onChange={(e) =>
+            setJobForm({ ...jobForm, salaryMax: e.target.value })
+          }
+        />
+
+        <input
+          placeholder="Openings"
+          className="input"
+          value={jobForm.openings}
+          onChange={(e) =>
+            setJobForm({ ...jobForm, openings: e.target.value })
+          }
+        />
+
+        <select
+          className="input"
+          value={jobForm.experienceLevel}
+          onChange={(e) =>
+            setJobForm({ ...jobForm, experienceLevel: e.target.value })
+          }
+        >
+          <option value="Fresher">Fresher</option>
+          <option value="Junior">Junior</option>
+          <option value="Mid">Mid</option>
+          <option value="Senior">Senior</option>
+        </select>
+      </div>
+
+      <textarea
+        placeholder="Job Description"
+        className="input mt-4 w-full h-24"
+        value={jobForm.description}
+        onChange={(e) =>
+          setJobForm({ ...jobForm, description: e.target.value })
+        }
+      />
+
+      <input
+        placeholder="Skills (comma separated)"
+        className="input mt-4 w-full"
+        value={jobForm.skillsRequired}
+        onChange={(e) =>
+          setJobForm({ ...jobForm, skillsRequired: e.target.value })
+        }
+      />
+
+      {/* Footer */}
+      <div className="flex justify-end gap-3 mt-6">
+        <button
+          onClick={() => setShowAddJobModal(false)}
+          className="px-4 py-2 rounded border"
+        >
+          Cancel
+        </button>
+
+        <button
+  disabled={loading}
+  onClick={async () => {
+    try {
+      // 🔎 Frontend validation
+      if (
+        !jobForm.title ||
+        !jobForm.description ||
+        !jobForm.companyName ||
+        !jobForm.location ||
+        !jobForm.salaryMin ||
+        !jobForm.salaryMax ||
+        !jobForm.openings ||
+        !jobForm.skillsRequired
+      ) {
+        alert("Please fill all required fields");
+        return;
+      }
+
+      setLoading(true);
+
+      const payload = {
+        title: jobForm.title.trim(),
+        description: jobForm.description.trim(),
+        companyName: jobForm.companyName.trim(),
+        
+        location: jobForm.location.trim(),
+        type: jobForm.type,
+        salaryMin: Number(jobForm.salaryMin),
+        salaryMax: Number(jobForm.salaryMax),
+        openings: Number(jobForm.openings),
+        experienceLevel: jobForm.experienceLevel,
+        skillsRequired: jobForm.skillsRequired
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean),
+      };
+
+      console.log("ADD JOB PAYLOAD 👉", payload);
+
+      await addJob(payload);
+
+      alert("Job added successfully ✅");
+      setShowAddJobModal(false);
+    } catch (err: any) {
+      console.error("Add job failed 👉", err.response?.data || err.message);
+      alert(
+        err.response?.data?.message || "Failed to add job"
+      );
+    } finally {
+      setLoading(false);
+    }
+  }}
+  className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
+>
+  {loading ? "Saving..." : "Create Job"}
+</button>
+
+      </div>
+    </div>
+  </div>
 )}
 
 {screen === "applications" && (
@@ -2115,7 +2332,7 @@ const [showLogoutModal, setShowLogoutModal] = useState(false);
 
 
 {screen === "settings" && (
-  <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow p-6 md:p-8">
+  <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow p-3 sm:p-4 md:p-6 md:p-8">
     {/* ================= HEADER ================= */}
     <div className="mb-6">
       <h2 className="text-xl font-bold">Settings</h2>
@@ -2283,41 +2500,103 @@ const [showLogoutModal, setShowLogoutModal] = useState(false);
 )}
 
 {showLogoutModal && (
-  <div className="fixed  p-12 m-16 inset-0 z-50 flex items-center justify-center bg-black/50">
-    <div className="bg-white rounded-2xl shadow-lg w-[50%]  p-6 animate-fadeIn">
-      <h3 className="text-lg font-semibold mb-2">
-        Are you sure you want to logout?
-      </h3>
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4">
+  <div
+    className="
+      bg-white rounded-2xl shadow-lg
+      w-full max-w-md
+      p-4 sm:p-6
+      animate-fadeIn
+    "
+  >
+    {/* Title */}
+    <h3 className="text-base sm:text-lg font-semibold mb-2 text-gray-800">
+      Are you sure you want to logout?
+    </h3>
 
-      <p className="text-sm text-gray-500 mb-6">
-        You will be redirected to the admin login page.
-      </p>
+    {/* Description (hide on very small screens) */}
+    <p className="text-sm text-gray-500 mb-6 hidden sm:block">
+      You will be redirected to the admin login page.
+    </p>
 
-      <div className="flex justify-end gap-3">
-        <button
-          onClick={() => setShowLogoutModal(false)}
-          className="px-4 py-2 rounded-lg border hover:bg-gray-100 transition"
-        >
-          Cancel
-        </button>
+    {/* Actions */}
+    <div className="flex flex-col sm:flex-row justify-end gap-3">
+      <button
+        onClick={() => setShowLogoutModal(false)}
+        className="w-full sm:w-auto px-4 py-2 rounded-lg border hover:bg-gray-100 transition"
+      >
+        Cancel
+      </button>
 
-        <button
-          onClick={() => {
-            setShowLogoutModal(false);
-            router.push("/admin");
-          }}
-          className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition"
-        >
-          Logout
-        </button>
-      </div>
+      <button
+        onClick={() => {
+          setShowLogoutModal(false);
+          router.push("/admin");
+        }}
+        className="w-full sm:w-auto px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition"
+      >
+        Logout
+      </button>
     </div>
   </div>
+</div>
+
 )}
 
 
           
         </div>
+
+        {/* ================= MOBILE SIDEBAR ================= */}
+{mobileMenuOpen && (
+  <div className="fixed inset-0 z-50 md:hidden">
+    {/* Overlay */}
+    <div
+      className="absolute inset-0 bg-black/50"
+      onClick={() => setMobileMenuOpen(false)}
+    />
+
+    {/* Sidebar */}
+    <aside className="absolute left-0 top-0 h-full w-64 bg-white shadow-xl p-4 animate-slideIn">
+      {/* Logo */}
+      <div className="mb-6 flex justify-center">
+        <img src="./logo.png" className="h-12 w-auto" alt="Logo" />
+      </div>
+
+      {/* Menu */}
+      <div className="space-y-1">
+        {[
+          { label: "Dashboard", key: "dashboard", icon: LayoutDashboard },
+          { label: "Users", key: "users", icon: Users },
+          { label: "Leads", key: "leads", icon: PhoneCall },
+          { label: "Packages", key: "packages", icon: Package },
+          { label: "Admissions", key: "admissions", icon: GraduationCap },
+          { label: "Courses", key: "courses", icon: BookOpen },
+          { label: "Blogs", key: "blogs", icon: FileText },
+          { label: "Settings", key: "settings", icon: Settings },
+        ].map(({ label, key, icon: Icon }) => (
+          <div
+            key={key}
+            onClick={() => {
+              setScreen(key as Screen);
+              setMobileMenuOpen(false);
+            }}
+            className={`flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition
+              ${
+                screen === key
+                  ? "bg-blue-50 text-blue-700 font-medium"
+                  : "text-gray-700 hover:bg-gray-100"
+              }`}
+          >
+            <Icon size={18} />
+            <span>{label}</span>
+          </div>
+        ))}
+      </div>
+    </aside>
+  </div>
+)}
+
       </main>
     </div>
   );

@@ -111,7 +111,6 @@ export default function NaukriProfileUI() {
   };
 
   const removeSkill = (s: string) => setSkills(skills.filter((i) => i !== s));
-  
 
   const cropImageToSquare = (file: File): Promise<string> => {
     return new Promise((resolve) => {
@@ -248,12 +247,7 @@ export default function NaukriProfileUI() {
                       placeholder="Last name"
                       className="border rounded-lg px-3 py-2"
                     />
-                    <input
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                      placeholder="Phone number"
-                      className="border rounded-lg px-3 py-2"
-                    />
+
                     <input
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
@@ -267,26 +261,23 @@ export default function NaukriProfileUI() {
           </div>
 
           {/* BIO / ABOUT */}
-<Section title="Profile summary" onEdit={() => setEditBio(true)}>
-  {!editBio ? (
-    <p className={bio ? "text-gray-700" : "text-gray-400"}>
-      {bio || "Add your profile summary"}
-    </p>
-  ) : (
-    <EditBox onSave={saveProfile} saving={saving}>
-      <textarea
-        rows={4}
-        value={bio}
-        onChange={(e) => setBio(e.target.value)}
-        placeholder="Write something about yourself..."
-        className="w-full border rounded-lg px-3 py-2"
-      />
-    </EditBox>
-  )}
-</Section>
-
-
-
+          <Section title="Profile summary" onEdit={() => setEditBio(true)}>
+            {!editBio ? (
+              <p className={bio ? "text-gray-700" : "text-gray-400"}>
+                {bio || "Add your profile summary"}
+              </p>
+            ) : (
+              <EditBox onSave={saveProfile} saving={saving}>
+                <textarea
+                  rows={4}
+                  value={bio}
+                  onChange={(e) => setBio(e.target.value)}
+                  placeholder="Write something about yourself..."
+                  className="w-full border rounded-lg px-3 py-2"
+                />
+              </EditBox>
+            )}
+          </Section>
 
           {/* HEADLINE */}
           <Section title="Resume headline" onEdit={() => setEditHeadline(true)}>
@@ -351,8 +342,6 @@ export default function NaukriProfileUI() {
               </EditBox>
             )}
           </Section>
-
-         
         </main>
       </div>
     </div>
