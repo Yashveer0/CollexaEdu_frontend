@@ -102,7 +102,71 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   return res.data;
 };
 
- 
+const addCompany = async (data: any) => {
+  const token = localStorage.getItem("collexa_token");
+
+  const res = await API.post(
+    "/api/companies",
+    data,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  return res.data;
+};
+
+
+const updateCompany = async (id: string, data: any) => {
+  const token = localStorage.getItem("collexa_token");
+
+  const res = await API.patch(
+    `/api/companies/${id}`,
+    data,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  return res.data;
+};
+
+const updateJob = async (jobId: string, payload: any) => {
+  const token = localStorage.getItem("collexa_token");
+
+  const res = await API.patch(
+    `/api/jobs/updatejob/${jobId}`,
+    payload,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  return res.data;
+};
+
+const deleteJob = async (jobId: string) => {
+  const token = localStorage.getItem("collexa_token");
+
+  const res = await API.delete(
+    `/api/jobs/deletejob/${jobId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  return res.data;
+};
+
+
 
   // 📝 REGISTER
   const register = async (data: any) => {
@@ -204,6 +268,10 @@ const resetPassword = async (
         resetPassword, 
         Admin_login,
         addJob,
+        addCompany,
+        updateCompany,
+        updateJob,
+        deleteJob,
       }}
     >
       {children}

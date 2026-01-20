@@ -4,12 +4,13 @@ import { useState } from "react";
 
 
 
+import Swal from "sweetalert2";
 
 import { useRouter } from "next/navigation";
 import { Bell,  UserCircle } from "lucide-react";
 import { useAuth } from "../context_api/AuthContext";
-
-
+import { API } from "../lib/axios"
+import { useEffect } from "react"
 import "../globals.css";
 
 import {
@@ -30,7 +31,6 @@ import {
 
 type Screen =
   | "dashboard"
-  | "dashboard"
   | "users"
   | "user-detail"
   | "leads"
@@ -42,7 +42,8 @@ type Screen =
   | "courses"
   | "add-course"
   | "blog-categories"
-  | "blogs"
+  | "companies"
+  | "create-company"
   | "create-blog"
   | "testimonials"
   | "Jobs"
@@ -54,14 +55,31 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
+  const [companies, setCompanies] = useState<any[]>([]);
+  const [selectedCompany, setSelectedCompany] = useState<any>(null);
+ 
   
 const router = useRouter();
 const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const [status, setStatus] = useState<"Pending" | "Approved" | "Rejected">("Pending");
   const [showRequestInfo, setShowRequestInfo] = useState(false);
-  const { addJob } = useAuth();
+
+  const { addJob, addCompany, updateCompany , updateJob , deleteJob } = useAuth();
+
+
+  const [jobs, setJobs] = useState<any[]>([]);
+const [jobsLoading, setJobsLoading] = useState(false);
+
+// pagination + search
+const [page, setPage] = useState(1);
+const [limit] = useState(10);
+const [search, setSearch] = useState("");
+const [totalPages, setTotalPages] = useState(1);
+
+// edit mode
+const [editingJob, setEditingJob] = useState<any>(null);
+
 
   const [activeSettingTab, setActiveSettingTab] = useState<
   "General" |
@@ -73,13 +91,14 @@ const [showLogoutModal, setShowLogoutModal] = useState(false);
 >("General");
 
  const [showAddJobModal, setShowAddJobModal] = useState(false);
-
+ 
+ 
 
 const [jobForm, setJobForm] = useState({
   title: "",
   description: "",
-  companyName: "",
-  
+  companyId: "",
+  companyName: "",   
   location: "",
   type: "remote",
   salaryMin: "",
@@ -88,6 +107,325 @@ const [jobForm, setJobForm] = useState({
   openings: "",
   experienceLevel: "Fresher",
 });
+
+
+const [companyForm, setCompanyForm] = useState({
+  name: "",
+  description: "",
+  website: "",
+  location: "",
+  logoUrl: "",
+});
+
+const fetchJobs = async () => {
+  try {
+    setJobsLoading(true);
+    const token = localStorage.getItem("collexa_token");
+
+    const res = await API.get("/api/jobs/listingjob", {
+      params: { page, limit, search },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log("JOBS API RESPONSE 👉", res.data);
+
+    const jobsArray =
+      res.data?.jobs ||
+      res.data?.data?.jobs ||
+      res.data?.data ||
+      [];
+
+    setJobs(Array.isArray(jobsArray) ? jobsArray : []);
+    setTotalPages(res.data?.totalPages || 1);
+  } catch (err) {
+    console.error("Fetch jobs failed", err);
+    setJobs([]);
+  } finally {
+    setJobsLoading(false);
+  }
+};
+
+
+
+useEffect(() => {
+  if (screen === "Jobs") {
+    fetchJobs();
+  }
+}, [screen, page, search]);
+
+const resetJobForm = () => {
+  setJobForm({
+    title: "",
+    description: "",
+    companyId: "",
+    companyName: "",
+    location: "",
+    type: "remote",
+    salaryMin: "",
+    salaryMax: "",
+    skillsRequired: "",
+    openings: "",
+    experienceLevel: "Fresher",
+  });
+};
+
+
+const handleDeleteJob = async (jobId: string) => {
+  const result = await Swal.fire({
+    title: "Delete Job?",
+    text: "This job will be permanently removed.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Yes, delete it",
+  });
+
+  if (!result.isConfirmed) return;
+
+  try {
+    setLoading(true);
+    await deleteJob(jobId);
+
+    await Swal.fire({
+      icon: "success",
+      title: "Deleted!",
+      text: "Job has been deleted successfully.",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+
+    fetchJobs();
+  } catch (err: any) {
+    Swal.fire({
+      icon: "error",
+      title: "Delete failed",
+      text:
+        err.response?.data?.message ||
+        "Unable to delete job",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
+
+
+const handleSaveCompany = async () => {
+  try {
+    // 🔎 validation
+    if (
+      !companyForm.name.trim() ||
+      !companyForm.description.trim() ||
+      !companyForm.location.trim()
+    ) {
+      Swal.fire({
+        icon: "warning",
+        title: "Missing fields",
+        text: "Company name, description and location are required",
+      });
+      return;
+    }
+
+    // website validation
+    if (
+      companyForm.website &&
+      !/^https?:\/\//i.test(companyForm.website)
+    ) {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Website",
+        text: "Website must start with http:// or https://",
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    const payload = {
+      name: companyForm.name.trim(),
+      description: companyForm.description.trim(),
+      location: companyForm.location.trim(),
+
+      // ✅ optional fields SAFE
+      website: companyForm.website?.trim() || "",
+      logoUrl: companyForm.logoUrl?.trim() || "",
+    };
+
+    if (selectedCompany) {
+      // ✏️ UPDATE
+      await updateCompany(selectedCompany._id, payload);
+
+      Swal.fire({
+        icon: "success",
+        title: "Company Updated",
+        text: "Company details updated successfully",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    } else {
+      // ➕ CREATE
+      await addCompany(payload);
+
+      Swal.fire({
+        icon: "success",
+        title: "Company Added",
+        text: "New company added successfully",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    }
+
+    // 🔄 refresh list
+    await fetchCompanies();
+
+    // 🔁 reset & go back
+    setCompanyForm({
+      name: "",
+      description: "",
+      website: "",
+      location: "",
+      logoUrl: "",
+    });
+    setSelectedCompany(null);
+    setScreen("companies");
+
+  } catch (err: any) {
+    console.error("Save company error:", err);
+
+    Swal.fire({
+      icon: "error",
+      title: "Failed",
+      text:
+        err.response?.data?.message ||
+        "Something went wrong while saving company",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
+
+
+
+const fetchCompanies = async () => {
+  try {
+    const token = localStorage.getItem("collexa_token");
+
+    const res = await API.get("/api/companies", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log("COMPANIES API RAW RESPONSE 👉", res.data);
+
+    // ✅ FORCE ARRAY EXTRACTION
+    let companiesArray: any[] = [];
+
+    if (Array.isArray(res.data)) {
+      companiesArray = res.data;
+    } else if (Array.isArray(res.data?.companies)) {
+      companiesArray = res.data.companies;
+    } else if (Array.isArray(res.data?.data)) {
+      companiesArray = res.data.data;
+    } else if (Array.isArray(res.data?.data?.companies)) {
+      companiesArray = res.data.data.companies;
+    } else {
+      console.error("❌ Companies array not found", res.data);
+    }
+
+    console.log("FINAL COMPANIES ARRAY 👉", companiesArray);
+
+    setCompanies(companiesArray);
+  } catch (err: any) {
+    console.error("Fetch companies error 👉", err.response || err);
+    setCompanies([]);
+  }
+};
+
+
+
+
+useEffect(() => {
+  if (screen === "companies" || screen === "Jobs") {
+    fetchCompanies();
+  }
+}, [screen]);
+
+
+useEffect(() => {
+  if (screen === "create-company") {
+    if (selectedCompany) {
+      setCompanyForm({
+        name: selectedCompany.name || "",
+        description: selectedCompany.description || "",
+        website: selectedCompany.website || "",
+        location: selectedCompany.location || "",
+        logoUrl: selectedCompany.logoUrl || "",
+      });
+    } else {
+      // ✅ RESET when creating
+      setCompanyForm({
+        name: "",
+        description: "",
+        website: "",
+        location: "",
+        logoUrl: "",
+      });
+    }
+  }
+}, [screen, selectedCompany]);
+
+
+
+
+const handleDeleteCompany = async (id: string) => {
+  const result = await Swal.fire({
+    title: "Delete Company?",
+    text: "All jobs under this company may be affected.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    confirmButtonText: "Delete",
+  });
+
+  if (!result.isConfirmed) return;
+
+  try {
+    await API.delete(`/api/companies/${id}`, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("collexa_token")}`,
+      },
+    });
+
+    setCompanies((prev) =>
+      prev.filter((c) => c._id !== id)
+    );
+
+    Swal.fire({
+      icon: "success",
+      title: "Deleted",
+      timer: 1200,
+      showConfirmButton: false,
+    });
+  } catch {
+    Swal.fire({
+      icon: "error",
+      title: "Delete failed",
+      text: "Unable to delete company",
+    });
+  }
+};
+
+
+
 
   /* ================= LAYOUT ================= */
   return (
@@ -109,7 +447,7 @@ const [jobForm, setJobForm] = useState({
       { label: "Admission Request", key: "admissions", icon: GraduationCap },
       { label: "Courses", key: "courses", icon: BookOpen },
       { label: "Blog Categories", key: "blog-categories", icon: FolderOpen },
-      { label: "Blogs", key: "blogs", icon: FileText },
+      { label: "companies", key: "companies", icon: FileText },
       { label: "Testimonials", key: "testimonials", icon: Star },
       { label: "Jobs", key: "Jobs", icon: Briefcase },
       { label: "Applications", key: "applications", icon: FileText },
@@ -1508,24 +1846,25 @@ const [jobForm, setJobForm] = useState({
   </>
 )}
 
-{screen === "blogs" && (
+{screen === "companies" && (
   <>
     {/* ================= HEADER ================= */}
     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
       <div>
-        <h2 className="text-xl font-bold">
-          Blogs
-        </h2>
+        <h2 className="text-xl font-bold">Companies</h2>
         <p className="text-sm text-gray-500">
-          Manage published and draft blogs
+          Manage registered companies
         </p>
       </div>
 
       <button
-        onClick={() => setScreen("create-blog")}
+        onClick={() => {
+          setSelectedCompany(null);
+          setScreen("create-company");
+        }}
         className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
       >
-        + Create Blog
+        + Add Company
       </button>
     </div>
 
@@ -1534,96 +1873,233 @@ const [jobForm, setJobForm] = useState({
       <table className="w-full text-sm">
         <thead className="bg-gray-50 text-gray-600">
           <tr>
-            <th className="px-4 py-3 text-left">Title</th>
-            <th className="px-4 py-3 text-left">Category</th>
-            <th className="px-4 py-3 text-left">Author</th>
+            <th className="px-4 py-3 text-left">Company Name</th>
+            <th className="px-4 py-3 text-left">Location</th>
+            <th className="px-4 py-3 text-left">Description</th>
             <th className="px-4 py-3 text-left">Status</th>
-            <th className="px-4 py-3 text-left">Publish Date</th>
+            <th className="px-4 py-3 text-left">Created At</th>
             <th className="px-4 py-3 text-left">Action</th>
           </tr>
         </thead>
 
         <tbody className="divide-y">
-          {[
-            {
-              title: "How to Choose the Right MBA College",
-              category: "Admissions",
-              author: "Admin",
-              status: "Published",
-            },
-            {
-              title: "Top Scholarships in India",
-              category: "Scholarships",
-              author: "Editor",
-              status: "Draft",
-            },
-            {
-              title: "Career Options After B.Tech",
-              category: "Career Guidance",
-              author: "Admin",
-              status: "Published",
-            },
-          ].map((blog, i) => (
-            <tr
-              key={i}
-              className="hover:bg-blue-50 transition"
-            >
-              {/* Title */}
-              <td className="px-4 py-3 font-medium">
-                {blog.title}
-              </td>
 
-              {/* Category */}
-              <td className="px-4 py-3">
-                {blog.category}
-              </td>
+          {/* 🔐 SAFETY CHECK */}
+          {!Array.isArray(companies) || companies.length === 0 ? (
+            <tr>
+              <td
+                colSpan={6}
+                className="px-4 py-10 text-center text-gray-500"
+              >
+                <p className="mb-4">No companies found</p>
 
-              {/* Author */}
-              <td className="px-4 py-3 text-gray-600">
-                {blog.author}
-              </td>
-
-              {/* Status */}
-              <td className="px-4 py-3">
-                <span
-                  className={`px-2 py-1 text-xs rounded
-                    ${
-                      blog.status === "Published"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-yellow-100 text-yellow-700"
-                    }
-                  `}
+                <button
+                  onClick={() => {
+                    setSelectedCompany(null);
+                    setScreen("create-company");
+                  }}
+                  className="inline-flex items-center px-4 py-2 rounded-lg
+                    bg-blue-600 text-white text-sm hover:bg-blue-700 transition"
                 >
-                  {blog.status}
-                </span>
-              </td>
-
-              {/* Publish Date */}
-              <td className="px-4 py-3 text-gray-500">
-                20 Jan 2026
-              </td>
-
-              {/* Action */}
-              <td className="px-4 py-3">
-                <div className="flex gap-3 text-xs">
-                  <button
-                    onClick={() => setScreen("create-blog")}
-                    className="text-blue-600 hover:underline"
-                  >
-                    Edit
-                  </button>
-                  <button className="text-red-600 hover:underline">
-                    Delete
-                  </button>
-                </div>
+                  + Add Company
+                </button>
               </td>
             </tr>
-          ))}
+          ) : (
+            companies.map((company: any) => (
+              <tr
+                key={company._id}
+                className="hover:bg-blue-50 transition"
+              >
+                <td className="px-4 py-3 font-medium">
+                  {company.name}
+                </td>
+
+                <td className="px-4 py-3">
+                  {company.location}
+                </td>
+
+                <td className="px-4 py-3 text-gray-600 line-clamp-2 max-w-xs">
+                  {company.description || "—"}
+                </td>
+
+                <td className="px-4 py-3">
+                  <span className="px-2 py-1 text-xs rounded bg-green-100 text-green-700">
+                    Active
+                  </span>
+                </td>
+
+                <td className="px-4 py-3 text-gray-500">
+                  {company.createdAt
+                    ? new Date(company.createdAt).toLocaleDateString()
+                    : "—"}
+                </td>
+
+                <td className="px-4 py-3">
+                  <div className="flex gap-3 text-xs">
+                    <button
+                      onClick={() => {
+                        setSelectedCompany(company);
+                        setScreen("create-company");
+                      }}
+                      className="text-blue-600 hover:underline"
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      onClick={() => handleDeleteCompany(company._id)}
+                      className="text-red-600 hover:underline"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </div>
   </>
 )}
+
+
+{screen === "create-company" && (
+  <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow p-4 sm:p-6 md:p-8">
+
+    {/* ================= HEADER ================= */}
+    <div className="mb-6">
+      <h2 className="text-xl font-bold">
+        {selectedCompany ? "Edit Company" : "Add Company"}
+      </h2>
+      <p className="text-sm text-gray-500">
+        Manage company information
+      </p>
+    </div>
+
+    {/* ================= FORM ================= */}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+      {/* Company Name */}
+      <div>
+        <label className="text-sm font-medium">
+          Company Name <span className="text-red-500">*</span>
+        </label>
+        <input
+          value={companyForm.name}
+          onChange={(e) =>
+            setCompanyForm({ ...companyForm, name: e.target.value })
+          }
+          placeholder="e.g. TCS"
+          className="w-full mt-1 border rounded-lg px-4 py-2
+            focus:ring-2 focus:ring-blue-600 outline-none"
+        />
+      </div>
+
+      {/* Location */}
+      <div>
+        <label className="text-sm font-medium">
+          Location <span className="text-red-500">*</span>
+        </label>
+        <input
+          value={companyForm.location}
+          onChange={(e) =>
+            setCompanyForm({ ...companyForm, location: e.target.value })
+          }
+          placeholder="e.g. Bangalore, India"
+          className="w-full mt-1 border rounded-lg px-4 py-2
+            focus:ring-2 focus:ring-blue-600 outline-none"
+        />
+      </div>
+
+      {/* Website */}
+      <div>
+        <label className="text-sm font-medium">
+          Website
+        </label>
+        <input
+          value={companyForm.website}
+          onChange={(e) =>
+            setCompanyForm({ ...companyForm, website: e.target.value })
+          }
+          placeholder="https://company.com"
+          className="w-full mt-1 border rounded-lg px-4 py-2
+            focus:ring-2 focus:ring-blue-600 outline-none"
+        />
+      </div>
+
+      {/* Logo URL */}
+      <div>
+        <label className="text-sm font-medium">
+          Logo URL
+        </label>
+        <input
+          value={companyForm.logoUrl}
+          onChange={(e) =>
+            setCompanyForm({ ...companyForm, logoUrl: e.target.value })
+          }
+          placeholder="https://image-url.com/logo.png"
+          className="w-full mt-1 border rounded-lg px-4 py-2
+            focus:ring-2 focus:ring-blue-600 outline-none"
+        />
+      </div>
+    </div>
+
+    {/* Description */}
+    <div className="mt-6">
+      <label className="text-sm font-medium">
+        Description <span className="text-red-500">*</span>
+      </label>
+      <textarea
+        rows={4}
+        value={companyForm.description}
+        onChange={(e) =>
+          setCompanyForm({ ...companyForm, description: e.target.value })
+        }
+        placeholder="Brief description about the company"
+        className="w-full mt-1 border rounded-lg px-4 py-2
+          focus:ring-2 focus:ring-blue-600 outline-none"
+      />
+    </div>
+
+    {/* ================= ACTIONS ================= */}
+    <div className="mt-8 flex justify-end gap-3">
+      <button
+        onClick={() => {
+          setSelectedCompany(null);
+          setCompanyForm({
+            name: "",
+            description: "",
+            website: "",
+            location: "",
+            logoUrl: "",
+          });
+          setScreen("companies");
+        }}
+        className="px-5 py-2 rounded-lg border hover:bg-gray-100"
+      >
+        Cancel
+      </button>
+
+      <button
+        disabled={loading}
+        onClick={handleSaveCompany}
+        className="px-6 py-2 rounded-lg bg-blue-600 text-white
+          hover:bg-blue-700 transition disabled:opacity-60"
+      >
+        {loading
+          ? "Saving..."
+          : selectedCompany
+          ? "Update Company"
+          : "Save Company"}
+      </button>
+    </div>
+  </div>
+)}
+
+
+
 
 {screen === "create-blog" && (
   <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow p-3 sm:p-4 md:p-6 md:p-8">
@@ -1760,7 +2236,7 @@ const [jobForm, setJobForm] = useState({
 
           <div className="flex flex-col gap-3">
             <button
-              onClick={() => setScreen("blogs")}
+              onClick={() => setScreen("companies")}
               className="px-4 py-2 rounded-lg border hover:bg-gray-100 transition"
             >
               Cancel
@@ -1916,22 +2392,34 @@ const [jobForm, setJobForm] = useState({
     {/* ================= HEADER ================= */}
     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
       <div>
-        <h2 className="text-xl font-bold">
-          Jobs
-        </h2>
+        <h2 className="text-xl font-bold">Jobs</h2>
         <p className="text-sm text-gray-500">
           Manage job openings and hiring status
         </p>
       </div>
 
       <button
-  onClick={() => setShowAddJobModal(true)}
-  className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
->
-  + Add Job
-</button>
-
+        onClick={() => {
+          setEditingJob(null);
+          resetJobForm();
+          setShowAddJobModal(true);
+        }}
+        className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+      >
+        + Add Job
+      </button>
     </div>
+
+    {/* ================= SEARCH ================= */}
+    <input
+      placeholder="Search by job title or company..."
+      value={search}
+      onChange={(e) => {
+        setSearch(e.target.value);
+        setPage(1);
+      }}
+      className="border rounded-lg px-4 py-2 text-sm w-64 mb-4"
+    />
 
     {/* ================= TABLE ================= */}
     <div className="bg-white rounded-xl shadow overflow-x-auto">
@@ -1939,7 +2427,7 @@ const [jobForm, setJobForm] = useState({
         <thead className="bg-gray-50 text-gray-600">
           <tr>
             <th className="px-4 py-3 text-left">Job Title</th>
-            <th className="px-4 py-3 text-left">Department</th>
+            <th className="px-4 py-3 text-left">Company</th>
             <th className="px-4 py-3 text-left">Location</th>
             <th className="px-4 py-3 text-left">Status</th>
             <th className="px-4 py-3 text-left">Posted Date</th>
@@ -1948,80 +2436,120 @@ const [jobForm, setJobForm] = useState({
         </thead>
 
         <tbody className="divide-y">
-          {[
-            {
-              title: "MERN Stack Developer",
-              dept: "Engineering",
-              location: "Delhi",
-              status: "Open",
-            },
-            {
-              title: "Admission Counselor",
-              dept: "Admissions",
-              location: "Noida",
-              status: "Open",
-            },
-            {
-              title: "Content Writer",
-              dept: "Marketing",
-              location: "Remote",
-              status: "Closed",
-            },
-          ].map((job, i) => (
-            <tr
-              key={i}
-              className="hover:bg-blue-50 transition"
-            >
-              {/* Job Title */}
-              <td className="px-4 py-3 font-medium">
-                {job.title}
-              </td>
-
-              {/* Department */}
-              <td className="px-4 py-3">
-                {job.dept}
-              </td>
-
-              {/* Location */}
-              <td className="px-4 py-3 text-gray-600">
-                {job.location}
-              </td>
-
-              {/* Status */}
-              <td className="px-4 py-3">
-                <span
-                  className={`px-2 py-1 text-xs rounded
-                    ${
-                      job.status === "Open"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
-                    }
-                  `}
-                >
-                  {job.status}
-                </span>
-              </td>
-
-              {/* Posted Date */}
-              <td className="px-4 py-3 text-gray-500">
-                25 Jan 2026
-              </td>
-
-              {/* Action */}
-              <td className="px-4 py-3">
-                <div className="flex gap-3 text-xs">
-                  <button className="text-blue-600 hover:underline">
-                    Edit
-                  </button>
-                  <button className="text-red-600 hover:underline">
-                    Delete
-                  </button>
-                </div>
+          {/* Loading */}
+          {jobsLoading && (
+            <tr>
+              <td colSpan={6} className="px-4 py-6 text-center text-gray-500">
+                Loading jobs...
               </td>
             </tr>
-          ))}
+          )}
+
+          {/* Empty */}
+          {!jobsLoading && jobs.length === 0 && (
+            <tr>
+              <td colSpan={6} className="px-4 py-6 text-center text-gray-500">
+                No jobs found
+              </td>
+            </tr>
+          )}
+
+          {/* Jobs */}
+          {!jobsLoading &&
+            jobs.map((job: any) => (
+              <tr key={job._id} className="hover:bg-blue-50 transition">
+                <td className="px-4 py-3 font-medium">
+                  {job.title}
+                </td>
+
+                <td className="px-4 py-3">
+                  {job.companyName || "—"}
+                </td>
+
+                <td className="px-4 py-3 text-gray-600">
+                  {job.location}
+                </td>
+
+                <td className="px-4 py-3">
+                  <span
+                    className={`px-2 py-1 text-xs rounded ${
+                      job.isActive
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
+                    }`}
+                  >
+                    {job.isActive ? "Open" : "Closed"}
+                  </span>
+                </td>
+
+                <td className="px-4 py-3 text-gray-500">
+                  {job.createdAt
+                    ? new Date(job.createdAt).toLocaleDateString()
+                    : "—"}
+                </td>
+
+                <td className="px-4 py-3">
+                  <div className="flex gap-3 text-xs">
+                    <button
+                      onClick={() => {
+                        setEditingJob(job);
+                        setJobForm({
+                          title: job.title || "",
+                          description: job.description || "",
+                          companyId: job.company || "",
+                          companyName: job.companyName || "",
+                          location: job.location || "",
+                          type: job.type || "remote",
+                          salaryMin: job.salaryMin || "",
+                          salaryMax: job.salaryMax || "",
+                          openings: job.openings || "",
+                          experienceLevel:
+                            job.experienceLevel || "Fresher",
+                          skillsRequired:
+                            job.skillsRequired?.join(", ") || "",
+                        });
+                        setShowAddJobModal(true);
+                      }}
+                      className="text-blue-600 hover:underline"
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      onClick={() => handleDeleteJob(job._id)}
+                      className="text-red-600 hover:underline"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
         </tbody>
       </table>
+    </div>
+
+    {/* ================= PAGINATION ================= */}
+    <div className="flex justify-between items-center mt-4 text-sm">
+      <button
+        disabled={page === 1}
+        onClick={() => setPage(page - 1)}
+        className="px-3 py-1 border rounded disabled:opacity-50"
+      >
+        Prev
+      </button>
+
+      <span>
+        Page {page} of {totalPages}
+      </span>
+
+      <button
+        disabled={page === totalPages}
+        onClick={() => setPage(page + 1)}
+        className="px-3 py-1 border rounded disabled:opacity-50"
+      >
+        Next
+      </button>
     </div>
   </>
 )}
@@ -2053,14 +2581,31 @@ const [jobForm, setJobForm] = useState({
           onChange={(e) => setJobForm({ ...jobForm, title: e.target.value })}
         />
 
-        <input
-          placeholder="Company Name"
-          className="input"
-          value={jobForm.companyName}
-          onChange={(e) =>
-            setJobForm({ ...jobForm, companyName: e.target.value })
-          }
-        />
+       <select
+  className="input"
+  value={jobForm.companyId}
+  onChange={(e) => {
+    const selectedId = e.target.value;
+    const selectedCompany = companies.find(
+      (c) => c._id === selectedId
+    );
+
+    setJobForm({
+      ...jobForm,
+      companyId: selectedId,
+      companyName: selectedCompany?.name || "",
+    });
+  }}
+>
+  <option value="">Select Company</option>
+  {companies.map((company) => (
+    <option key={company._id} value={company._id}>
+      {company.name}
+    </option>
+  ))}
+</select>
+
+
 
         <input
           placeholder="Location"
@@ -2072,14 +2617,19 @@ const [jobForm, setJobForm] = useState({
         />
 
         <select
-          className="input"
-          value={jobForm.type}
-          onChange={(e) => setJobForm({ ...jobForm, type: e.target.value })}
-        >
-          <option value="remote">Remote</option>
-          <option value="onsite">Onsite</option>
-          <option value="hybrid">Hybrid</option>
-        </select>
+  className="input"
+  value={jobForm.type}
+  onChange={(e) =>
+    setJobForm({ ...jobForm, type: e.target.value })
+  }
+>
+  <option value="remote">Remote</option>
+  <option value="full-time">Full Time</option>   
+  <option value="on-site">Onsite</option>   
+  <option value="hybrid">Hybrid</option>
+  <option value="part-time">Part Time</option>
+  <option value="contract">Contract</option>
+</select>
 
         <input
           placeholder="Salary Min"
@@ -2157,42 +2707,82 @@ const [jobForm, setJobForm] = useState({
       if (
         !jobForm.title ||
         !jobForm.description ||
-        !jobForm.companyName ||
+        !jobForm.companyId ||
         !jobForm.location ||
         !jobForm.salaryMin ||
         !jobForm.salaryMax ||
         !jobForm.openings ||
         !jobForm.skillsRequired
       ) {
-        alert("Please fill all required fields");
+        Swal.fire({
+  icon: "warning",
+  title: "Missing fields",
+  text: "Please fill all required job details",
+});
+
         return;
       }
 
       setLoading(true);
 
-      const payload = {
-        title: jobForm.title.trim(),
-        description: jobForm.description.trim(),
-        companyName: jobForm.companyName.trim(),
-        
-        location: jobForm.location.trim(),
-        type: jobForm.type,
-        salaryMin: Number(jobForm.salaryMin),
-        salaryMax: Number(jobForm.salaryMax),
-        openings: Number(jobForm.openings),
-        experienceLevel: jobForm.experienceLevel,
-        skillsRequired: jobForm.skillsRequired
-          .split(",")
-          .map((s) => s.trim())
-          .filter(Boolean),
-      };
+     const payload = {
+  title: jobForm.title.trim(),
+  description: jobForm.description.trim(),
+
+  // 👇 BACKEND KE LIYE
+  company: jobForm.companyId,        // ObjectId
+  companyName: jobForm.companyName,  // String
+
+  location: jobForm.location.trim(),
+  type: jobForm.type,
+  salaryMin: Number(jobForm.salaryMin),
+  salaryMax: Number(jobForm.salaryMax),
+  openings: Number(jobForm.openings),
+  experienceLevel: jobForm.experienceLevel,
+  skillsRequired: jobForm.skillsRequired
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean),
+};
+
 
       console.log("ADD JOB PAYLOAD 👉", payload);
 
-      await addJob(payload);
+      if (editingJob) {
+  await updateJob(editingJob._id, payload);
+  Swal.fire({
+  icon: "success",
+  title: "Job Updated",
+  text: "Job details updated successfully",
+  timer: 1500,
+  showConfirmButton: false,
+});
 
-      alert("Job added successfully ✅");
-      setShowAddJobModal(false);
+} else {
+  await addJob(payload);
+  Swal.fire({
+  icon: "success",
+  title: "Job Created",
+  text: "Job has been added successfully",
+  timer: 1500,
+  showConfirmButton: false,
+});
+
+}
+
+      await fetchJobs();
+resetJobForm();
+
+Swal.fire({
+  icon: "success",
+  title: "Job Created",
+  text: "Job has been added successfully",
+  timer: 1500,
+  showConfirmButton: false,
+});
+
+setShowAddJobModal(false);
+      
     } catch (err: any) {
       console.error("Add job failed 👉", err.response?.data || err.message);
       alert(
@@ -2474,7 +3064,7 @@ const [jobForm, setJobForm] = useState({
               "View Leads",
               "Edit Packages",
               "Approve Admissions",
-              "Manage Blogs",
+              "Manage companies",
               "Access Reports",
             ].map((perm) => (
               <label
@@ -2572,7 +3162,7 @@ const [jobForm, setJobForm] = useState({
           { label: "Packages", key: "packages", icon: Package },
           { label: "Admissions", key: "admissions", icon: GraduationCap },
           { label: "Courses", key: "courses", icon: BookOpen },
-          { label: "Blogs", key: "blogs", icon: FileText },
+          { label: "companies", key: "companies", icon: FileText },
           { label: "Settings", key: "settings", icon: Settings },
         ].map(({ label, key, icon: Icon }) => (
           <div
