@@ -13,6 +13,7 @@ import { API } from "../lib/axios"
 import { useEffect } from "react"
 import "../globals.css";
 
+
 import {
   LayoutDashboard,
   Users,
@@ -26,7 +27,22 @@ import {
   FileText,
   Settings,
   LogOut,
+  Building,
+  Factory
 } from "lucide-react";
+
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+
 
 
 type Screen =
@@ -43,10 +59,12 @@ type Screen =
   | "add-course"
   | "blog-categories"
   | "companies"
+  | "blog"
   | "create-company"
   | "create-blog"
   | "testimonials"
   | "Jobs"
+  | "Internships"
   | "applications"
   | "settings";
 
@@ -59,8 +77,8 @@ export default function AdminPage() {
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
  
   
-const router = useRouter();
-const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const router = useRouter();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const [status, setStatus] = useState<"Pending" | "Approved" | "Rejected">("Pending");
   const [showRequestInfo, setShowRequestInfo] = useState(false);
@@ -69,7 +87,56 @@ const [showLogoutModal, setShowLogoutModal] = useState(false);
 
 
   const [jobs, setJobs] = useState<any[]>([]);
-const [jobsLoading, setJobsLoading] = useState(false);
+  const [jobsLoading, setJobsLoading] = useState(false);
+
+// intership 
+const [internships, setInternships] = useState<any[]>([]);
+const [internshipsLoading, setInternshipsLoading] = useState(false);
+
+const [internshipPage, setInternshipPage] = useState(1);
+const [internshipSearch, setInternshipSearch] = useState("");
+const [internshipTotalPages, setInternshipTotalPages] = useState(1);
+
+const [showAddInternshipModal, setShowAddInternshipModal] = useState(false);
+const [editingInternship, setEditingInternship] = useState<any>(null);
+const [internshipLoading, setInternshipLoading] = useState(false);
+
+// users
+const [users, setUsers] = useState<any[]>([]);
+const [usersLoading, setUsersLoading] = useState(false);
+
+const [userPage, setUserPage] = useState(1);
+const [userLimit] = useState(10);
+const [userTotalPages, setUserTotalPages] = useState(1);
+
+const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+
+const [userSearch, setUserSearch] = useState("");
+const [userRole, setUserRole] = useState("all"); // student | employer | company | all
+
+
+const [selectedUser, setSelectedUser] = useState<any>(null);
+const [userDetailLoading, setUserDetailLoading] = useState(false);
+
+
+// dashboard 
+const [userGrowthData, setUserGrowthData] = useState([
+  { name: "Jan", users: 10 },
+  { name: "Feb", users: 25 },
+  { name: "Mar", users: 40 },
+  { name: "Apr", users: 65 },
+  { name: "May", users: 90 },
+  { name: "Jun", users: 120 },
+]);
+
+const [leadsData, setLeadsData] = useState([
+  { name: "Jan", leads: 80, conversions: 30 },
+  { name: "Feb", leads: 120, conversions: 55 },
+  { name: "Mar", leads: 160, conversions: 70 },
+  { name: "Apr", leads: 200, conversions: 95 },
+  { name: "May", leads: 260, conversions: 120 },
+]);
+
 
 // pagination + search
 const [page, setPage] = useState(1);
@@ -107,6 +174,40 @@ const [jobForm, setJobForm] = useState({
   openings: "",
   experienceLevel: "Fresher",
 });
+
+const [internshipForm, setInternshipForm] = useState({
+  title: "",
+  description: "",
+  companyId: "",
+  companyName: "",
+  location: "",
+  stipendMin: "",
+  stipendMax: "",
+  duration: "",
+  startDate: "",
+  openings: "",
+  mode: "remote",
+  skillsRequired: "",
+});
+
+const resetInternshipForm = () => {
+  setInternshipForm({
+    title: "",
+    description: "",
+    companyId: "",
+    companyName: "",
+    location: "",
+    stipendMin: "",
+    stipendMax: "",
+    duration: "",
+    startDate: "",
+    openings: "",
+    mode: "remote",
+    skillsRequired: "",
+  });
+};
+
+
 
 
 const [companyForm, setCompanyForm] = useState({
@@ -147,6 +248,118 @@ const fetchJobs = async () => {
   }
 };
 
+const fetchInternships = async () => {
+  try {
+    setInternshipsLoading(true);
+    const token = localStorage.getItem("collexa_token");
+
+    const res = await API.get("/api/internship/listinginternship", {
+      params: {
+        page: internshipPage,
+        limit: 10,
+        search: internshipSearch,
+      },
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    const data =
+      res.data?.internships ||
+      res.data?.data?.internships ||
+      res.data?.data ||
+      [];
+
+    setInternships(Array.isArray(data) ? data : []);
+    setInternshipTotalPages(res.data?.totalPages || 1);
+  } catch (err) {
+    console.error("Fetch internships failed", err);
+    setInternships([]);
+  } finally {
+    setInternshipsLoading(false);
+  }
+};
+
+// const fetchUsers = async () => {
+//   try {
+//     setUsersLoading(true);
+
+//     const token = localStorage.getItem("collexa_token");
+
+//     const res = await API.get("/api/admin/users", {
+//       params: {
+//         search: userSearch || undefined,
+//         role: userRole !== "all" ? userRole : undefined,
+//         page: userPage,
+//         limit: userLimit,
+//       },
+//       headers: {
+//         Authorization: `Bearer ${token}`,
+//       },
+//     });
+
+//     const data =
+//       res.data?.users ||
+//       res.data?.data?.users ||
+//       res.data?.data ||
+//       [];
+
+//     setUsers(Array.isArray(data) ? data : []);
+//     setUserTotalPages(res.data?.totalPages || 1);
+//   } catch (err) {
+//     console.error("Fetch users failed", err);
+//     setUsers([]);
+//   } finally {
+//     setUsersLoading(false);
+//   }
+// };
+
+const fetchUsers = async () => {
+  try {
+    setUsersLoading(true);
+
+    const token = localStorage.getItem("collexa_token");
+
+    const res = await API.get("/api/admin/users", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log("USERS API RAW RESPONSE 👉", res.data);
+
+    const data =
+      res.data?.users ||
+      res.data?.data?.users ||
+      res.data?.data ||
+      [];
+
+    console.log("FINAL USERS ARRAY 👉", data);
+
+    setUsers(Array.isArray(data) ? data : []);
+  } catch (err) {
+    console.error("Fetch users failed", err);
+    setUsers([]);
+  } finally {
+    setUsersLoading(false);
+  }
+};
+
+
+const fetchSingleUser = async (id: string) => {
+  console.log("FETCH USER ID 👉", id);
+
+  const token = localStorage.getItem("collexa_token");
+
+  const res = await API.get(`/api/admin/users/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data?.user || res.data;
+};
+
 
 
 useEffect(() => {
@@ -154,6 +367,47 @@ useEffect(() => {
     fetchJobs();
   }
 }, [screen, page, search]);
+
+useEffect(() => {
+  if (screen === "Internships") {
+    fetchInternships();
+    fetchCompanies();
+  }
+}, [screen, internshipPage, internshipSearch]);
+
+useEffect(() => {
+  if (screen === "users") {
+    fetchUsers();
+  }
+}, [screen, userPage, userSearch, userRole]);
+
+useEffect(() => {
+  if (screen === "user-detail" && selectedUserId) {
+    const loadUser = async () => {
+      try {
+        setUserDetailLoading(true);
+
+        const data = await fetchSingleUser(selectedUserId);
+
+        console.log("SINGLE USER DATA 👉", data);
+
+        setSelectedUser(data);
+      } catch (err) {
+        console.error("Fetch single user failed", err);
+        Swal.fire({
+          icon: "error",
+          title: "Failed",
+          text: "Unable to load user details",
+        });
+      } finally {
+        setUserDetailLoading(false);
+      }
+    };
+
+    loadUser();
+  }
+}, [screen, selectedUserId]);
+
 
 const resetJobForm = () => {
   setJobForm({
@@ -211,8 +465,95 @@ const handleDeleteJob = async (jobId: string) => {
   }
 };
 
+const handleDeleteInternship = async (internshipId: string) => {
+  const result = await Swal.fire({
+    title: "Delete Internship?",
+    text: "This internship will be permanently removed.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Yes, delete it",
+  });
+
+  if (!result.isConfirmed) return;
+
+  try {
+    setInternshipLoading(true);
+
+    const token = localStorage.getItem("collexa_token");
+
+    await API.delete(
+      `/api/internship/deletejob/${internshipId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    Swal.fire({
+      icon: "success",
+      title: "Deleted!",
+      text: "Internship has been deleted successfully.",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+
+    fetchInternships(); // 🔄 refresh table
+  } catch (err: any) {
+    console.error("Delete internship failed 👉", err);
+
+    Swal.fire({
+      icon: "error",
+      title: "Delete failed",
+      text:
+        err.response?.data?.message ||
+        "Unable to delete internship",
+    });
+  } finally {
+    setInternshipLoading(false);
+  }
+};
 
 
+const handleDeleteUser = async (userId: string) => {
+  const result = await Swal.fire({
+    title: "Delete User?",
+    text: "This action cannot be undone.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    confirmButtonText: "Delete",
+  });
+
+  if (!result.isConfirmed) return;
+
+  try {
+    const token = localStorage.getItem("collexa_token");
+
+    await API.delete(`/api/admin/users/${userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    Swal.fire({
+      icon: "success",
+      title: "User deleted",
+      timer: 1200,
+      showConfirmButton: false,
+    });
+
+    fetchUsers();
+  } catch (err: any) {
+    Swal.fire({
+      icon: "error",
+      title: "Delete failed",
+      text: err.response?.data?.message || "Unable to delete user",
+    });
+  }
+};
 
 
 const handleSaveCompany = async () => {
@@ -309,6 +650,107 @@ const handleSaveCompany = async () => {
   }
 };
 
+const handleSaveInternship = async () => {
+  try {
+    // 🔎 Validation
+    if (
+      !internshipForm.title ||
+      !internshipForm.description ||
+      !internshipForm.companyId ||
+      !internshipForm.location ||
+      !internshipForm.stipendMin ||
+      !internshipForm.stipendMax ||
+      !internshipForm.duration ||
+      !internshipForm.openings ||
+      !internshipForm.skillsRequired
+    ) {
+      Swal.fire({
+        icon: "warning",
+        title: "Missing fields",
+        text: "Please fill all required internship details",
+      });
+      return;
+    }
+
+    if (
+      Number(internshipForm.stipendMin) >
+      Number(internshipForm.stipendMax)
+    ) {
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Stipend",
+        text: "Minimum stipend cannot be greater than maximum stipend",
+      });
+      return;
+    }
+
+    setInternshipLoading(true);
+
+    const payload = {
+      title: internshipForm.title.trim(),
+      description: internshipForm.description.trim(),
+      companyName: internshipForm.companyName,
+      company: internshipForm.companyId,
+      location: internshipForm.location.trim(),
+      stipendMin: Number(internshipForm.stipendMin),
+      stipendMax: Number(internshipForm.stipendMax),
+      duration: internshipForm.duration,
+      startDate: internshipForm.startDate,
+      openings: Number(internshipForm.openings),
+      mode: internshipForm.mode,
+      skillsRequired: internshipForm.skillsRequired
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
+    };
+
+    const token = localStorage.getItem("collexa_token");
+
+    if (editingInternship) {
+      await API.patch(
+        `/api/internship/updatejob/${editingInternship._id}`,
+        payload,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      Swal.fire({
+        icon: "success",
+        title: "Internship Updated",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    } else {
+      await API.post("/api/internship/addinternship", payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      Swal.fire({
+        icon: "success",
+        title: "Internship Created",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+    }
+
+    fetchInternships();
+    resetInternshipForm();
+    setShowAddInternshipModal(false);
+    setEditingInternship(null);
+
+  } catch (err: any) {
+    console.error("Internship save failed 👉", err);
+
+    Swal.fire({
+      icon: "error",
+      title: "Failed",
+      text:
+        err.response?.data?.message ||
+        "Something went wrong while saving internship",
+    });
+  } finally {
+    setInternshipLoading(false);
+  }
+};
 
 
 
@@ -443,13 +885,18 @@ const handleDeleteCompany = async (id: string) => {
       { label: "Dashboard", key: "dashboard", icon: LayoutDashboard },
       { label: "Users", key: "users", icon: Users },
       { label: "Leads", key: "leads", icon: PhoneCall },
+      { label: "Companies", key: "companies", icon: Factory },
+      { label: "Jobs", key: "Jobs", icon: Briefcase },
+      { label: "Internships", key: "Internships", icon: Briefcase },
+
       { label: "Packages", key: "packages", icon: Package },
       { label: "Admission Request", key: "admissions", icon: GraduationCap },
       { label: "Courses", key: "courses", icon: BookOpen },
       { label: "Blog Categories", key: "blog-categories", icon: FolderOpen },
-      { label: "companies", key: "companies", icon: FileText },
+      { label: "Blog", key: "blog", icon: FileText },
+      
       { label: "Testimonials", key: "testimonials", icon: Star },
-      { label: "Jobs", key: "Jobs", icon: Briefcase },
+      
       { label: "Applications", key: "applications", icon: FileText },
       { label: "Settings", key: "settings", icon: Settings },
     ].map(({ label, key, icon: Icon }) => (
@@ -612,18 +1059,42 @@ const handleDeleteCompany = async (id: string) => {
         <h3 className="font-semibold mb-3">
           User Growth
         </h3>
-        <div className="h-64 flex items-center justify-center text-gray-400 border rounded-lg">
-          Line Chart Placeholder
-        </div>
+        <div className="h-64">
+  <ResponsiveContainer width="100%" height="100%">
+    <LineChart data={userGrowthData}>
+      <CartesianGrid strokeDasharray="3 3" />
+      <XAxis dataKey="name" />
+      <YAxis />
+      <Tooltip />
+      <Line
+        type="monotone"
+        dataKey="users"
+        stroke="#2563eb"
+        strokeWidth={3}
+      />
+    </LineChart>
+  </ResponsiveContainer>
+</div>
+
       </div>
 
       <div className="bg-white p-3 sm:p-4 md:p-6 rounded-xl shadow">
         <h3 className="font-semibold mb-3">
           Leads vs Conversions
         </h3>
-        <div className="h-64 flex items-center justify-center text-gray-400 border rounded-lg">
-          Bar Chart Placeholder
-        </div>
+        <div className="h-64">
+  <ResponsiveContainer width="100%" height="100%">
+    <BarChart data={leadsData}>
+      <CartesianGrid strokeDasharray="3 3" />
+      <XAxis dataKey="name" />
+      <YAxis />
+      <Tooltip />
+      <Bar dataKey="leads" fill="#93c5fd" />
+      <Bar dataKey="conversions" fill="#2563eb" />
+    </BarChart>
+  </ResponsiveContainer>
+</div>
+
       </div>
     </div>
 
@@ -685,26 +1156,35 @@ const handleDeleteCompany = async (id: string) => {
       <div className="flex flex-wrap gap-3">
         <input
           type="text"
-          placeholder="Search by name, email..."
-          className="border rounded-lg px-4 py-2 text-sm"
+          placeholder="Search by name or email..."
+          value={userSearch}
+          onChange={(e) => {
+            setUserSearch(e.target.value);
+            setUserPage(1);
+          }}
+          className="border rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-blue-600 outline-none"
         />
 
-        <select className="border rounded-lg px-3 py-2 text-sm">
-          <option>All Roles</option>
-          <option>Student</option>
-          <option>Employer</option>
+        <select
+          value={userRole}
+          onChange={(e) => {
+            setUserRole(e.target.value);
+            setUserPage(1);
+          }}
+          className="border rounded-lg px-3 py-2 text-sm"
+        >
+          <option value="all">All Roles</option>
+          <option value="student">Student</option>
+          <option value="employer">Employer</option>
+          <option value="company">Company</option>
         </select>
 
-        <select className="border rounded-lg px-3 py-2 text-sm">
-          <option>All Status</option>
-          <option>Active</option>
-          <option>Blocked</option>
-        </select>
+        
       </div>
     </div>
 
     {/* ================= TABLE ================= */}
-    <div className="bg-white rounded-xl shadow overflow-x-auto max-w-full">
+    <div className="bg-white rounded-xl shadow overflow-x-auto">
       <table className="w-full text-sm">
         <thead className="bg-gray-50 text-gray-600">
           <tr>
@@ -713,77 +1193,103 @@ const handleDeleteCompany = async (id: string) => {
             <th className="px-4 py-3 text-left">Email</th>
             <th className="px-4 py-3 text-left">Phone</th>
             <th className="px-4 py-3 text-left">Role</th>
-            <th className="px-4 py-3 text-left">Status</th>
+            
             <th className="px-4 py-3 text-left">Registered</th>
             <th className="px-4 py-3 text-left">Action</th>
           </tr>
         </thead>
 
         <tbody className="divide-y">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <tr key={i} className="hover:bg-gray-50">
-              {/* Profile */}
-              <td className="px-4 py-3">
-                <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold">
-                  U
-                </div>
-              </td>
-
-              {/* Name */}
-              <td className="px-4 py-3 font-medium">
-                User Name {i}
-              </td>
-
-              {/* Email */}
-              <td className="px-4 py-3 text-gray-600">
-                user{i}@gmail.com
-              </td>
-
-              {/* Phone */}
-              <td className="px-4 py-3">
-                987654321{i}
-              </td>
-
-              {/* Role */}
-              <td className="px-4 py-3">
-                <span className="px-2 py-1 text-xs rounded bg-purple-100 text-purple-700">
-                  Student
-                </span>
-              </td>
-
-              {/* Status */}
-              <td className="px-4 py-3">
-                <span className="px-2 py-1 text-xs rounded bg-green-100 text-green-700">
-                  Active
-                </span>
-              </td>
-
-              {/* Date */}
-              <td className="px-4 py-3 text-gray-500">
-                12 Jan 2026
-              </td>
-
-              {/* Actions */}
-              <td className="px-4 py-3">
-                <div className="flex gap-2">
-                  <button
-                    onClick={() => setScreen("user-detail")}
-                    className="text-blue-600 text-xs"
-                  >
-                    View
-                  </button>
-
-                  <button className="text-yellow-600 text-xs">
-                    Block
-                  </button>
-
-                  <button className="text-red-600 text-xs">
-                    Delete
-                  </button>
-                </div>
+          {/* Loading */}
+          {usersLoading && (
+            <tr>
+              <td colSpan={8} className="px-4 py-6 text-center text-gray-500">
+                Loading users...
               </td>
             </tr>
-          ))}
+          )}
+
+          {/* Empty */}
+          {!usersLoading && users.length === 0 && (
+            <tr>
+              <td colSpan={8} className="px-4 py-6 text-center text-gray-500">
+                No users found
+              </td>
+            </tr>
+          )}
+
+          {/* Data */}
+          {!usersLoading &&
+            users.map((user: any) => (
+              <tr key={user._id} className="hover:bg-gray-50">
+
+                {/* Profile */}
+                <td className="px-4 py-3">
+                  <div className="w-9 h-9 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold">
+                    {user.firstName?.[0] || "U"}
+                  </div>
+                </td>
+
+                {/* Name */}
+                <td className="px-4 py-3 font-medium">
+                  {user.firstName} {user.lastName || ""}
+                </td>
+
+                {/* Email */}
+                <td className="px-4 py-3 text-gray-600">
+                  {user.emailId || "—"}
+                </td>
+
+                {/* Phone */}
+                <td className="px-4 py-3">
+                  {user.phoneNumber || "—"}
+                </td>
+
+                {/* Role */}
+                <td className="px-4 py-3">
+                  <span className="px-2 py-1 text-xs rounded bg-purple-100 text-purple-700 capitalize">
+                    {user.role}
+                  </span>
+                </td>
+
+               
+                
+
+                {/* Registered */}
+                <td className="px-4 py-3 text-gray-500">
+                  {user.createdAt
+                    ? new Date(user.createdAt).toLocaleDateString()
+                    : "—"}
+                </td>
+
+                {/* Action */}
+                <td className="px-4 py-3">
+                  <div className="flex gap-3 text-xs">
+                    <button
+  onClick={() => {
+    console.log("CLICKED USER ID 👉", user._id);
+
+    setSelectedUserId(user._id);
+    setScreen("user-detail");
+  }}
+  className="text-blue-600 hover:underline"
+>
+  View
+</button>
+
+
+                    
+
+                    <button
+                      onClick={() => handleDeleteUser(user._id)}
+                      className="text-red-600 hover:underline"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
         </tbody>
       </table>
     </div>
@@ -791,20 +1297,23 @@ const handleDeleteCompany = async (id: string) => {
     {/* ================= PAGINATION ================= */}
     <div className="flex justify-between items-center mt-6 text-sm">
       <p className="text-gray-500">
-        Showing 1–5 of 50 users
+        Page {userPage} of {userTotalPages}
       </p>
 
       <div className="flex gap-2">
-        <button className="px-3 py-1 border rounded">
+        <button
+          disabled={userPage === 1}
+          onClick={() => setUserPage(userPage - 1)}
+          className="px-3 py-1 border rounded disabled:opacity-50"
+        >
           Prev
         </button>
-        <button className="px-3 py-1 border rounded bg-blue-600 text-white">
-          1
-        </button>
-        <button className="px-3 py-1 border rounded">
-          2
-        </button>
-        <button className="px-3 py-1 border rounded">
+
+        <button
+          disabled={userPage === userTotalPages}
+          onClick={() => setUserPage(userPage + 1)}
+          className="px-3 py-1 border rounded disabled:opacity-50"
+        >
           Next
         </button>
       </div>
@@ -812,95 +1321,140 @@ const handleDeleteCompany = async (id: string) => {
   </>
 )}
 
+
 {screen === "user-detail" && (
-  <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-    {/* ================= LEFT PANEL ================= */}
-    <div className="bg-white rounded-xl shadow p-3 sm:p-4 md:p-6">
-      {/* Profile */}
-      <div className="flex flex-col items-center text-center">
-        <div className="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center text-3xl font-bold text-blue-700">
-          U
-        </div>
-
-        <h2 className="mt-4 font-semibold text-lg">
-          Rahul Verma
-        </h2>
-
-        <span className="mt-1 px-3 py-1 text-xs rounded-full bg-green-100 text-green-700">
-          Active
-        </span>
-      </div>
-
-      {/* Contact */}
-      <div className="mt-6 text-sm text-gray-600 space-y-2">
-        <p>
-          <span className="font-medium">Email:</span>{" "}
-          rahul@gmail.com
-        </p>
-        <p>
-          <span className="font-medium">Phone:</span>{" "}
-          9876543210
-        </p>
-        <p>
-          <span className="font-medium">Role:</span>{" "}
-          Student
-        </p>
-      </div>
-
-      {/* Actions */}
-      <div className="mt-6 flex flex-col gap-2">
-        <button className="w-full border rounded-lg py-2 text-sm">
-          Edit User
-        </button>
-
-        <button className="w-full bg-yellow-100 text-yellow-700 rounded-lg py-2 text-sm">
-          Block User
-        </button>
-      </div>
+  userDetailLoading ? (
+    <div className="text-center py-10 text-gray-500">
+      Loading user details...
     </div>
+  ) : !selectedUser ? (
+    <div className="text-center py-10 text-gray-500">
+      User not found
+    </div>
+  ) : (
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
 
-    {/* ================= RIGHT PANEL ================= */}
-    <div className="lg:col-span-3 text-gray-800 bg-white rounded-xl shadow p-3 sm:p-4 md:p-6">
-      {/* Tabs */}
-      <div className="flex gap-2 border-b mb-6 text-sm">
-        {[
-          "Overview",
-          "Enrolled Courses",
-          "Subscriptions",
-          "Activity Logs",
-          
-        ].map((tab) => (
-          <button
-            key={tab}
-            className="pb-2 border-b-2 border-transparent hover:border-blue-600 hover:text-blue-600"
+      {/* ================= LEFT PANEL ================= */}
+      <div className="bg-white rounded-xl shadow p-4">
+
+        {/* Profile */}
+        <div className="flex flex-col items-center text-center">
+          <div className="w-24 h-24 rounded-full bg-blue-100 flex items-center justify-center text-3xl font-bold text-blue-700">
+            {selectedUser.firstName?.[0] || "U"}
+          </div>
+
+          <h2 className="mt-4 font-semibold text-lg">
+            {selectedUser.firstName} {selectedUser.lastName}
+          </h2>
+
+          <span className="mt-1 px-3 py-1 text-xs rounded-full bg-blue-100 text-blue-700 capitalize">
+            {selectedUser.role}
+          </span>
+
+          <span
+            className={`mt-2 px-3 py-1 text-xs rounded-full ${
+              selectedUser.isActive
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"
+            }`}
           >
-            {tab}
-          </button>
-        ))}
-      </div>
+            {selectedUser.isActive ? "Active" : "Inactive"}
+          </span>
+        </div>
 
-      {/* Tab Content */}
-      <div className="text-sm text-gray-600 space-y-4">
-        <p>
-          <span className="font-medium">User ID:</span>{" "}
-          #USR1023
-        </p>
-        <p>
-          <span className="font-medium">Registered On:</span>{" "}
-          12 Jan 2026
-        </p>
-        <p>
-          <span className="font-medium">Last Login:</span>{" "}
-          Today at 10:30 AM
-        </p>
-
-        <div className="border mt-16 rounded-lg p-4  text-gray-700">
-          Selected tab data will appear here
+        {/* Contact */}
+        <div className="mt-6 text-sm text-gray-600 space-y-2">
+          <p><b>Email:</b> {selectedUser.emailId || "—"}</p>
+          <p><b>Phone:</b> {selectedUser.phoneNumber || "—"}</p>
+          <p><b>Job Type:</b> {selectedUser.jobType || "—"}</p>
+          <p><b>Location:</b> {selectedUser.profile?.location || "—"}</p>
         </div>
       </div>
+
+      {/* ================= RIGHT PANEL ================= */}
+      <div className="lg:col-span-3 bg-white rounded-xl shadow p-4">
+
+        {/* ================= OVERVIEW ================= */}
+        <div className="text-sm text-gray-700 space-y-3">
+          <p><b>User ID:</b> {selectedUser._id}</p>
+          <p>
+            <b>Registered On:</b>{" "}
+            {new Date(selectedUser.createdAt).toLocaleDateString()}
+          </p>
+          <p>
+            <b>Last Updated:</b>{" "}
+            {new Date(selectedUser.updatedAt).toLocaleDateString()}
+          </p>
+        </div>
+
+        {/* ================= PROFILE DETAILS ================= */}
+        <div className="mt-6 border rounded-xl p-4">
+          <h3 className="font-semibold mb-3 text-gray-800">
+            Profile Information
+          </h3>
+
+          <div className="text-sm text-gray-700 space-y-2">
+            <p><b>Headline:</b> {selectedUser.profile?.headline || "—"}</p>
+            <p><b>Bio:</b> {selectedUser.profile?.bio || "—"}</p>
+
+            <p>
+              <b>Resume:</b>{" "}
+              {selectedUser.profile?.resumeUrl ? (
+                <a
+                  href={selectedUser.profile.resumeUrl}
+                  target="_blank"
+                  className="text-blue-600 underline"
+                >
+                  View Resume
+                </a>
+              ) : (
+                "—"
+              )}
+            </p>
+
+            <p>
+              <b>Skills:</b>{" "}
+              {selectedUser.profile?.skills?.length > 0
+                ? selectedUser.profile.skills.join(", ")
+                : "—"}
+            </p>
+          </div>
+        </div>
+
+        {/* ================= COMPANY DETAILS ================= */}
+        {selectedUser.role === "company" && (
+          <div className="mt-6 border rounded-xl p-4">
+            <h3 className="font-semibold mb-3 text-gray-800">
+              Company Details
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-700">
+              <p><b>Company Name:</b> {selectedUser.companyDetails?.companyName || "—"}</p>
+              <p><b>Company Type:</b> {selectedUser.companyDetails?.companyType || "—"}</p>
+              <p><b>Industry:</b> {selectedUser.companyDetails?.industry || "—"}</p>
+              <p><b>Registration No:</b> {selectedUser.companyDetails?.registrationNumber || "—"}</p>
+              <p>
+                <b>Incorporation Date:</b>{" "}
+                {selectedUser.companyDetails?.incorporationDate
+                  ? new Date(
+                      selectedUser.companyDetails.incorporationDate
+                    ).toLocaleDateString()
+                  : "—"}
+              </p>
+              <p>
+                <b>Terms Accepted:</b>{" "}
+                {selectedUser.companyDetails?.termsAccepted ? "Yes" : "No"}
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
-  </div>
+  )
 )}
+
+
+
 
 {screen === "leads" && (
   <>
@@ -2554,7 +3108,6 @@ const handleDeleteCompany = async (id: string) => {
   </>
 )}
 
-
 {/* job from */}
 {showAddJobModal && (
   <div className="fixed inset-0 z-50  bg-black/50 flex items-center justify-center">
@@ -2801,6 +3354,360 @@ setShowAddJobModal(false);
     </div>
   </div>
 )}
+
+{screen === "Internships" && (
+  <>
+    {/* ================= HEADER ================= */}
+    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+      <div>
+        <h2 className="text-xl font-bold">Internships</h2>
+        <p className="text-sm text-gray-500">
+          Manage internship opportunities and applications
+        </p>
+      </div>
+
+      <button
+        onClick={() => {
+          setEditingInternship(null);
+          resetInternshipForm();
+          setShowAddInternshipModal(true);
+        }}
+        className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+      >
+        + Add Internship
+      </button>
+    </div>
+
+    {/* ================= SEARCH ================= */}
+    <input
+      placeholder="Search by internship title or company..."
+      value={internshipSearch}
+      onChange={(e) => {
+        setInternshipSearch(e.target.value);
+        setInternshipPage(1);
+      }}
+      className="border rounded-lg px-4 py-2 text-sm w-64 mb-4"
+    />
+
+    {/* ================= TABLE ================= */}
+    <div className="bg-white rounded-xl shadow overflow-x-auto">
+      <table className="w-full text-sm">
+        <thead className="bg-gray-50 text-gray-600">
+          <tr>
+            <th className="px-4 py-3 text-left">Internship Title</th>
+            <th className="px-4 py-3 text-left">Company</th>
+            <th className="px-4 py-3 text-left">Location</th>
+            <th className="px-4 py-3 text-left">Duration</th>
+            <th className="px-4 py-3 text-left">Stipend</th>
+            <th className="px-4 py-3 text-left">Status</th>
+            <th className="px-4 py-3 text-left">Posted Date</th>
+            <th className="px-4 py-3 text-left">Action</th>
+          </tr>
+        </thead>
+
+        <tbody className="divide-y">
+          {/* Loading */}
+          {internshipsLoading && (
+            <tr>
+              <td colSpan={8} className="px-4 py-6 text-center text-gray-500">
+                Loading internships...
+              </td>
+            </tr>
+          )}
+
+          {/* Empty */}
+          {!internshipsLoading && internships.length === 0 && (
+            <tr>
+              <td colSpan={8} className="px-4 py-6 text-center text-gray-500">
+                No internships found
+              </td>
+            </tr>
+          )}
+
+          {/* Internships */}
+          {!internshipsLoading &&
+            internships.map((internship: any) => (
+              <tr
+                key={internship._id}
+                className="hover:bg-blue-50 transition"
+              >
+                <td className="px-4 py-3 font-medium">
+                  {internship.title}
+                </td>
+
+                <td className="px-4 py-3">
+                  {internship.companyName || "—"}
+                </td>
+
+                <td className="px-4 py-3 text-gray-600">
+                  {internship.location}
+                </td>
+
+                <td className="px-4 py-3">
+                  {internship.duration || "—"}
+                </td>
+
+                <td className="px-4 py-3">
+                  ₹{internship.stipendMin} – ₹{internship.stipendMax}
+                </td>
+
+                <td className="px-4 py-3">
+                  <span
+                    className={`px-2 py-1 text-xs rounded ${
+                      internship.isActive
+                        ? "bg-green-100 text-green-700"
+                        : "bg-red-100 text-red-700"
+                    }`}
+                  >
+                    {internship.isActive ? "Open" : "Closed"}
+                  </span>
+                </td>
+
+                <td className="px-4 py-3 text-gray-500">
+                  {internship.createdAt
+                    ? new Date(internship.createdAt).toLocaleDateString()
+                    : "—"}
+                </td>
+
+                <td className="px-4 py-3">
+                  <div className="flex gap-3 text-xs">
+                    <button
+                      onClick={() => {
+                        setEditingInternship(internship);
+                        setInternshipForm({
+                          title: internship.title || "",
+                          description: internship.description || "",
+                          companyId: internship.company || "",
+                          companyName: internship.companyName || "",
+                          location: internship.location || "",
+                          stipendMin: internship.stipendMin || "",
+                          stipendMax: internship.stipendMax || "",
+                          duration: internship.duration || "",
+                          startDate: internship.startDate || "",
+                          openings: internship.openings || "",
+                          mode: internship.mode || "remote",
+                          skillsRequired:
+                            internship.skillsRequired?.join(", ") || "",
+                        });
+                        setShowAddInternshipModal(true);
+                      }}
+                      className="text-blue-600 hover:underline"
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      onClick={() =>
+                        handleDeleteInternship(internship._id)
+                      }
+                      className="text-red-600 hover:underline"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+        </tbody>
+      </table>
+    </div>
+
+    {/* ================= PAGINATION ================= */}
+    <div className="flex justify-between items-center mt-4 text-sm">
+      <button
+        disabled={internshipPage === 1}
+        onClick={() => setInternshipPage(internshipPage - 1)}
+        className="px-3 py-1 border rounded disabled:opacity-50"
+      >
+        Prev
+      </button>
+
+      <span>
+        Page {internshipPage} of {internshipTotalPages}
+      </span>
+
+      <button
+        disabled={internshipPage === internshipTotalPages}
+        onClick={() => setInternshipPage(internshipPage + 1)}
+        className="px-3 py-1 border rounded disabled:opacity-50"
+      >
+        Next
+      </button>
+    </div>
+  </>
+)}
+
+{showAddInternshipModal && (
+  <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
+    <div className="bg-white w-full max-w-2xl rounded-xl shadow-lg p-6 relative">
+
+      {/* Header */}
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-bold">
+          {editingInternship ? "Edit Internship" : "Add Internship"}
+        </h3>
+        <button
+          onClick={() => setShowAddInternshipModal(false)}
+          className="text-gray-500 hover:text-gray-700"
+        >
+          ✕
+        </button>
+      </div>
+
+      {/* Form */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+        <input
+          className="input"
+          placeholder="Internship Title"
+          value={internshipForm.title}
+          onChange={(e) =>
+            setInternshipForm({ ...internshipForm, title: e.target.value })
+          }
+        />
+
+        {/* Company dropdown (same as Job) */}
+        <select
+          className="input"
+          value={internshipForm.companyId}
+          onChange={(e) => {
+            const selectedId = e.target.value;
+            const selectedCompany = companies.find(
+              (c) => c._id === selectedId
+            );
+
+            setInternshipForm({
+              ...internshipForm,
+              companyId: selectedId,
+              companyName: selectedCompany?.name || "",
+            });
+          }}
+        >
+          <option value="">Select Company</option>
+          {companies.map((company) => (
+            <option key={company._id} value={company._id}>
+              {company.name}
+            </option>
+          ))}
+        </select>
+
+        <input
+          className="input"
+          placeholder="Location"
+          value={internshipForm.location}
+          onChange={(e) =>
+            setInternshipForm({ ...internshipForm, location: e.target.value })
+          }
+        />
+
+        <select
+          className="input"
+          value={internshipForm.mode}
+          onChange={(e) =>
+            setInternshipForm({ ...internshipForm, mode: e.target.value })
+          }
+        >
+          <option value="remote">Remote</option>
+          <option value="on-site">Onsite</option>
+          <option value="hybrid">Hybrid</option>
+        </select>
+
+        <input
+          className="input"
+          placeholder="Stipend Min"
+          value={internshipForm.stipendMin}
+          onChange={(e) =>
+            setInternshipForm({ ...internshipForm, stipendMin: e.target.value })
+          }
+        />
+
+        <input
+          className="input"
+          placeholder="Stipend Max"
+          value={internshipForm.stipendMax}
+          onChange={(e) =>
+            setInternshipForm({ ...internshipForm, stipendMax: e.target.value })
+          }
+        />
+
+        <input
+          className="input"
+          placeholder="Duration (e.g. 6 Months)"
+          value={internshipForm.duration}
+          onChange={(e) =>
+            setInternshipForm({ ...internshipForm, duration: e.target.value })
+          }
+        />
+
+        <input
+          type="date"
+          className="input"
+          value={internshipForm.startDate}
+          onChange={(e) =>
+            setInternshipForm({ ...internshipForm, startDate: e.target.value })
+          }
+        />
+
+        <input
+          className="input"
+          placeholder="Openings"
+          value={internshipForm.openings}
+          onChange={(e) =>
+            setInternshipForm({ ...internshipForm, openings: e.target.value })
+          }
+        />
+      </div>
+
+      <textarea
+        className="input mt-4 w-full h-24"
+        placeholder="Internship Description"
+        value={internshipForm.description}
+        onChange={(e) =>
+          setInternshipForm({
+            ...internshipForm,
+            description: e.target.value,
+          })
+        }
+      />
+
+      <input
+        className="input mt-4 w-full"
+        placeholder="Skills (comma separated)"
+        value={internshipForm.skillsRequired}
+        onChange={(e) =>
+          setInternshipForm({
+            ...internshipForm,
+            skillsRequired: e.target.value,
+          })
+        }
+      />
+
+      {/* Footer */}
+      <div className="flex justify-end gap-3 mt-6">
+        <button
+          onClick={() => setShowAddInternshipModal(false)}
+          className="px-4 py-2 rounded border"
+        >
+          Cancel
+        </button>
+
+        <button
+          disabled={internshipLoading}
+          onClick={handleSaveInternship}
+          className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
+        >
+          {internshipLoading
+            ? "Saving..."
+            : editingInternship
+            ? "Update Internship"
+            : "Create Internship"}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
 
 {screen === "applications" && (
   <>
