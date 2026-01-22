@@ -1,6 +1,8 @@
 "use client";
 
 import { useAuth } from "@/app/context_api/AuthContext";
+import { useRouter } from "next/navigation";
+
 import { useEffect, useState } from "react";
 import {
   MapPin,
@@ -16,9 +18,15 @@ import {
 import Swal from "sweetalert2";
 
 export default function NaukriProfileUI() {
+  const router = useRouter();
+
+
+
   const { user, loading, updateProfile } = useAuth();
 
   // profile states
+  const [hydrated, setHydrated] = useState(false);
+
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -39,27 +47,49 @@ export default function NaukriProfileUI() {
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
 
-  /* SYNC API DATA */
   useEffect(() => {
-    if (!user) return;
+  if (!loading && !user) {
+    Swal.fire({
+      icon: "warning",
+      title: "Login required",
+      text: "Please login first",
+      confirmButtonText: "Go to home",
+      allowOutsideClick: false,
+    }).then(() => {
+      router.replace("/"); // home page
+    });
+  }
+}, [loading, user, router]);
 
-    setFirstName(user.firstName || "");
-    setLastName(user.lastName || "");
-    setPhoneNumber(user.phoneNumber || "");
-    setLocation(user.profile?.location || "");
-    setHeadline(user.profile?.headline || "");
-    setBio(user.profile?.bio || "");
-    setResumeUrl(user.profile?.resumeUrl || "");
-    setSkills(user.profile?.skills || []);
 
-    // 👇 future-proof
-    if (user.profile?.profileImage) {
-      setProfileImage(user.profile.profileImage);
+  /* SYNC API DATA */
+  
+useEffect(() => {
+  if (!loading) {
+    if (user) {
+      setFirstName(user.firstName || "");
+      setLastName(user.lastName || "");
+      setPhoneNumber(user.phoneNumber || "");
+      setLocation(user.profile?.location || "");
+      setHeadline(user.profile?.headline || "");
+      setBio(user.profile?.bio || "");
+      setResumeUrl(user.profile?.resumeUrl || "");
+      setSkills(user.profile?.skills || []);
+
+      if (user.profile?.profileImage) {
+        setProfileImage(user.profile.profileImage);
+      }
     }
-  }, [user]);
 
-  if (loading || !user) return null;
+    
+    setHydrated(true);
+  }
+}, [loading, user]);
 
+
+  if (!hydrated) return null;
+
+  
   /* SAVE PROFILE */
   const saveProfile = async () => {
     try {
@@ -139,6 +169,7 @@ export default function NaukriProfileUI() {
     });
   };
 
+   
   return (
     <div className="bg-gray-50 min-h-screen py-6 px-3 sm:px-6">
       <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-6 text-gray-700">
@@ -214,7 +245,7 @@ export default function NaukriProfileUI() {
                       </span>
                     )}
                     <span className="flex items-center gap-1">
-                      <Mail size={14} /> {user.emailId}
+                      <Mail size={14} /> {user?.emailId || ""}
                     </span>
                     {phoneNumber && (
                       <span className="flex items-center gap-1">

@@ -6,12 +6,10 @@ import Image from "next/image";
 
 import { useState } from "react";
 import {
-  Briefcase,
-  BookOpen,
+  
   Users,
   Star,
-  ArrowRight,
-  CheckCircle,
+ 
   TrendingUp,
   GraduationCap,
   Building2,
@@ -27,8 +25,7 @@ import { useEffect } from "react";
 import TestimonialsMarquee from "./(components)/TestimonialsMarquee";
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState("engineering");
-  const [activeInternTab, setActiveInternTab] = useState("tech");
+  
 
   const tabs = [
     "Big brands",

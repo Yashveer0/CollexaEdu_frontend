@@ -1,4 +1,6 @@
 "use client";
+import JoditEditor from "jodit-react";
+import { useRef } from "react";
 
 import { useState } from "react";
 
@@ -57,11 +59,10 @@ type Screen =
   | "admission-detail"
   | "courses"
   | "add-course"
+  | "create-blog"
   | "blog-categories"
   | "companies"
-  | "blog"
-  | "create-company"
-  | "create-blog"
+  | "create-company" 
   | "testimonials"
   | "Jobs"
   | "Internships"
@@ -69,6 +70,27 @@ type Screen =
   | "settings";
 
 export default function AdminPage() {
+
+   const router = useRouter();
+  
+ useEffect(() => {
+  const token = localStorage.getItem("collexa_token");
+
+  if (!token) {
+    Swal.fire({
+      icon: "warning",
+      title: "Login Required",
+      text: "Please login first to access admin panel",
+      confirmButtonText: "Go to Login",
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+    }).then(() => {
+      router.replace("/admin"); // ya /admin/login
+    });
+  }
+}, []);
+
+
   const [screen, setScreen] = useState<Screen>("dashboard");
   const [loading, setLoading] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -77,7 +99,7 @@ export default function AdminPage() {
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
  
   
-  const router = useRouter();
+ 
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const [status, setStatus] = useState<"Pending" | "Approved" | "Rejected">("Pending");
@@ -117,6 +139,13 @@ const [userRole, setUserRole] = useState("all"); // student | employer | company
 
 const [selectedUser, setSelectedUser] = useState<any>(null);
 const [userDetailLoading, setUserDetailLoading] = useState(false);
+
+// blog
+// BLOG LIST
+const [blogs, setBlogs] = useState<any[]>([]);
+const [blogsLoading, setBlogsLoading] = useState(false);
+const [editingBlog, setEditingBlog] = useState<any>(null);
+
 
 
 // dashboard 
@@ -360,6 +389,41 @@ const fetchSingleUser = async (id: string) => {
   return res.data?.user || res.data;
 };
 
+// blog
+const fetchBlogs = async () => {
+  try {
+    setBlogsLoading(true);
+    const res = await API.get("/api/blogs");
+
+    const data =
+      res.data?.blogs ||
+      res.data?.data ||
+      res.data ||
+      [];
+
+    setBlogs(Array.isArray(data) ? data : []);
+  } catch (err) {
+    console.error("Fetch blogs failed", err);
+    setBlogs([]);
+  } finally {
+    setBlogsLoading(false);
+  }
+};
+
+
+useEffect(() => {
+  if (screen === "create-blog" && editingBlog) {
+    setBlogForm({
+      title: editingBlog.title || "",
+      content: editingBlog.content || "",
+      excerpt: editingBlog.excerpt || "",
+      category: editingBlog.category || "",
+      tags: editingBlog.tags?.join(", ") || "",
+      imageUrl: editingBlog.imageUrl || "",
+    });
+  }
+}, [screen, editingBlog]);
+
 
 
 useEffect(() => {
@@ -408,6 +472,12 @@ useEffect(() => {
   }
 }, [screen, selectedUserId]);
 
+useEffect(() => {
+  if (screen === "blog-categories") {
+    fetchBlogs();
+  }
+}, [screen]);
+
 
 const resetJobForm = () => {
   setJobForm({
@@ -424,6 +494,26 @@ const resetJobForm = () => {
     experienceLevel: "Fresher",
   });
 };
+
+
+
+
+const [blogForm, setBlogForm] = useState({
+  title: "",
+  content: "",
+  excerpt: "",
+  category: "",
+  tags: "",       // UI ke liye string
+  imageUrl: "",
+});
+
+const [blogLoading, setBlogLoading] = useState(false);
+
+const joditConfig = {
+  height: 350,
+  placeholder: "Write full blog content here...",
+};
+
 
 
 const handleDeleteJob = async (jobId: string) => {
@@ -552,6 +642,38 @@ const handleDeleteUser = async (userId: string) => {
       title: "Delete failed",
       text: err.response?.data?.message || "Unable to delete user",
     });
+  }
+};
+
+const handleDeleteBlog = async (id: string) => {
+  const result = await Swal.fire({
+    title: "Delete Blog?",
+    text: "This blog will be permanently deleted",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    confirmButtonText: "Delete",
+  });
+
+  if (!result.isConfirmed) return;
+
+  try {
+    await API.delete(`/api/blogs/${id}`);
+
+    Swal.fire({
+      icon: "success",
+      title: "Blog Deleted",
+      timer: 1200,
+      showConfirmButton: false,
+    });
+
+    setBlogs((prev) => prev.filter((b) => b._id !== id));
+  } catch (err: any) {
+    Swal.fire(
+      "Failed",
+      err.response?.data?.message || "Delete failed",
+      "error"
+    );
   }
 };
 
@@ -866,7 +988,7 @@ const handleDeleteCompany = async (id: string) => {
   }
 };
 
-
+ 
 
 
   /* ================= LAYOUT ================= */
@@ -888,12 +1010,11 @@ const handleDeleteCompany = async (id: string) => {
       { label: "Companies", key: "companies", icon: Factory },
       { label: "Jobs", key: "Jobs", icon: Briefcase },
       { label: "Internships", key: "Internships", icon: Briefcase },
-
+      { label: "Create Blog", key: "create-blog", icon: FileText },
+      { label: "Blog Categories", key: "blog-categories", icon: FolderOpen },
       { label: "Packages", key: "packages", icon: Package },
       { label: "Admission Request", key: "admissions", icon: GraduationCap },
-      { label: "Courses", key: "courses", icon: BookOpen },
-      { label: "Blog Categories", key: "blog-categories", icon: FolderOpen },
-      { label: "Blog", key: "blog", icon: FileText },
+      { label: "Courses", key: "courses", icon: BookOpen },     
       
       { label: "Testimonials", key: "testimonials", icon: Star },
       
@@ -2315,21 +2436,273 @@ const handleDeleteCompany = async (id: string) => {
   </div>
 )}
 
+{screen === "create-blog" && (
+  <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow p-4 sm:p-6 md:p-8">
+
+    {/* HEADER */}
+    <div className="mb-6">
+      <h2 className="text-xl font-bold">
+        {editingBlog ? "Edit Blog" : "Create Blog"}
+      </h2>
+      <p className="text-sm text-gray-500">
+        Write and publish blog content
+      </p>
+    </div>
+
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      {/* LEFT */}
+      <div className="lg:col-span-2 space-y-5">
+
+        {/* Title */}
+        <div>
+          <label className="text-sm font-medium">Title *</label>
+          <input
+            value={blogForm.title}
+            onChange={(e) =>
+              setBlogForm({ ...blogForm, title: e.target.value })
+            }
+            className="w-full mt-1 border rounded-lg px-4 py-2"
+            placeholder="Mastering MERN Stack in 2024"
+          />
+        </div>
+
+        {/* Excerpt */}
+        <div>
+          <label className="text-sm font-medium">Excerpt *</label>
+          <textarea
+            rows={3}
+            value={blogForm.excerpt}
+            onChange={(e) =>
+              setBlogForm({ ...blogForm, excerpt: e.target.value })
+            }
+            className="w-full mt-1 border rounded-lg px-4 py-2"
+            placeholder="Short summary for blog listing cards"
+          />
+        </div>
+
+        {/* Category */}
+        <div>
+          <label className="text-sm font-medium">Category *</label>
+          <select
+  value={blogForm.category}
+  onChange={(e) =>
+    setBlogForm({ ...blogForm, category: e.target.value })
+  }
+  className="w-full mt-1 border rounded-lg px-4 py-2"
+>
+  <option value="">Select category</option>
+
+  {[
+    "Career Advice",
+    "Interview Tips",
+    "Success Stories",
+    "Product Updates",
+    "Industry Trends",
+    "Internship Guide",
+  ].map((cat) => (
+    <option key={cat} value={cat}>
+      {cat}
+    </option>
+  ))}
+</select>
+
+        </div>
+
+        {/* Blog Content */}
+        <div>
+          <label className="text-sm font-medium">Blog Content *</label>
+          <textarea
+            rows={10}
+            value={blogForm.content}
+            onChange={(e) =>
+              setBlogForm({ ...blogForm, content: e.target.value })
+            }
+            className="w-full mt-2 border rounded-lg px-4 py-2"
+            placeholder="Write full blog content here..."
+          />
+        </div>
+      </div>
+
+      {/* RIGHT */}
+      <div className="space-y-6">
+
+        {/* Image URL */}
+        <div>
+          <label className="text-sm font-medium">Featured Image URL</label>
+          <input
+            value={blogForm.imageUrl}
+            onChange={(e) =>
+              setBlogForm({ ...blogForm, imageUrl: e.target.value })
+            }
+            className="w-full border rounded-lg px-3 py-2"
+            placeholder="https://example.com/blog-image.jpg"
+          />
+        </div>
+
+        {/* Tags */}
+        <div>
+          <label className="text-sm font-medium">
+            Tags (comma separated)
+          </label>
+          <input
+            value={blogForm.tags}
+            onChange={(e) =>
+              setBlogForm({ ...blogForm, tags: e.target.value })
+            }
+            className="w-full border rounded-lg px-3 py-2"
+            placeholder="MERN, Javascript, NodeJS"
+          />
+        </div>
+
+        {/* ACTIONS */}
+        <div className="border rounded-xl p-4 space-y-3">
+
+          {/* Cancel */}
+          <button
+            onClick={() => {
+              setEditingBlog(null);
+              setBlogForm({
+                title: "",
+                content: "",
+                excerpt: "",
+                category: "",
+                tags: "",
+                imageUrl: "",
+              });
+              setScreen("blog-categories");
+            }}
+            className="w-full border rounded-lg py-2"
+          >
+            Cancel
+          </button>
+
+          {/* Save */}
+          <button
+            disabled={blogLoading}
+            onClick={async () => {
+              try {
+                if (
+                  !blogForm.title ||
+                  !blogForm.content ||
+                  !blogForm.excerpt ||
+                  !blogForm.category
+                ) {
+                  Swal.fire(
+                    "Missing fields",
+                    "Please fill all required fields",
+                    "warning"
+                  );
+                  return;
+                }
+
+                setBlogLoading(true);
+
+                const payload = {
+                  title: blogForm.title.trim(),
+                  content: blogForm.content,
+                  excerpt: blogForm.excerpt.trim(),
+                  category: blogForm.category,
+                  tags: blogForm.tags
+                    .split(",")
+                    .map((t) => t.trim())
+                    .filter(Boolean),
+                  imageUrl: blogForm.imageUrl.trim(),
+                };
+
+                console.log("BLOG PAYLOAD 👉", payload);
+
+                if (editingBlog) {
+                  // ✅ UPDATE
+                  await API.patch(`/api/blogs/${editingBlog._id}`, payload);
+
+
+                  Swal.fire({
+                    icon: "success",
+                    title: "Blog Updated",
+                    timer: 1500,
+                    showConfirmButton: false,
+                  });
+                } else {
+                  // ✅ CREATE
+                  await API.post("/api/blogs", payload);
+
+                  Swal.fire({
+                    icon: "success",
+                    title: "Blog Created",
+                    timer: 1500,
+                    showConfirmButton: false,
+                  });
+                }
+
+                setEditingBlog(null);
+                setBlogForm({
+                  title: "",
+                  content: "",
+                  excerpt: "",
+                  category: "",
+                  tags: "",
+                  imageUrl: "",
+                });
+
+                fetchBlogs();
+                setScreen("blog-categories");
+
+              } catch (err: any) {
+                Swal.fire(
+                  "Failed",
+                  err.response?.data?.message ||
+                    "Unable to save blog",
+                  "error"
+                );
+              } finally {
+                setBlogLoading(false);
+              }
+            }}
+            className="w-full bg-blue-600 text-white rounded-lg py-2 hover:bg-blue-700 disabled:opacity-60"
+          >
+            {blogLoading
+              ? "Saving..."
+              : editingBlog
+              ? "Update Blog"
+              : "Save Blog"}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
+
 {screen === "blog-categories" && (
   <>
     {/* ================= HEADER ================= */}
     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
       <div>
         <h2 className="text-xl font-bold">
-          Blog Categories
+          Blogs
         </h2>
         <p className="text-sm text-gray-500">
-          Manage blog categories and visibility
+          Manage blogs, edit or delete posts
         </p>
       </div>
 
-      <button className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition">
-        + Add Category
+      <button
+        onClick={() => {
+          setEditingBlog(null);
+          setBlogForm({
+            title: "",
+            content: "",
+            excerpt: "",
+            category: "",
+            tags: "",
+            imageUrl: "",
+          });
+          setScreen("create-blog");
+        }}
+        className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+      >
+        + Add Blog
       </button>
     </div>
 
@@ -2338,67 +2711,86 @@ const handleDeleteCompany = async (id: string) => {
       <table className="w-full text-sm">
         <thead className="bg-gray-50 text-gray-600">
           <tr>
-            <th className="px-4 py-3 text-left">Category Name</th>
-            <th className="px-4 py-3 text-left">Status</th>
+            <th className="px-4 py-3 text-left">Title</th>
+            <th className="px-4 py-3 text-left">Category</th>
             <th className="px-4 py-3 text-left">Created Date</th>
             <th className="px-4 py-3 text-left">Action</th>
           </tr>
         </thead>
 
         <tbody className="divide-y">
-          {[
-            { name: "Admissions", status: "Active" },
-            { name: "Career Guidance", status: "Active" },
-            { name: "Scholarships", status: "Inactive" },
-            { name: "Study Abroad", status: "Active" },
-          ].map((cat, i) => (
-            <tr
-              key={i}
-              className="hover:bg-blue-50 transition"
-            >
-              {/* Category Name */}
-              <td className="px-4 py-3 font-medium">
-                {cat.name}
-              </td>
 
-              {/* Status */}
-              <td className="px-4 py-3">
-                <span
-                  className={`px-2 py-1 text-xs rounded cursor-pointer
-                    ${
-                      cat.status === "Active"
-                        ? "bg-green-100 text-green-700 hover:bg-green-200"
-                        : "bg-red-100 text-red-700 hover:bg-red-200"
-                    }
-                  `}
-                >
-                  {cat.status}
-                </span>
-              </td>
-
-              {/* Created Date */}
-              <td className="px-4 py-3 text-gray-500">
-                18 Jan 2026
-              </td>
-
-              {/* Action */}
-              <td className="px-4 py-3">
-                <div className="flex gap-3 text-xs">
-                  <button className="text-blue-600 hover:underline">
-                    Edit
-                  </button>
-                  <button className="text-red-600 hover:underline">
-                    Delete
-                  </button>
-                </div>
+          {/* Loading */}
+          {blogsLoading && (
+            <tr>
+              <td colSpan={4} className="px-4 py-6 text-center text-gray-500">
+                Loading blogs...
               </td>
             </tr>
-          ))}
+          )}
+
+          {/* Empty */}
+          {!blogsLoading && blogs.length === 0 && (
+            <tr>
+              <td colSpan={4} className="px-4 py-6 text-center text-gray-500">
+                No blogs found
+              </td>
+            </tr>
+          )}
+
+          {/* Data */}
+          {!blogsLoading &&
+            blogs.map((blog) => (
+              <tr
+                key={blog._id}
+                className="hover:bg-blue-50 transition"
+              >
+                {/* Title */}
+                <td className="px-4 py-3 font-medium">
+                  {blog.title}
+                </td>
+
+                {/* Category */}
+                <td className="px-4 py-3">
+                  {blog.category}
+                </td>
+
+                {/* Date */}
+                <td className="px-4 py-3 text-gray-500">
+                  {new Date(blog.createdAt).toLocaleDateString()}
+                </td>
+
+                {/* Action */}
+                <td className="px-4 py-3">
+                  <div className="flex gap-3 text-xs">
+                    <button
+                      className="text-blue-600 hover:underline"
+                      onClick={() => {
+  setEditingBlog(blog);
+  setScreen("create-blog");
+}}
+
+                        
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      className="text-red-600 hover:underline"
+                      onClick={() => handleDeleteBlog(blog._id)}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
         </tbody>
       </table>
     </div>
   </>
 )}
+
 
 {screen === "companies" && (
   <>
@@ -2653,161 +3045,6 @@ const handleDeleteCompany = async (id: string) => {
 )}
 
 
-
-
-{screen === "create-blog" && (
-  <div className="max-w-5xl mx-auto bg-white rounded-2xl shadow p-3 sm:p-4 md:p-6 md:p-8">
-    {/* ================= HEADER ================= */}
-    <div className="mb-6">
-      <h2 className="text-xl font-bold">
-        Create / Edit Blog
-      </h2>
-      <p className="text-sm text-gray-500">
-        Write and publish blog content
-      </p>
-    </div>
-
-    {/* ================= FORM ================= */}
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {/* ================= LEFT CONTENT ================= */}
-      <div className="lg:col-span-2 space-y-5">
-        {/* Title */}
-        <div>
-          <label className="text-sm font-medium">
-            Blog Title <span className="text-red-500">*</span>
-          </label>
-          <input
-            placeholder="Enter blog title"
-            className="w-full mt-1 border rounded-lg px-4 py-2
-              focus:ring-2 focus:ring-blue-600 outline-none transition"
-          />
-        </div>
-
-        {/* Slug */}
-        <div>
-          <label className="text-sm font-medium">
-            Slug
-          </label>
-          <input
-            placeholder="blog-url-slug"
-            className="w-full mt-1 border rounded-lg px-4 py-2
-              focus:ring-2 focus:ring-blue-600 outline-none transition"
-          />
-          <p className="text-xs text-gray-400 mt-1">
-            URL friendly slug (auto-generated if empty)
-          </p>
-        </div>
-
-        {/* Category */}
-        <div>
-          <label className="text-sm font-medium">
-            Category
-          </label>
-          <select
-            className="w-full mt-1 border rounded-lg px-4 py-2
-              hover:border-blue-600 focus:ring-2 focus:ring-blue-600 outline-none transition"
-          >
-            <option>Admissions</option>
-            <option>Career Guidance</option>
-            <option>Scholarships</option>
-          </select>
-        </div>
-
-        {/* Featured Image */}
-        <div>
-          <label className="text-sm font-medium">
-            Featured Image
-          </label>
-
-          <div className="mt-2 border-2 border-dashed rounded-lg p-3 sm:p-4 md:p-6 text-center hover:border-blue-600 transition cursor-pointer">
-            <p className="text-sm text-gray-500">
-              Click to upload image
-            </p>
-            <p className="text-xs text-gray-400">
-              JPG, PNG up to 2MB
-            </p>
-          </div>
-        </div>
-
-        {/* Rich Text Editor */}
-        <div>
-          <label className="text-sm font-medium">
-            Blog Content
-          </label>
-          <textarea
-            rows={10}
-            placeholder="Write blog content here..."
-            className="w-full mt-1 border rounded-lg px-4 py-2
-              focus:ring-2 focus:ring-blue-600 outline-none transition"
-          />
-        </div>
-      </div>
-
-      {/* ================= RIGHT SIDEBAR ================= */}
-      <div className="space-y-6">
-        {/* SEO */}
-        <div className="bg-gray-50 rounded-xl p-5 border">
-          <h3 className="font-semibold mb-3">
-            SEO Settings
-          </h3>
-
-          <div className="space-y-3">
-            <div>
-              <label className="text-sm font-medium">
-                Meta Title
-              </label>
-              <input
-                placeholder="SEO meta title"
-                className="w-full mt-1 border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-600 outline-none transition"
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium">
-                Meta Description
-              </label>
-              <textarea
-                rows={3}
-                placeholder="SEO meta description"
-                className="w-full mt-1 border rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-600 outline-none transition"
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Publish */}
-        <div className="bg-white border rounded-xl p-5">
-          <label className="flex items-center gap-3 cursor-pointer mb-4">
-            <input
-              type="checkbox"
-              defaultChecked
-              className="accent-blue-600 scale-110"
-            />
-            <span className="text-sm font-medium">
-              Publish Blog
-            </span>
-          </label>
-
-          <div className="flex flex-col gap-3">
-            <button
-              onClick={() => setScreen("companies")}
-              className="px-4 py-2 rounded-lg border hover:bg-gray-100 transition"
-            >
-              Cancel
-            </button>
-
-            <button
-              className="px-4 py-2 rounded-lg bg-blue-600 text-white
-                hover:bg-blue-700 transition shadow"
-            >
-              Save Blog
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-)}
 
 {screen === "testimonials" && (
   <>
@@ -4027,8 +4264,9 @@ setShowAddJobModal(false);
 
       <button
         onClick={() => {
-          setShowLogoutModal(false);
-          router.push("/admin");
+          localStorage.removeItem("collexa_token"); 
+  setShowLogoutModal(false);
+  router.replace("/admin");
         }}
         className="w-full sm:w-auto px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition"
       >
