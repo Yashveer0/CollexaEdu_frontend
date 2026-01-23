@@ -115,7 +115,7 @@ setForm({
 
   return (
     <div className="min-h-screen w-full bg-[#f8fbff] flex items-center justify-center px-6">
-      <div className="max-w-7xl mt-25 mb-10 w-full grid grid-cols-1 md:grid-cols-2 gap-10">
+      <div className="max-w-7xl text-black mt-25 mb-10 w-full grid grid-cols-1 md:grid-cols-2 gap-10">
         {/* LEFT SECTION */}
         <div className=" md:block mt-16">
           <div className="flex items-center gap-2 text-xl font-bold text-[#0c2c66]">
@@ -166,7 +166,7 @@ setForm({
         {/* RIGHT — FORM */}
         <form
           onSubmit={handleSubmit}
-          className="bg-white shadow-md rounded-2xl p-8 space-y-4"
+          className="bg-white shadow-md rounded-2xl p-8 space-y-"
         >
           <h2 className="text-center text-xl font-bold text-[#0c2c66]">
             Create Account

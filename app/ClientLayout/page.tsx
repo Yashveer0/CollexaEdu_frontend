@@ -14,7 +14,7 @@ export default function ClientLayout({
   // ❌ hide on admin pages
   const hideLayout =
     pathname.startsWith("/admin") ||
-    pathname === "/admin-login" || pathname === "/student-login" || pathname === "/register" || pathname === "/employer-login";
+    pathname === "/admin-login" || pathname === "/student-login" || pathname === "/register" || pathname === "/employer-login" || pathname === "/company-login" || pathname === "/company-register";
 
   return (
     <>

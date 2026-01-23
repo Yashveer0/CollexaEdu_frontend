@@ -197,17 +197,36 @@ const logout = () => {
 
   // GET PROFILE
 const getProfile = async () => {
-  const res = await API.get("/api/userprofile");
+  try {
+    const token = localStorage.getItem("collexa_token");
+    if (!token) throw new Error("Missing token");
 
-  setUser(res.data.data);
+    const res = await API.get("/api/userprofile", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-  localStorage.setItem(
-    "collexa_user",
-    JSON.stringify(res.data.data)
-  );
+    // ✅ Handle possible backend formats
+    const userData =
+      res.data?.data?.user || // if backend sends { data: { user: {...} } }
+      res.data?.user ||       // if backend sends { user: {...} }
+      res.data?.data ||       // if backend sends { data: {...} }
+      null;
 
-  return res.data.data;
+    if (!userData) {
+      console.error("Unexpected response format:", res.data);
+      throw new Error("Invalid response");
+    }
+
+    setUser(userData);
+    localStorage.setItem("collexa_user", JSON.stringify(userData));
+
+    return userData;
+  } catch (err) {
+    console.error("getProfile error:", err);
+    throw err;
+  }
 };
+
 
  const updateProfile = async (data: any) => {
   const res = await API.patch("/api/userprofile", data);

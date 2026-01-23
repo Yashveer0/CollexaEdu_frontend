@@ -2,14 +2,12 @@
 
 import { useAuth } from "@/app/context_api/AuthContext";
 import { useRouter } from "next/navigation";
-
 import { useEffect, useState } from "react";
 import {
   MapPin,
   Phone,
   Mail,
   Pencil,
-  FileText,
   X,
   Check,
   User,
@@ -17,15 +15,15 @@ import {
 } from "lucide-react";
 import Swal from "sweetalert2";
 
+/* ==================== MAIN COMPONENT ==================== */
+
 export default function NaukriProfileUI() {
   const router = useRouter();
+  const { user, loading, updateProfile , getProfile } = useAuth();
 
-
-
-  const { user, loading, updateProfile } = useAuth();
-
-  // profile states
+  // ✅ STATE MANAGEMENT
   const [hydrated, setHydrated] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -37,17 +35,51 @@ export default function NaukriProfileUI() {
   const [skills, setSkills] = useState<string[]>([]);
   const [newSkill, setNewSkill] = useState("");
 
-  // edit modes
+  // Edit state toggles
   const [editBasic, setEditBasic] = useState(false);
   const [editHeadline, setEditHeadline] = useState(false);
   const [editSkills, setEditSkills] = useState(false);
   const [editBio, setEditBio] = useState(false);
 
-  const [saving, setSaving] = useState(false);
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
 
-  useEffect(() => {
+  /* ==================== EFFECTS ==================== */
+
+
+const [hasFetched, setHasFetched] = useState(false);
+
+useEffect(() => {
+  const fetchProfile = async () => {
+    if (loading || !user || hasFetched) return;
+
+    try {
+      const latestUser = await getProfile();
+
+      // only set initial values once
+      setFirstName(latestUser.firstName || "");
+      setLastName(latestUser.lastName || "");
+      setPhoneNumber(latestUser.phoneNumber || "");
+      setLocation(latestUser.profile?.location || "");
+      setHeadline(latestUser.profile?.headline || "");
+      setBio(latestUser.profile?.bio || "");
+      setResumeUrl(latestUser.profile?.resumeUrl || "");
+      setSkills(latestUser.profile?.skills || []);
+      setProfileImage(latestUser.profile?.profileImage || null);
+
+      setHydrated(true);
+      setHasFetched(true);
+    } catch (err) {
+      console.error("Failed to fetch profile:", err);
+      Swal.fire({
+        icon: "error",
+        title: "Profile fetch failed",
+        text: "Could not load your profile data.",
+      });
+    }
+  };
+
+  if (!loading && user) fetchProfile();
   if (!loading && !user) {
     Swal.fire({
       icon: "warning",
@@ -55,57 +87,19 @@ export default function NaukriProfileUI() {
       text: "Please login first",
       confirmButtonText: "Go to home",
       allowOutsideClick: false,
-    }).then(() => {
-      router.replace("/"); // home page
-    });
+    }).then(() => router.replace("/"));
   }
-}, [loading, user, router]);
+}, [loading, user, getProfile, router, hasFetched]);
+  /* ==================== HANDLERS ==================== */
 
-
-  /* SYNC API DATA */
-  
-useEffect(() => {
-  if (!loading) {
-    if (user) {
-      setFirstName(user.firstName || "");
-      setLastName(user.lastName || "");
-      setPhoneNumber(user.phoneNumber || "");
-      setLocation(user.profile?.location || "");
-      setHeadline(user.profile?.headline || "");
-      setBio(user.profile?.bio || "");
-      setResumeUrl(user.profile?.resumeUrl || "");
-      setSkills(user.profile?.skills || []);
-
-      if (user.profile?.profileImage) {
-        setProfileImage(user.profile.profileImage);
-      }
-    }
-
-    
-    setHydrated(true);
-  }
-}, [loading, user]);
-
-
-  if (!hydrated) return null;
-
-  
-  /* SAVE PROFILE */
   const saveProfile = async () => {
     try {
       setSaving(true);
-
       await updateProfile({
         firstName,
         lastName,
         phoneNumber,
-        profile: {
-          location,
-          headline,
-          bio,
-          resumeUrl,
-          skills,
-        },
+        profile: { location, headline, bio, resumeUrl, skills },
       });
 
       Swal.fire({
@@ -119,107 +113,96 @@ useEffect(() => {
       setEditHeadline(false);
       setEditSkills(false);
       setEditBio(false);
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: "Update failed",
+        text: "Something went wrong while saving.",
+      });
     } finally {
       setSaving(false);
     }
   };
 
-  const handleImageChange = async (e: any) => {
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     setImageFile(file);
 
-    const croppedImage = await cropImageToSquare(file);
-    setProfileImage(croppedImage); // ✅ ALWAYS fixed square
+    try {
+      const croppedImage = await cropImageToSquare(file);
+      setProfileImage(croppedImage);
+      Swal.fire({
+        icon: "success",
+        title: "Image cropped",
+        text: "Profile image updated successfully!",
+        timer: 1000,
+        showConfirmButton: false,
+      });
+    } catch (err) {
+      Swal.fire({
+        icon: "error",
+        title: "Image error",
+        text: "Failed to crop image.",
+      });
+    }
   };
 
   const addSkill = () => {
-    if (!newSkill.trim() || skills.includes(newSkill)) return;
-    setSkills([...skills, newSkill.trim()]);
+    const trimmed = newSkill.trim();
+    if (!trimmed || skills.includes(trimmed)) return;
+    setSkills((prev) => [...prev, trimmed]);
     setNewSkill("");
   };
 
-  const removeSkill = (s: string) => setSkills(skills.filter((i) => i !== s));
+  const removeSkill = (s: string) =>
+    setSkills((prev) => prev.filter((i) => i !== s));
 
-  const cropImageToSquare = (file: File): Promise<string> => {
-    return new Promise((resolve) => {
+  const cropImageToSquare = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
       const img = new Image();
       img.src = URL.createObjectURL(file);
-
       img.onload = () => {
-        const minSize = Math.min(img.width, img.height);
-
-        // fixed output canvas
+        const size = Math.min(img.width, img.height);
         const canvas = document.createElement("canvas");
-        canvas.width = 200;
-        canvas.height = 200;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return reject("Canvas error");
 
-        const ctx = canvas.getContext("2d")!;
+        canvas.width = 300;
+        canvas.height = 300;
 
-        // center crop source
-        const sx = (img.width - minSize) / 2;
-        const sy = (img.height - minSize) / 2;
+        const sx = (img.width - size) / 2;
+        const sy = (img.height - size) / 2;
 
-        // draw cropped + resized
-        ctx.drawImage(img, sx, sy, minSize, minSize, 0, 0, 300, 300);
-
+        ctx.drawImage(img, sx, sy, size, size, 0, 0, 300, 300);
         resolve(canvas.toDataURL("image/jpeg", 0.85));
       };
+      img.onerror = () => reject("Image load error");
     });
-  };
 
-   
+  /* ==================== RENDER ==================== */
+
   return (
     <div className="bg-gray-50 min-h-screen py-6 px-3 sm:px-6">
-      <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-6 text-gray-700">
-        {/* LEFT LINKS */}
-
-        {/* MAIN */}
-        <main className="flex-1 mb-10 space-y-6 mt-25">
+      <div className="max-w-6xl mt-25 mx-auto flex flex-col lg:flex-row gap-6 text-gray-700">
+        <main className="flex-1 mb-10 space-y-6 mt-4">
           {/* PROFILE HEADER */}
           <div className="bg-white rounded-2xl shadow p-6 flex flex-col sm:flex-row gap-6 items-center sm:items-start relative">
             {/* IMAGE */}
             <div className="relative flex-shrink-0">
-              <div
-                className="
-    w-32 h-32 
-    md:w-40 md:h-40
-    rounded-full 
-    overflow-hidden 
-    flex items-center justify-center 
-    bg-gray-100 
-    border-2 border-white 
-    shadow-sm
-    aspect-square
-  "
-              >
+              <div className="w-32 h-32 md:w-40 md:h-40 rounded-full overflow-hidden flex items-center justify-center bg-gray-100 border-2 border-white shadow-sm aspect-square">
                 {profileImage ? (
                   <img
                     src={profileImage}
                     alt="profile"
-                    className="
-          block
-          w-full
-          h-full
-          max-w-full
-          max-h-full
-          object-cover
-        "
+                    className="block w-full h-full object-cover"
                   />
                 ) : (
                   <User className="w-12 h-12 text-gray-400" />
                 )}
               </div>
 
-              {/* CAMERA */}
-              <label
-                className="
-    absolute bottom-1 right-1
-    bg-white rounded-full p-1.5
-    shadow cursor-pointer hover:bg-gray-100
-  "
-              >
+              <label className="absolute bottom-1 right-1 bg-white rounded-full p-1.5 shadow cursor-pointer hover:bg-gray-100">
                 <Camera className="w-4 h-4 text-gray-700" />
                 <input
                   type="file"
@@ -237,16 +220,17 @@ useEffect(() => {
                   <h2 className="text-2xl font-semibold">
                     {firstName} {lastName}
                   </h2>
-
                   <div className="flex flex-wrap justify-center sm:justify-start gap-4 text-sm text-gray-600 mt-2">
                     {location && (
                       <span className="flex items-center gap-1">
                         <MapPin size={14} /> {location}
                       </span>
                     )}
-                    <span className="flex items-center gap-1">
-                      <Mail size={14} /> {user?.emailId || ""}
-                    </span>
+                    {user?.emailId && (
+                      <span className="flex items-center gap-1">
+                        <Mail size={14} /> {user.emailId}
+                      </span>
+                    )}
                     {phoneNumber && (
                       <span className="flex items-center gap-1">
                         <Phone size={14} /> {phoneNumber}
@@ -254,7 +238,6 @@ useEffect(() => {
                     )}
                   </div>
                 </div>
-
                 <Pencil
                   size={18}
                   className="cursor-pointer text-gray-500 hover:text-black"
@@ -262,7 +245,6 @@ useEffect(() => {
                 />
               </div>
 
-              {/* EDIT BASIC INFO */}
               {editBasic && (
                 <EditBox onSave={saveProfile} saving={saving}>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -278,7 +260,6 @@ useEffect(() => {
                       placeholder="Last name"
                       className="border rounded-lg px-3 py-2"
                     />
-
                     <input
                       value={location}
                       onChange={(e) => setLocation(e.target.value)}
@@ -329,14 +310,18 @@ useEffect(() => {
           <Section title="Key skills" onEdit={() => setEditSkills(true)}>
             {!editSkills ? (
               <div className="flex flex-wrap gap-2">
-                {skills.map((s) => (
-                  <span
-                    key={s}
-                    className="px-3 py-1 bg-gray-100 rounded-full text-sm"
-                  >
-                    {s}
-                  </span>
-                ))}
+                {skills.length ? (
+                  skills.map((s) => (
+                    <span
+                      key={s}
+                      className="px-3 py-1 bg-gray-100 rounded-full text-sm"
+                    >
+                      {s}
+                    </span>
+                  ))
+                ) : (
+                  <p className="text-gray-400 text-sm">Add your skills</p>
+                )}
               </div>
             ) : (
               <EditBox onSave={saveProfile} saving={saving}>
@@ -355,11 +340,11 @@ useEffect(() => {
                   </button>
                 </div>
 
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 mt-2">
                   {skills.map((s) => (
                     <span
                       key={s}
-                      className="px-3 py-1 bg-gray-100 rounded-full text-sm flex gap-1"
+                      className="px-3 py-1 bg-gray-100 rounded-full text-sm flex gap-1 items-center"
                     >
                       {s}
                       <X
@@ -379,9 +364,17 @@ useEffect(() => {
   );
 }
 
-/* ================= UI HELPERS ================= */
+/* ==================== UI HELPERS ==================== */
 
-function Section({ title, children, onEdit }: any) {
+function Section({
+  title,
+  children,
+  onEdit,
+}: {
+  title: string;
+  children: React.ReactNode;
+  onEdit?: () => void;
+}) {
   return (
     <div className="bg-white rounded-2xl shadow p-6">
       <div className="flex justify-between mb-4">
@@ -399,14 +392,24 @@ function Section({ title, children, onEdit }: any) {
   );
 }
 
-function EditBox({ children, onSave, saving }: any) {
+function EditBox({
+  children,
+  onSave,
+  saving,
+}: {
+  children: React.ReactNode;
+  onSave: () => void;
+  saving: boolean;
+}) {
   return (
     <div className="space-y-3 mt-3">
       {children}
       <button
         onClick={onSave}
         disabled={saving}
-        className="px-6 py-2 bg-gradient-to-r from-blue-900 to-emerald-400 text-white rounded-lg flex items-center gap-2"
+        className={`px-6 py-2 bg-gradient-to-r from-blue-900 to-emerald-400 text-white rounded-lg flex items-center gap-2 ${
+          saving ? "opacity-70 cursor-not-allowed" : ""
+        }`}
       >
         <Check size={16} />
         {saving ? "Saving..." : "Save"}
