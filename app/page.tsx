@@ -232,12 +232,14 @@ export default function Home() {
   ];
 
   const images = [
-    "/photo1-min.png",
-    "/photo2-min.png",
-    "/photo1-min.png",
-    "/photo2-min.png",
-    "/photo1-min.png",
-    "/photo2-min.png",
+    "/img1.jpeg",
+    "/img2.jpeg",
+    "/img3.jpeg",
+    "/img4.jpeg",
+    "/img5.jpeg",
+    "/img6.jpeg",
+    "/img7.jpeg",
+    "/img9.jpeg"
   ];
 
   return (
@@ -348,11 +350,11 @@ export default function Home() {
               >
                 <Image
                   src={src}
-                  alt="Home hero image"
-                  width={1200}
-                  height={600}
+                  alt="Home_hero_image"
+                  width={1400}
+                  height={700}
                   priority
-                  className="w-full h-45 md:h-55 object-cover rounded-2xl shadow-sm"
+                  className="w-full h-full md:h-full object-cover rounded-2xl shadow-sm"
                 />
               </div>
             ))}
@@ -709,7 +711,7 @@ export default function Home() {
             ].map((job, i) => (
               <div
                 key={i}
-                className="min-w-[300px] md:min-w-[360px] bg-white rounded-2xl border shadow-sm snap-start p-6 hover:shadow-xl transition"
+                className="min-w-75 md:min-w-90 bg-white rounded-2xl border shadow-sm snap-start p-6 hover:shadow-xl transition"
               >
                 <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs">
                   Actively hiring
