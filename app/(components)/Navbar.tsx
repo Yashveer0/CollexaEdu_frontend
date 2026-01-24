@@ -19,9 +19,6 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const [showLoginDropdown, setShowLoginDropdown] = useState(false);
-  const [activeRole, setActiveRole] = useState<"student" | "employer" | null>(
-    null
-  );
 
   const [open, setOpen] = useState<string | null>(null);
 
@@ -1128,7 +1125,7 @@ export default function Navbar() {
                       ["B.Tech Electronics", "/campus-courses"],
                       ["B.Tech Mechanical", "/campus-courses"],
                       ["M.Tech Programs", "/campus-courses"],
-                      ["Diploma Engineering", "/campus-coursess"],
+                      ["Diploma Engineering", "/campus-courses"],
                     ].map(([label, href]) => (
                       <Link
                         key={label}

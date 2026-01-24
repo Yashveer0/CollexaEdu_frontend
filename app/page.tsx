@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FiUsers, FiHome, FiGlobe, FiBriefcase } from "react-icons/fi";
 import Image from "next/image";
 
+
 import { useState } from "react";
 import {
   
@@ -23,9 +24,11 @@ import {
 import { useEffect } from "react";
 
 import TestimonialsMarquee from "./(components)/TestimonialsMarquee";
+import JobApplyModal from "./(components)/JobApplyModal";
+import { useAuth } from "./context_api/AuthContext";
 
 export default function Home() {
-  
+  const { getPublicJobs } = useAuth();
 
   const tabs = [
     "Big brands",
@@ -130,51 +133,21 @@ export default function Home() {
   ];
 
   const [activeJobTab, setActiveJobTab] = useState("Work from home");
+  const [fetchedJobs, setFetchedJobs] = useState<any[]>([]);
 
-  const jobs = [
-    {
-      title: "Graphic Designer And Video Editor",
-      company: "Glasscard",
-      type: "Work From Home",
-      salary: "₹4,80,000 - 6,60,000 /year",
-    },
-    {
-      title: "B2C Sales Associate",
-      company: "AI Certs",
-      type: "Work From Home",
-      salary: "₹2,00,000 - 3,00,000 /year",
-    },
-    {
-      title: "Machine Learning & Deep Learning Developer",
-      company: "Qriocity Ventures Private Limited",
-      type: "Work From Home",
-      salary: "₹3,00,000 - 3,50,000 /year",
-    },
-    {
-      title: "B2C Sales Associate",
-      company: "AI Certs",
-      type: "Work From Home",
-      salary: "₹2,00,000 - 3,00,000 /year",
-    },
-    {
-      title: "Machine Learning & Deep Learning Developer",
-      company: "Qriocity Ventures Private Limited",
-      type: "Work From Home",
-      salary: "₹3,00,000 - 3,50,000 /year",
-    },
-    {
-      title: "B2C Sales Associate",
-      company: "AI Certs",
-      type: "Work From Home",
-      salary: "₹2,00,000 - 3,00,000 /year",
-    },
-    {
-      title: "Machine Learning & Deep Learning Developer",
-      company: "Qriocity Ventures Private Limited",
-      type: "Work From Home",
-      salary: "₹3,00,000 - 3,50,000 /year",
-    },
-  ];
+  useEffect(() => {
+    const fetchJobs = async () => {
+      if (getPublicJobs) {
+        const data = await getPublicJobs(activeJobTab);
+        if (data && data.jobs) {
+          setFetchedJobs(data.jobs);
+        } else {
+          setFetchedJobs([]);
+        }
+      }
+    };
+    fetchJobs();
+  }, [activeJobTab]);
 
   const [activeCourseTab, setActiveCourseTab] = useState("Engineering");
 
@@ -477,12 +450,18 @@ export default function Home() {
                     <Users size={16} /> {c.enrolled} Enrolled
                   </div>
                 </div>
-
-                <div className="mt-5 text-gray-700">
-                  <span className="border px-3 py-1 rounded-full text-xs">
+                  
+                  <div className="mt-4 flex justify-between "> 
+                <div className="mt-5   text-gray-700">
+                  <span className="border px-2 py-1 rounded-full text-xs">
                     {c.level}
                   </span>
+                  
+                  
                 </div>
+                <JobApplyModal title={c.title} btn_text="Enroll Now" />
+              </div>
+
               </div>
             ))}
           </div>
@@ -561,7 +540,7 @@ export default function Home() {
             id="jobs-slider"
             className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 scrollbar-hide"
           >
-            {jobs.map((job, i) => (
+            {fetchedJobs.length > 0 ? fetchedJobs.map((job, i) => (
               <div
                 key={i}
                 className="min-w-75 md:min-w-90 bg-white rounded-2xl border shadow-sm snap-start p-6 hover:shadow-xl transition"
@@ -573,19 +552,19 @@ export default function Home() {
 
                 {/* TITLE */}
                 <h3 className="text-lg text-gray-700 font-semibold mt-3">
-                  {job.title}
+                  {job.jobTitle || job.title}
                 </h3>
-                <p className="text-gray-500">{job.company}</p>
+                <p className="text-gray-500">{job.companyName || job.company}</p>
 
                 {/* DETAILS */}
                 <div className="mt-4 space-y-2 text-sm text-gray-600">
                   <p className="flex gap-2">
-                    <MapPin size={16} className="text-blue-500" /> {job.type}
+                    <MapPin size={16} className="text-blue-500" /> {job.jobType || job.type}
                   </p>
 
                   <p className="flex gap-2">
                     <Wallet size={16} className="text-purple-600" />{" "}
-                    {job.salary}
+                    {job.salaryRange || job.salary}
                   </p>
                 </div>
 
@@ -597,12 +576,16 @@ export default function Home() {
                     Job
                   </span>
 
-                  <button className="text-purple-700 font-medium">
-                    View details →
-                  </button>
+                  <JobApplyModal title={job.jobTitle || job.title} btn_text="Apply"/>
                 </div>
               </div>
-            ))}
+            )) : (
+              <div className="w-full text-center py-10 text-gray-500">
+                No jobs found for {activeJobTab}
+              </div>
+            )}
+
+            
           </div>
 
           {/* RIGHT BUTTON */}
@@ -733,9 +716,7 @@ export default function Home() {
                     Internship
                   </span>
 
-                  <button className="text-purple-700 font-medium flex items-center gap-1">
-                    Apply Now →
-                  </button>
+                  <JobApplyModal title={job.role} btn_text="Apply" />
                 </div>
               </div>
             ))}
@@ -856,9 +837,9 @@ export default function Home() {
                     </p>
                   </div>
 
-                  <button className="text-purple-700 font-medium">
-                    Enroll Now →
-                  </button>
+                  <JobApplyModal title={c.title} btn_text="Enroll Now" />
+
+                  
                 </div>
               </div>
             ))}

@@ -65,7 +65,7 @@ useEffect(() => {
       setBio(latestUser.profile?.bio || "");
       setResumeUrl(latestUser.profile?.resumeUrl || "");
       setSkills(latestUser.profile?.skills || []);
-      setProfileImage(latestUser.profile?.profileImage || null);
+      setProfileImage(latestUser.profile?.profilePicture || null);
 
       setHydrated(true);
       setHasFetched(true);

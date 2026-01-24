@@ -271,6 +271,48 @@ const resetPassword = async (
   }
 };
 
+// 🌍 PUBLIC JOB LIST (no auth required)
+const getPublicJobs = async (params?: {
+  page?: number;
+  limit?: number;
+  type?: "job" | "internship";
+  keyword?: string;
+  location?: string;
+}) => {
+  try {
+    const res = await API.get("/api/jobs/listingjob", {
+      params: {
+        page: params?.page || 1,
+        limit: params?.limit || 10,
+        type: params?.type,
+        keyword: params?.keyword,
+        location: params?.location,
+      },
+    });
+
+    /*
+      Expected backend response examples:
+      {
+        jobs: [],
+        total: 100,
+        page: 1
+      }
+      OR
+      {
+        data: { jobs: [], total: 100 }
+      }
+    */
+
+    return (
+      res.data?.data || // if wrapped in data
+      res.data          // direct response
+    );
+  } catch (err: any) {
+    console.error("getPublicJobs error:", err);
+    throw err;
+  }
+};
+
 
 
   return (
@@ -291,6 +333,7 @@ const resetPassword = async (
         updateCompany,
         updateJob,
         deleteJob,
+        getPublicJobs,
       }}
     >
       {children}
