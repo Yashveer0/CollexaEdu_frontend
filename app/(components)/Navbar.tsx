@@ -30,7 +30,7 @@ export default function Navbar() {
 
 
   return (
-    <nav className="w-full shadow-sm backdrop-blur-md bg-white/60 fixed top-0 left-0 z-40 border-b">
+    <nav style={{ fontFamily: "Poppins" }} className="w-full  shadow-sm backdrop-blur-md bg-white/60 fixed top-0 left-0 z-40 border-b">
       <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
         {/* LOGO */}
         <div className="flex items-center gap-2">
