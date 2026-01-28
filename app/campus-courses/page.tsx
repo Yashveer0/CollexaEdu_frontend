@@ -510,9 +510,11 @@ const faqs = [
           <p className="text-sm text-gray-600 mb-4">
             Still have questions?
           </p>
-          <button className="bg-[#0B2B6B] hover:bg-[#123c9c] text-white px-6 py-2 rounded-lg shadow transition">
+            <Link href="/contact"> 
+          <button className="bg-[#0B2B6B] cursor-pointer hover:bg-[#123c9c] text-white px-6 py-2 rounded-lg shadow transition">
             Contact Our Support Team
           </button>
+            </Link>
         </div>
 
         {/* Bottom CTA */}

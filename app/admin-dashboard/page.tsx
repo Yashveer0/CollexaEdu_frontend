@@ -30,7 +30,8 @@ import {
   Settings,
   LogOut,
   Building,
-  Factory
+  Factory,
+  FileBarChart
 } from "lucide-react";
 
 import {
@@ -67,6 +68,7 @@ type Screen =
   | "Jobs"
   | "Internships"
   | "applications"
+  | "reports"
   | "settings";
 
 export default function AdminPage() {
@@ -146,6 +148,14 @@ const [blogs, setBlogs] = useState<any[]>([]);
 const [blogsLoading, setBlogsLoading] = useState(false);
 const [editingBlog, setEditingBlog] = useState<any>(null);
 
+const [dashboardStats, setDashboardStats] = useState({
+  totalUsers: 0,
+  totalLeads: 0,
+  totalPackages: 0,
+  activeSubscriptions: 0,
+  monthlyRevenue: 0,
+});
+
 
 
 // dashboard 
@@ -175,6 +185,13 @@ const [totalPages, setTotalPages] = useState(1);
 
 // edit mode
 const [editingJob, setEditingJob] = useState<any>(null);
+
+// reports
+const [reportType, setReportType] = useState("users");
+const [startDate, setStartDate] = useState("");
+const [endDate, setEndDate] = useState("");
+const [reportData, setReportData] = useState<any[]>([]);
+const [reportLoading, setReportLoading] = useState(false);
 
 
   const [activeSettingTab, setActiveSettingTab] = useState<
@@ -410,6 +427,40 @@ const fetchBlogs = async () => {
   }
 };
 
+const fetchUsersCount = async () => {
+  try {
+    const token = localStorage.getItem("collexa_token");
+    const res = await API.get("/api/admin/users", { headers: { Authorization: `Bearer ${token}` } });
+    const count = res.data?.users?.length || res.data?.data?.users?.length || 0;
+    setDashboardStats(prev => ({ ...prev, totalUsers: count }));
+  } catch (e) { console.error(e); }
+};
+
+const fetchDashboardData = async () => {
+  try {
+    const token = localStorage.getItem("collexa_token");
+    const res = await API.get("/api/admin/dashboard", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (res.data) {
+      setDashboardStats({
+        totalUsers: res.data.totalUsers || res.data.stats?.totalUsers || 0,
+        totalLeads: res.data.totalLeads || res.data.stats?.totalLeads || 0,
+        totalPackages: res.data.totalPackages || res.data.stats?.totalPackages || 0,
+        activeSubscriptions: res.data.activeSubscriptions || res.data.stats?.activeSubscriptions || 0,
+        monthlyRevenue: res.data.monthlyRevenue || res.data.stats?.monthlyRevenue || 0,
+      });
+
+      if (res.data.userGrowth) setUserGrowthData(res.data.userGrowth);
+      if (res.data.leadsData) setLeadsData(res.data.leadsData);
+    }
+  } catch (err) {
+    console.warn("Dashboard API not available, using fallback data.");
+    fetchUsersCount();
+  }
+};
+
 
 useEffect(() => {
   if (screen === "create-blog" && editingBlog) {
@@ -424,6 +475,12 @@ useEffect(() => {
   }
 }, [screen, editingBlog]);
 
+
+useEffect(() => {
+  if (screen === "dashboard") {
+    fetchDashboardData();
+  }
+}, [screen]);
 
 
 useEffect(() => {
@@ -988,6 +1045,94 @@ const handleDeleteCompany = async (id: string) => {
   }
 };
 
+const handleGenerateReport = async () => {
+  setReportLoading(true);
+  try {
+    const token = localStorage.getItem("collexa_token");
+    let endpoint = "";
+    
+    switch (reportType) {
+      case "users":
+        endpoint = "/api/admin/users";
+        break;
+      case "jobs":
+        endpoint = "/api/jobs/listingjob";
+        break;
+      case "internships":
+        endpoint = "/api/internship/listinginternship";
+        break;
+      case "companies":
+        endpoint = "/api/companies";
+        break;
+      default:
+        endpoint = "/api/admin/users";
+    }
+
+    const res = await API.get(endpoint, {
+      headers: { Authorization: `Bearer ${token}` },
+      params: { limit: 1000 } // Fetch larger dataset for reports
+    });
+
+    let data = [];
+    if (reportType === "users") data = res.data?.users || res.data?.data?.users || [];
+    else if (reportType === "jobs") data = res.data?.jobs || res.data?.data?.jobs || [];
+    else if (reportType === "internships") data = res.data?.internships || res.data?.data?.internships || [];
+    else if (reportType === "companies") data = res.data?.companies || res.data?.data?.companies || res.data || [];
+
+    // Client-side Date Filtering
+    if (startDate || endDate) {
+      const start = startDate ? new Date(startDate) : new Date('1970-01-01');
+      const end = endDate ? new Date(endDate) : new Date();
+      end.setHours(23, 59, 59, 999);
+
+      data = data.filter((item: any) => {
+        const dateField = item.createdAt || item.postedDate || item.date;
+        if (!dateField) return true;
+        const itemDate = new Date(dateField);
+        return itemDate >= start && itemDate <= end;
+      });
+    }
+
+    setReportData(data);
+
+    if (data.length === 0) {
+      Swal.fire("Info", "No data found for the selected criteria", "info");
+    }
+
+  } catch (error) {
+    console.error("Report generation failed", error);
+    Swal.fire("Error", "Failed to generate report", "error");
+    setReportData([]);
+  } finally {
+    setReportLoading(false);
+  }
+};
+
+const downloadReport = () => {
+  if (reportData.length === 0) {
+    Swal.fire("No Data", "Please generate a report first", "warning");
+    return;
+  }
+
+  const processValue = (val: any) => {
+    if (val === null || val === undefined) return "";
+    if (typeof val === "object") {
+      return JSON.stringify(val).replace(/"/g, '""');
+    }
+    return String(val).replace(/"/g, '""');
+  };
+
+  const headers = Object.keys(reportData[0]).join(",");
+  const rows = reportData.map(row => Object.values(row).map(val => `"${processValue(val)}"`).join(","));
+  const csvContent = "data:text/csv;charset=utf-8," + [headers, ...rows].join("\n");
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", `${reportType}_report_${new Date().toISOString().split('T')[0]}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+};
  
 
 
@@ -1019,6 +1164,7 @@ const handleDeleteCompany = async (id: string) => {
       { label: "Testimonials", key: "testimonials", icon: Star },
       
       { label: "Applications", key: "applications", icon: FileText },
+      { label: "Reports", key: "reports", icon: FileBarChart },
       { label: "Settings", key: "settings", icon: Settings },
     ].map(({ label, key, icon: Icon }) => (
       <div
@@ -1154,11 +1300,11 @@ const handleDeleteCompany = async (id: string) => {
     {/* ================= STATS CARDS ================= */}
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
       {[
-        { title: "Total Users", link: "users" },
-        { title: "Total Leads", link: "leads" },
-        { title: "Total Packages", link: "packages" },
-        { title: "Active Subscriptions", link: "packages" },
-        { title: "Monthly Revenue", link: "packages" },
+        { title: "Total Users", value: dashboardStats.totalUsers, link: "users" },
+        { title: "Total Leads", value: dashboardStats.totalLeads, link: "leads" },
+        { title: "Total Packages", value: dashboardStats.totalPackages, link: "packages" },
+        { title: "Active Subscriptions", value: dashboardStats.activeSubscriptions, link: "packages" },
+        { title: "Monthly Revenue", value: `₹${dashboardStats.monthlyRevenue}`, link: "packages" },
       ].map((item) => (
         <div
           key={item.title}
@@ -1166,7 +1312,7 @@ const handleDeleteCompany = async (id: string) => {
           className="bg-white p-4 rounded-xl shadow cursor-pointer hover:shadow-md transition"
         >
           <p className="text-sm text-gray-500">{item.title}</p>
-          <h2 className="text-2xl font-bold mt-2">0</h2>
+          <h2 className="text-2xl font-bold mt-2">{item.value}</h2>
           <p className="text-xs text-blue-600 mt-1">
             View details →
           </p>
@@ -4111,6 +4257,110 @@ setShowAddJobModal(false);
   </>
 )}
 
+{screen === "reports" && (
+  <div className="max-w-6xl mx-auto space-y-6">
+    {/* Header */}
+    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div>
+        <h2 className="text-xl font-bold">Reports</h2>
+        <p className="text-sm text-gray-500">Generate and download system reports</p>
+      </div>
+    </div>
+
+    {/* Filters */}
+    <div className="bg-white p-6 rounded-xl shadow grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+      <div>
+        <label className="text-sm font-medium text-gray-700 block mb-1">Report Type</label>
+        <select 
+          className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-600 outline-none"
+          value={reportType}
+          onChange={(e) => setReportType(e.target.value)}
+        >
+          <option value="users">Users Report</option>
+          <option value="jobs">Jobs Report</option>
+          <option value="internships">Internships Report</option>
+          <option value="companies">Companies Report</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="text-sm font-medium text-gray-700 block mb-1">From Date</label>
+        <input 
+          type="date" 
+          className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-600 outline-none"
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+        />
+      </div>
+
+      <div>
+        <label className="text-sm font-medium text-gray-700 block mb-1">To Date</label>
+        <input 
+          type="date" 
+          className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-600 outline-none"
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
+        />
+      </div>
+
+      <div className="flex gap-2">
+        <button 
+          onClick={handleGenerateReport}
+          disabled={reportLoading}
+          className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition disabled:opacity-60"
+        >
+          {reportLoading ? "Loading..." : "Generate"}
+        </button>
+        
+        {reportData.length > 0 && (
+          <button 
+            onClick={downloadReport}
+            className="flex-1 border border-green-600 text-green-600 px-4 py-2 rounded-lg text-sm hover:bg-green-50 transition"
+          >
+            Download Excel
+          </button>
+        )}
+      </div>
+    </div>
+
+    {/* Preview Table */}
+    {reportData.length > 0 && (
+      <div className="bg-white rounded-xl shadow overflow-hidden">
+        <div className="px-6 py-4 border-b flex justify-between items-center">
+          <h3 className="font-semibold text-gray-800">Preview ({reportData.length} records)</h3>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm text-left">
+            <thead className="bg-gray-50 text-gray-600 font-medium">
+              <tr>
+                {Object.keys(reportData[0]).slice(0, 6).map((key) => (
+                  <th key={key} className="px-6 py-3 capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {reportData.slice(0, 10).map((row, i) => (
+                <tr key={i} className="hover:bg-gray-50">
+                  {Object.values(row).slice(0, 6).map((val: any, idx) => (
+                    <td key={idx} className="px-6 py-3 text-gray-600 whitespace-nowrap">
+                      {typeof val === 'object' ? JSON.stringify(val).substring(0, 30) + '...' : String(val).substring(0, 50)}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {reportData.length > 10 && (
+          <div className="px-6 py-3 bg-gray-50 text-center text-xs text-gray-500">
+            Showing first 10 records. Download to view all.
+          </div>
+        )}
+      </div>
+    )}
+  </div>
+)}
+
 
 {screen === "settings" && (
   <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow p-3 sm:p-4 md:p-6 md:p-8">
@@ -4355,6 +4605,7 @@ setShowAddJobModal(false);
           { label: "Admissions", key: "admissions", icon: GraduationCap },
           { label: "Courses", key: "courses", icon: BookOpen },
           { label: "companies", key: "companies", icon: FileText },
+          { label: "Reports", key: "reports", icon: FileBarChart },
           { label: "Settings", key: "settings", icon: Settings },
         ].map(({ label, key, icon: Icon }) => (
           <div

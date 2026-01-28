@@ -17,10 +17,8 @@ export default function PrivacyPage() {
     <div className="w-full bg-[#F7F9FC]">
 
       {/* HERO */}
-      <section className="w-full py-20 px-4 bg-gradient-to-b from-white to-[#F7F9FC] text-center">
-        <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">
-          Last updated: 24 November 2025
-        </p>
+      <section className="w-full py-25 px-4 bg-gradient-to-b from-white to-[#F7F9FC] text-center">
+        
         <h1 className="text-3xl sm:text-4xl font-bold text-[#0B2B6B]">
           Privacy Policy
         </h1>

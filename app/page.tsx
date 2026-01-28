@@ -20,6 +20,8 @@ import {
   Wallet,
   ChevronLeft,
   ChevronRight,
+  Globe,
+  BrainCircuit,
 } from "lucide-react";
 import { useEffect } from "react";
 
@@ -28,7 +30,7 @@ import JobApplyModal from "./(components)/JobApplyModal";
 import { useAuth } from "./context_api/AuthContext";
 
 export default function Home() {
-  const { getPublicJobs } = useAuth();
+  const { getPublicJobs, getPublicInternships } = useAuth();
 
   const tabs = [
     "Big brands",
@@ -39,6 +41,7 @@ export default function Home() {
     "Media",
     "Design",
     "Data Science",
+    "Accounting",
   ];
 
   const [active, setActive] = useState("Big brands");
@@ -116,7 +119,7 @@ export default function Home() {
     "Technology",
     "Business",
     "Design",
-    "Healthcare",
+    
     "Arts",
     "Science",
   ];
@@ -132,32 +135,42 @@ export default function Home() {
     "Data Science",
   ];
 
+  const features = [
+  {
+    title: "Fast-Growing Roles",
+    desc: "Discover opportunities in high-demand industries and rapidly scaling companies.",
+    icon: TrendingUp,
+  },
+  {
+    title: "Trusted Employers",
+    desc: "Work with verified companies across India and global markets.",
+    icon: Building2,
+  },
+  {
+    title: "Work Anywhere",
+    desc: "Choose on-site, hybrid, or remote roles that fit your lifestyle.",
+    icon: Globe,
+  },
+  {
+    title: "Student Friendly",
+    desc: "Internships and entry-level jobs crafted for students and freshers.",
+    icon: GraduationCap,
+  },
+  {
+    title: "Career Growth",
+    desc: "Upskill, get mentorship, and accelerate your professional journey.",
+    icon: Award,
+  },
+  {
+    title: "Smart Matching",
+    desc: "AI-powered recommendations connect you with the right opportunities.",
+    icon: BrainCircuit,
+  },
+];
+
   const [activeJobTab, setActiveJobTab] = useState("Work from home");
   const [fetchedJobs, setFetchedJobs] = useState<any[]>([]);
-
- const sliderRef = useRef<HTMLDivElement | null>(null);
-
-useEffect(() => {
-  const slider = sliderRef.current;
-  if (!slider) return;
-
-  const scrollStep = () => {
-    if (
-      slider.scrollLeft + slider.clientWidth >=
-      slider.scrollWidth - 5
-    ) {
-      // end reached → reset
-      slider.scrollTo({ left: 0, behavior: "smooth" });
-    } else {
-      slider.scrollBy({ left: 300, behavior: "smooth" });
-    }
-  };
-
-  const interval = setInterval(scrollStep, 3000); // 3 sec
-
-  return () => clearInterval(interval);
-}, []);
-
+  const [fetchedInternships, setFetchedInternships] = useState<any[]>([]);
 
 
   useEffect(() => {
@@ -174,6 +187,23 @@ useEffect(() => {
     };
     fetchJobs();
   }, [activeJobTab]);
+
+  useEffect(() => {
+    const fetchInternships = async () => {
+      if (getPublicInternships) {
+        const data = await getPublicInternships(active);
+        console.log(data);
+        if (Array.isArray(data)) {
+          setFetchedInternships(data);
+        } else if (data && data.internships) {
+          setFetchedInternships(data.internships);
+        } else {
+          setFetchedInternships([]);
+        }
+      }
+    };
+    fetchInternships();
+  }, [active]);
 
   const [activeCourseTab, setActiveCourseTab] = useState("Engineering");
 
@@ -230,17 +260,6 @@ useEffect(() => {
     },
   ];
 
-  const images = [
-    "/img1.jpeg",
-    "/img2.jpeg",
-    "/img3.jpeg",
-    "/img4.jpeg",
-    "/img5.jpeg",
-    "/img6.jpeg",
-    "/img7.jpeg",
-    "/img9.jpeg"
-  ];
-
   return (
     <div className="bg-[#f7fbff] overflow-hidden">
       {/* ------------------------------------------------ */}
@@ -286,7 +305,7 @@ useEffect(() => {
       {/* ------------------------------------------------ */}
       {/* ⭐ STATS STRIP */}
       {/* ------------------------------------------------ */}
-      <section className="bg-white  py-8">
+      <section className="bg-[#83e0c6]  py-8">
         <div className="max-w-7xl text-gray-700 mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
           {/* Students */}
           <div className="flex flex-col items-center text-center gap-2">
@@ -316,65 +335,6 @@ useEffect(() => {
       {/* ------------------------------------------------ */}
       {/* ⭐ TRENDING NOW */}
       {/* ------------------------------------------------ */}
-      <section className="w-full bg-[#f8fbff] py-14">
-        {/* TITLE */}
-        <h1 className="text-2xl md:text-3xl font-extrabold text-[#0c2c66] flex items-center justify-center gap-2 px-4">
-          Trending now <TrendingUp className="text-blue-600" />
-        </h1>
-
-        {/* SLIDER WRAPPER */}
-        <div className="relative max-w-6xl mx-auto mt-10 px-6">
-          {/* LEFT BTN (Desktop only) */}
-          <button
-            onClick={() =>
-              document.getElementById("trending-slider")?.scrollBy({
-                left: -350,
-                behavior: "smooth",
-              })
-            }
-            className="hidden md:flex absolute text-white -left-4 top-1/2 -translate-y-1/2 bg-[#00BC7D] shadow-lg p-2 rounded-full z-10"
-          >
-            <ChevronLeft />
-          </button>
-
-          {/* SLIDER */}
-          <div
-  id="trending-slider"
-  ref={sliderRef}
-  className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 scrollbar-hide"
->
-  {images.map((src, i) => (
-    <div
-      key={i}
-      className="min-w-65 sm:min-w-75 md:min-w-85 snap-start"
-    >
-      <Image
-        src={src}
-        alt="Home_hero_image"
-        width={1400}
-        height={700}
-        priority
-        className="w-full h-full object-cover rounded-2xl shadow-sm"
-      />
-    </div>
-  ))}
-</div>
-
-
-          {/* RIGHT BTN */}
-          <button
-            onClick={() =>
-              document.getElementById("trending-slider")?.scrollBy({
-                left: 350,
-                behavior: "smooth",
-              })
-            }
-            className="hidden md:flex text-white absolute -right-4 top-1/2 -translate-y-1/2 bg-[#00BC7D] shadow-lg p-2 rounded-full z-10"
-          >
-            <ChevronRight />
-          </button>
-        </div>
-      </section>
       
       {/* ⭐ CAMPUS COURSES */}
       
@@ -703,36 +663,7 @@ useEffect(() => {
             id="intern-slider"
             className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 scrollbar-hide"
           >
-            {[
-              {
-                role: "Software Engineering Intern",
-                company: "Google",
-                city: "Bangalore",
-                salary: "₹50,000 - 80,000 /month",
-                duration: "6 Months",
-              },
-              {
-                role: "Product Management Intern",
-                company: "Amazon",
-                city: "Mumbai",
-                salary: "₹40,000 - 60,000 /month",
-                duration: "4 Months",
-              },
-              {
-                role: "Data Science Intern",
-                company: "Microsoft",
-                city: "Hyderabad",
-                salary: "₹45,000 - 70,000 /month",
-                duration: "6 Months",
-              },
-              {
-                role: "ML Research Intern",
-                company: "NVIDIA",
-                city: "Pune",
-                salary: "₹60,000 - 90,000 /month",
-                duration: "6 Months",
-              },
-            ].map((job, i) => (
+            {fetchedInternships.length > 0 ? fetchedInternships.map((intern, i) => (
               <div
                 key={i}
                 className="min-w-75 md:min-w-90 bg-white rounded-2xl border shadow-sm snap-start p-6 hover:shadow-xl transition"
@@ -742,14 +673,24 @@ useEffect(() => {
                 </span>
 
                 <h3 className="text-lg font-semibold text-gray-600 mt-3">
-                  {job.role}
+                  {intern.title || intern.role || "Internship Role"}
                 </h3>
-                <p className="text-gray-500">{job.company}</p>
+                <p className="text-gray-500">{intern.company?.name || "Company Name"}</p>
 
                 <div className="mt-4 space-y-2 text-sm text-gray-600">
-                  <p>📍 {job.city}</p>
-                  <p>💰 {job.salary}</p>
-                  <p>⏳ {job.duration}</p>
+                  <p className="flex items-center gap-2">
+                    <MapPin size={16} className="text-blue-500" />
+                    {intern.location || intern.city || "Location"}
+                  </p>
+                  <p className="flex items-center gap-2">
+                    <Wallet size={16} className="text-purple-600" />
+                    {intern.stipendMin && intern.stipendMax
+                      ? `${intern.stipendMin} - ${intern.stipendMax}`
+                      : intern.stipend || intern.salary || "Unpaid"}
+                  </p>
+                  <p className="flex items-center gap-2">
+                    {intern.duration || "Duration N/A"}
+                  </p>
                 </div>
 
                 <div className="flex justify-between items-center mt-6">
@@ -757,10 +698,14 @@ useEffect(() => {
                     Internship
                   </span>
 
-                  <JobApplyModal title={job.role} btn_text="Apply" />
+                  <JobApplyModal title={intern.title || intern.role} btn_text="Apply" data={intern} />
                 </div>
               </div>
-            ))}
+            )) : (
+              <div className="w-full text-center py-10 text-gray-500">
+                No internships found
+              </div>
+            )}
           </div>
 
           {/* RIGHT BUTTON */}
@@ -902,6 +847,46 @@ useEffect(() => {
           </button>
         </div>
       </div>
+
+      {/* why chose collexa ? */}
+      <section className="bg-white py-16">
+      <div className="max-w-7xl mx-auto px-4">
+        
+        {/* Heading */}
+        <div className="text-center mb-12">
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+            Why Choose <span className="text-blue-600">Collexa</span>?
+          </h2>
+          <p className="mt-3 text-gray-600 max-w-2xl mx-auto">
+            Designed to help you discover verified opportunities faster, smarter, and easier.
+          </p>
+        </div>
+
+        {/* Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {features.map((item, index) => (
+            <div
+              key={index}
+              className="group bg-white border rounded-2xl p-6 shadow-sm hover:shadow-xl transition duration-300"
+            >
+              {/* Image */}
+              <div className="w-14 h-14 mb-4 rounded-xl bg-blue-50 flex items-center justify-center">
+                <item.icon className="w-8 h-8 text-blue-600" />
+              </div>
+
+              {/* Text */}
+              <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition">
+                {item.title}
+              </h3>
+              <p className="text-sm text-gray-600 leading-relaxed">
+                {item.desc}
+              </p>
+            </div>
+          ))}
+        </div>
+
+      </div>
+    </section>
       {/* Testimonials Marquee */}
       <TestimonialsMarquee />
     </div>

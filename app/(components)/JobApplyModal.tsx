@@ -75,7 +75,7 @@ const [resumeFile, setResumeFile] = useState<File | null>(null);
             {/* Header */}
             <div className="mb-4 flex items-center justify-between border-b pb-3">
               <h2 className="text-xl font-semibold text-blue-900">
-                Job Details & Application
+                {data.mode ? ` Internship Details & Application` : "Job Details & Application"}
               </h2>
               <button
                 onClick={() => setOpen(false)}
@@ -103,14 +103,14 @@ const [resumeFile, setResumeFile] = useState<File | null>(null);
                       <MapPin size={16} /> {data.location}
                     </p>
                     <p className="flex items-center gap-2">
-                      <Briefcase size={16} /> {data.type}
+                      <Briefcase size={16} /> {data.type || data.mode}
                     </p>
                     <p className="flex items-center gap-2">
-                      <DollarSign size={16} /> ₹{data.salaryMin || 0} - ₹
-                      {data.salaryMax || 0}
+                      <DollarSign size={16} /> ₹{data.salaryMin || data.stipendMin || 0} - ₹
+                      {data.salaryMax || data.stipendMax || 0}
                     </p>
                     <p className="flex items-center gap-2">
-                      <Clock size={16} /> {data.experienceLevel}
+                      <Clock size={16} /> {data.experienceLevel || data.duration}
                     </p>
                     <p className="flex items-center gap-2">
                       <Users size={16} /> Vacancies: {data.openings ?? 0}
