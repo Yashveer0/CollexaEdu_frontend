@@ -47,14 +47,14 @@ export default function Navbar() {
         {/* ================= DESKTOP MENU ================= */}
         <ul className="hidden md:flex items-center gap-8 text-md text-gray-800 font-semibold">
           <li
-            className="relative flex items-center gap-1 cursor-pointer hover:bg-[#f0f4ffe8] px-4 py-2 rounded-md"
+            className="relative flex items-center gap-1 hover:text-[#fff] cursor-pointer hover:bg-gradient-to-r hover:from-blue-900 hover:to-emerald-400 px-4 py-2 rounded-md"
             onMouseEnter={() => setOpenMenu("campus")}
             onMouseLeave={() => {
               setOpenMenu(null);
               setOpenSub(null);
             }}
           >
-            <HiOutlineAcademicCap className="text-gray-900 text-xl" /> Campus
+            <HiOutlineAcademicCap className="  hover:text-[#fff] text-xl" /> Campus
             Courses{" "}
             <ChevronDown
               size={18}
@@ -66,28 +66,28 @@ export default function Navbar() {
               <div className="absolute top-8 bg-gray-100 shadow-md rounded-md p-8 text-nowrap gap-2">
                 {/* Engineering — HOVER HERE */}
                 <p
-                  className="block mt-1 px-5 py-2 hover:bg-blue-900 hover:text-white hover:rounded-md cursor-pointer "
+                  className="block mt-1 px-5 py-2 text-gray-800 hover:bg-blue-900 hover:text-white  cursor-pointer "
                   onMouseEnter={() => setOpenSub("eng")}
                 >
                   Engineering Courses
                 </p>
 
                 <p
-                  className="block mt-1 px-5 py-2 hover:bg-blue-900 hover:text-white hover:rounded-md cursor-pointer "
+                  className="block mt-1 px-5 py-2 text-gray-800 hover:bg-blue-900 hover:text-white  cursor-pointer "
                   onMouseEnter={() => setOpenSub("management")}
                 >
                   Management Courses
                 </p>
 
                 <p
-                  className="block mt-1 px-5 py-2 hover:bg-blue-900 hover:text-white hover:rounded-md cursor-pointer "
+                  className="block mt-1 text-gray-800 px-5 py-2 hover:bg-blue-900 hover:text-white  cursor-pointer "
                   onMouseEnter={() => setOpenSub("computer")}
                 >
                   Computer Science
                 </p>
 
                 <p
-                  className="block mt-1 px-5 py-2 hover:bg-blue-900 hover:text-white hover:rounded-md cursor-pointer "
+                  className="block mt-1 text-gray-800 px-5 py-2 hover:bg-blue-900 hover:text-white  cursor-pointer "
                   onMouseEnter={() => setOpenSub("data")}
                 >
                   Data Science
@@ -99,35 +99,35 @@ export default function Navbar() {
               <div className="absolute top-8 text-lg font-light left-65 rounded-r-md bg-white shadow-md  p-7 text-nowrap">
                 <Link
                   href="/campus-courses"
-                  className="block mt-1 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block mt-1 text-gray-800 hover:bg-blue-900 px-3 py-1 hover:text-[#fff] hover:rounded-md"
                 >
                   B.Tech Computer Science
                 </Link>
 
                 <Link
                   href="/campus-courses"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900  hover:text-[#fff]  hover:rounded-md"
                 >
                   B.Tech Electronics
                 </Link>
 
                 <Link
                   href="/campus-courses"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900  hover:text-[#fff] hover:rounded-md"
                 >
                   B.Tech Mechanical
                 </Link>
 
                 <Link
                   href="/campus-courses"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900  hover:text-[#fff] hover:rounded-md"
                 >
                   M.Tech Programs
                 </Link>
 
                 <Link
                   href="/campus-courses"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900  hover:text-[#fff] hover:rounded-md"
                 >
                   B.Tech Mechanical
                 </Link>
@@ -138,28 +138,28 @@ export default function Navbar() {
               <div className="absolute top-8 text-lg font-light left-65 rounded-r-md bg-white shadow-md  p-11.5 text-nowrap">
                 <Link
                   href="/campus-courses"
-                  className="block mt-1 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block mt-1 px-3 py-1 text-gray-800 hover:bg-blue-900  hover:text-[#fff] hover:rounded-md"
                 >
                   MBA Programs
                 </Link>
 
                 <Link
                   href="/campus-courses"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900  hover:text-[#fff]  hover:rounded-md"
                 >
                   BBA Programs
                 </Link>
 
                 <Link
                   href="/campus-courses"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900  hover:text-[#fff] hover:rounded-md"
                 >
                   PGDM
                 </Link>
 
                 <Link
                   href="/campus-courses"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900  hover:text-[#fff] hover:rounded-md"
                 >
                   Executive MBA
                 </Link>
@@ -170,28 +170,28 @@ export default function Navbar() {
               <div className="absolute top-8 text-lg font-light left-65 rounded-r-md bg-white shadow-md  p-11.5 text-nowrap">
                 <Link
                   href="/campus-courses"
-                  className="block mt-1 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block mt-1 px-3 py-1 text-gray-800 hover:bg-blue-900  hover:text-[#fff] hover:rounded-md"
                 >
                   B.Sc Computer Science
                 </Link>
 
                 <Link
                   href="/campus-courses"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900  hover:text-[#fff] hover:rounded-md"
                 >
                   M.Sc Computer Science
                 </Link>
 
                 <Link
                   href="/campus-courses"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900  hover:text-[#fff] hover:rounded-md"
                 >
                   BCA
                 </Link>
 
                 <Link
                   href="/campus-courses"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900  hover:text-[#fff] hover:rounded-md"
                 >
                   MCA
                 </Link>
@@ -202,28 +202,28 @@ export default function Navbar() {
               <div className="absolute top-8 text-lg font-light left-65 rounded-r-md bg-white shadow-md  p-11.5 text-nowrap">
                 <Link
                   href="/campus-courses"
-                  className="block mt-1 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block mt-1 px-3 py-1  text-gray-800 hover:bg-blue-900  hover:text-[#fff] hover:rounded-md"
                 >
                   B.Sc Data Science
                 </Link>
 
                 <Link
                   href="/campus-courses"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900  hover:text-[#fff] hover:rounded-md"
                 >
                   M.Sc Data Science
                 </Link>
 
                 <Link
                   href="/campus-courses"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900  hover:text-[#fff] hover:rounded-md"
                 >
                   AI/ML Programs
                 </Link>
 
                 <Link
                   href="/campus-courses"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900  hover:text-[#fff] hover:rounded-md"
                 >
                   Business Analytics
                 </Link>
@@ -233,14 +233,14 @@ export default function Navbar() {
 
           {/* ⭐ EARNING MENU ⭐ */}
           <li
-            className="relative flex items-center gap-1 cursor-pointer hover:bg-[#f0f4ffe8] px-4 py-2 rounded-md"
+            className="relative flex items-center gap-1 hover:text-[#fff] cursor-pointer hover:bg-gradient-to-r hover:from-blue-900 hover:to-emerald-400 px-4 py-2 rounded-md"
             onMouseEnter={() => setOpenMenu("earning")}
             onMouseLeave={() => {
               setOpenMenu(null);
               setOpenSub(null);
             }}
           >
-            <FiBriefcase className="text-gray-900 text-lg mr-2" /> Earning{" "}
+            <FiBriefcase className="hover:text-[#fff] text-lg mr-2" /> Earning{" "}
             <ChevronDown
               size={18}
               className={`transition-transform duration-300 ${
@@ -252,7 +252,7 @@ export default function Navbar() {
               <div className="absolute top-8 bg-gray-100 shadow-md rounded-md p-8 text-nowrap gap-2">
                 {/* Internships */}
                 <p
-                  className="block mt-1 px-5 py-2 hover:bg-blue-900 hover:text-white hover:rounded-md cursor-pointer"
+                  className="block mt-1 px-5 py-2 text-gray-800 hover:bg-blue-900 hover:text-white cursor-pointer"
                   onMouseEnter={() => setOpenSub("intern")}
                 >
                   Internships
@@ -260,7 +260,7 @@ export default function Navbar() {
 
                 {/* Jobs */}
                 <p
-                  className="block mt-1 px-5 py-2 hover:bg-blue-900 hover:text-white hover:rounded-md cursor-pointer"
+                  className="block mt-1 px-5 py-2 text-gray-800 hover:bg-blue-900 hover:text-white cursor-pointer"
                   onMouseEnter={() => setOpenSub("jobs")}
                 >
                   Jobs
@@ -273,35 +273,35 @@ export default function Navbar() {
                 <p className="font-semibold mb-2">Internship Categories</p>
 
                 <p
-                  className="block mt-1 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md cursor-pointer"
+                  className="block mt-1 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md cursor-pointer"
                   onClick={() => setOpenSub("tech")}
                 >
                   Tech Internships
                 </p>
 
                 <p
-                  className="block mt-1 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md cursor-pointer"
+                  className="block mt-1 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md cursor-pointer"
                   onClick={() => setOpenSub("marketing")}
                 >
                   Marketing Internships
                 </p>
 
                 <p
-                  className="block mt-1 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md cursor-pointer"
+                  className="block mt-1 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md cursor-pointer"
                   onClick={() => setOpenSub("finance")}
                 >
                   Finance Internships
                 </p>
 
                 <p
-                  className="block mt-1 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md cursor-pointer"
+                  className="block mt-1 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md cursor-pointer"
                   onClick={() => setOpenSub("design")}
                 >
                   Design Internships
                 </p>
 
                 <p
-                  className="block mt-1 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md cursor-pointer"
+                  className="block mt-1 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md cursor-pointer"
                   onClick={() => setOpenSub("business")}
                 >
                   Business Internships
@@ -313,42 +313,42 @@ export default function Navbar() {
               <div className="absolute top-8 left-50 bg-white shadow-md rounded-md p-8 text-nowrap">
                 <Link
                   href="/internship"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Software Development
                 </Link>
 
                 <Link
                   href="/internship"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Web Development
                 </Link>
 
                 <Link
                   href="/internship"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Mobile App Development
                 </Link>
 
                 <Link
                   href="/internship"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Data Science
                 </Link>
 
                 <Link
                   href="/internship"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   AI / ML
                 </Link>
 
                 <Link
                   href="/internship"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Cybersecurity
                 </Link>
@@ -359,35 +359,35 @@ export default function Navbar() {
               <div className="absolute top-8 left-50 bg-white shadow-md rounded-md p-8 text-nowrap">
                 <Link
                   href="/internship"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Digital Marketing
                 </Link>
 
                 <Link
                   href="/internship"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Content Creation
                 </Link>
 
                 <Link
                   href="/internship"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Social Media Marketing
                 </Link>
 
                 <Link
                   href="/internship"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   SEO/SEM
                 </Link>
 
                 <Link
                   href="/internship"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Brand Management
                 </Link>
@@ -398,28 +398,28 @@ export default function Navbar() {
               <div className="absolute top-8 left-50 bg-white shadow-md rounded-md p-8 text-nowrap">
                 <Link
                   href="/internship"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Investment Banking
                 </Link>
 
                 <Link
                   href="/internship"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Financial Analysis
                 </Link>
 
                 <Link
                   href="/internship"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Risk Management
                 </Link>
 
                 <Link
                   href="/internship"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Corporate Finance
                 </Link>
@@ -430,28 +430,28 @@ export default function Navbar() {
               <div className="absolute top-8 left-50 bg-white shadow-md rounded-md p-8 text-nowrap">
                 <Link
                   href="/internship"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   UI/UX Design
                 </Link>
 
                 <Link
                   href="/internship"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Graphic Design
                 </Link>
 
                 <Link
                   href="/internship"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Product Design
                 </Link>
 
                 <Link
                   href="/internship"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Web Design
                 </Link>
@@ -462,28 +462,28 @@ export default function Navbar() {
               <div className="absolute top-8 left-50 bg-white shadow-md rounded-md p-8 text-nowrap">
                 <Link
                   href="/internship"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Business Development
                 </Link>
 
                 <Link
                   href="/internship"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Operations
                 </Link>
 
                 <Link
                   href="/internship"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Strategy
                 </Link>
 
                 <Link
                   href="/internship"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Consulting
                 </Link>
@@ -493,28 +493,28 @@ export default function Navbar() {
             {openSub === "jobs" && openMenu === "earning" && (
               <div className="absolute top-8 left-50 bg-white shadow-md rounded-md p-8 text-nowrap">
                 <p
-                  className="block mt-1 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md cursor-pointer"
+                  className="block mt-1 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md cursor-pointer"
                   onClick={() => setOpenSub("locations")}
                 >
                   Top Locations
                 </p>
 
                 <p
-                  className="block mt-1 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md cursor-pointer"
+                  className="block mt-1 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md cursor-pointer"
                   onClick={() => setOpenSub("categories")}
                 >
                   Top Categories
                 </p>
 
                 <p
-                  className="block mt-1 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md cursor-pointer"
+                  className="block mt-1 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md cursor-pointer"
                   onClick={() => setOpenSub("more_jobs")}
                 >
                   Explore More Jobs
                 </p>
 
                 <p
-                  className="block mt-1 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md cursor-pointer"
+                  className="block mt-1 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md cursor-pointer"
                   onClick={() => setOpenSub("placement")}
                 >
                   Placement Courses with AI
@@ -526,61 +526,61 @@ export default function Navbar() {
               <div className="absolute top-8 left-50 bg-white shadow-md rounded-md p-8 text-nowrap">
                 <Link
                   href="/jobs"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Work from Home
                 </Link>
 
                 <Link
                   href="/jobs"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Jobs in Delhi
                 </Link>
 
                 <Link
                   href="/jobs"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Jobs in Mumbai
                 </Link>
 
                 <Link
                   href="/jobs"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Jobs in Bangalore
                 </Link>
 
                 <Link
                   href="/jobs"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Jobs in Hyderabad
                 </Link>
 
                 <Link
                   href="/jobs"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Jobs in Kolkata
                 </Link>
 
                 <Link
                   href="/jobs"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Jobs in Chennai
                 </Link>
                 <Link
                   href="/jobs"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Jobs in Pune
                 </Link>
                 <Link
                   href="/jobs"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Jobs in Jaipur
                 </Link>
@@ -591,55 +591,55 @@ export default function Navbar() {
               <div className="absolute top-8 left-50 bg-white shadow-md rounded-md p-8 text-nowrap">
                 <Link
                   href="/jobs"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Software Engineer
                 </Link>
 
                 <Link
                   href="/jobs"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Data Analyst
                 </Link>
 
                 <Link
                   href="/jobs"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Product Manager
                 </Link>
 
                 <Link
                   href="/jobs"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Marketing Specialist
                 </Link>
 
                 <Link
                   href="/jobs"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   UI/UX Designer
                 </Link>
 
                 <Link
                   href="/jobs"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   DevOps Engineer
                 </Link>
 
                 <Link
                   href="/jobs"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Business Analyst
                 </Link>
                 <Link
                   href=""
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Sales Executive
                 </Link>
@@ -650,28 +650,28 @@ export default function Navbar() {
               <div className="absolute top-8 left-50 bg-white shadow-md rounded-md p-8 text-nowrap">
                 <Link
                   href="/jobs"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   View all jobs
                 </Link>
 
                 <Link
                   href="/jobs"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Remote Jobs
                 </Link>
 
                 <Link
                   href="/jobs"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Part-time Jobs
                 </Link>
 
                 <Link
                   href="/jobs"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Freelance Jobs
                 </Link>
@@ -682,28 +682,28 @@ export default function Navbar() {
               <div className="absolute top-8 left-50 bg-white shadow-md rounded-md p-8 text-nowrap">
                 <Link
                   href="/jobs"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   AI Placement Course
                 </Link>
 
                 <Link
                   href="/jobs"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Data Science Bootcamp
                 </Link>
 
                 <Link
                   href="/jobs"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Full Stack Development
                 </Link>
 
                 <Link
                   href="/jobs"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Digital Marketing
                 </Link>
@@ -713,14 +713,14 @@ export default function Navbar() {
 
           {/* ⚡ Learn Skills */}
           <li
-            className="relative flex items-center gap-1 cursor-pointer hover:bg-[#f0f4ffe8] px-4 py-2 rounded-md"
+            className="relative flex items-center gap-1 hover:text-[#fff] cursor-pointer hover:bg-gradient-to-r hover:from-blue-900 hover:to-emerald-400 px-4 py-2 rounded-md"
             onMouseEnter={() => setOpenMenu("learn")}
             onMouseLeave={() => {
               setOpenMenu(null);
               setOpenSub(null);
             }}
           >
-            <FiZap className="text-gray-900 text-lg mr-2" /> Learn Skills{" "}
+            <FiZap className="hover:text-[#fff] text-lg mr-2" /> Learn Skills{" "}
             <ChevronDown
               size={18}
               className={`transition-transform duration-300 ${
@@ -732,35 +732,35 @@ export default function Navbar() {
                 {/* Engineering — HOVER HERE */}
 
                 <p
-                  className="block mt-1 px-5 py-2 hover:bg-blue-900 hover:text-white hover:rounded-md cursor-pointer "
+                  className="block mt-1 px-5 py-2 text-gray-800 hover:bg-blue-900 hover:text-white cursor-pointer "
                   onMouseEnter={() => setOpenSub("programming")}
                 >
                   Programming Languages
                 </p>
 
                 <p
-                  className="block mt-1 px-5 py-2 hover:bg-blue-900 hover:text-white hover:rounded-md cursor-pointer "
+                  className="block mt-1 px-5 py-2 text-gray-800 hover:bg-blue-900 hover:text-white cursor-pointer "
                   onMouseEnter={() => setOpenSub("web")}
                 >
                   Web Development
                 </p>
 
                 <p
-                  className="block mt-1 px-5 py-2 hover:bg-blue-900 hover:text-white hover:rounded-md cursor-pointer "
+                  className="block mt-1 px-5 py-2 text-gray-800 hover:bg-blue-900 hover:text-white cursor-pointer "
                   onMouseEnter={() => setOpenSub("data")}
                 >
                   Data Science & AI
                 </p>
 
                 <p
-                  className="block mt-1 px-5 py-2 hover:bg-blue-900 hover:text-white hover:rounded-md cursor-pointer "
+                  className="block mt-1 px-5 py-2 text-gray-800 hover:bg-blue-900 hover:text-white cursor-pointer "
                   onMouseEnter={() => setOpenSub("marketing")}
                 >
                   Digital Marketing
                 </p>
 
                 <p
-                  className="block mt-1 px-5 py-2 hover:bg-blue-900 hover:text-white hover:rounded-md cursor-pointer "
+                  className="block mt-1 px-5 py-2 text-gray-800 hover:bg-blue-900 hover:text-white cursor-pointer "
                   onMouseEnter={() => setOpenSub("design")}
                 >
                   Design Skills
@@ -772,35 +772,35 @@ export default function Navbar() {
               <div className="absolute top-8 text-lg font-light left-75 rounded-r-md bg-white shadow-md  p-7 text-nowrap">
                 <Link
                   href="#"
-                  className="block mt-1 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block mt-1 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Python Masterclass
                 </Link>
 
                 <Link
                   href="#"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   JavaScript Deep Dive
                 </Link>
 
                 <Link
                   href="#"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Java Programming
                 </Link>
 
                 <Link
                   href="#"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   C++ Programming
                 </Link>
 
                 <Link
                   href="#"
-                  className="block px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Go Programming
                 </Link>
@@ -811,35 +811,35 @@ export default function Navbar() {
               <div className="absolute top-8 text-lg font-light left-75 rounded-r-md bg-white shadow-md  p-8 text-nowrap">
                 <Link
                   href="#"
-                  className="block mt-2 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   React Development
                 </Link>
 
                 <Link
                   href="#"
-                  className="block mt-2 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Node.js Backend
                 </Link>
 
                 <Link
                   href="#"
-                  className="block mt-2 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Full Stack Development
                 </Link>
 
                 <Link
                   href="#"
-                  className="block mt-2 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Next.js Framework
                 </Link>
 
                 <Link
                   href="#"
-                  className="block mt-2 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Vue.js Development
                 </Link>
@@ -850,35 +850,35 @@ export default function Navbar() {
               <div className="absolute top-8 text-lg font-light left-75 rounded-r-md bg-white shadow-md  p-8 text-nowrap">
                 <Link
                   href="#"
-                  className="block mt-2 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Machine Learning
                 </Link>
 
                 <Link
                   href="#"
-                  className="block mt-2 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Deep Learning
                 </Link>
 
                 <Link
                   href="#"
-                  className="block mt-2 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Data Analytics
                 </Link>
 
                 <Link
                   href="#"
-                  className="block mt-2 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Big Data
                 </Link>
 
                 <Link
                   href="#"
-                  className="block mt-2 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   AI Fundamentals
                 </Link>
@@ -889,35 +889,35 @@ export default function Navbar() {
               <div className="absolute top-8 text-lg font-light left-75 rounded-r-md bg-white shadow-md  p-8 text-nowrap">
                 <Link
                   href="#"
-                  className="block mt-2 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   SEO Mastery
                 </Link>
 
                 <Link
                   href="#"
-                  className="block mt-2 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Google Ads
                 </Link>
 
                 <Link
                   href="#"
-                  className="block mt-2 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Social Media Marketing
                 </Link>
 
                 <Link
                   href="#"
-                  className="block mt-2 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Content Marketing
                 </Link>
 
                 <Link
                   href="#"
-                  className="block mt-2 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Email Marketing
                 </Link>
@@ -928,35 +928,35 @@ export default function Navbar() {
               <div className="absolute top-8 text-lg font-light left-75 rounded-r-md bg-white shadow-md  p-8 text-nowrap">
                 <Link
                   href="#"
-                  className="block mt-2 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   UI/UX Design
                 </Link>
 
                 <Link
                   href="#"
-                  className="block mt-2 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Figma Mastery
                 </Link>
 
                 <Link
                   href="#"
-                  className="block mt-2 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Adobe Creative Suite
                 </Link>
 
                 <Link
                   href="#"
-                  className="block mt-2 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Web Design
                 </Link>
 
                 <Link
                   href="#"
-                  className="block mt-2 px-3 py-1 hover:bg-gray-100 hover:text-green-400 hover:rounded-md"
+                  className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Motion Graphics
                 </Link>

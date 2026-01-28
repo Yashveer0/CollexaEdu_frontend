@@ -313,6 +313,35 @@ const getPublicJobs = async (params?: {
   }
 };
 
+const getPublicInternships = async (params?: {
+  page?: number;
+  limit?: number;
+  keyword?: string;
+  location?: string;
+}) => {
+  try {
+    const res = await API.get("/api/internship/listinginternship", {
+      params: {
+        page: params?.page || 1,
+        limit: params?.limit || 10,
+        keyword: params?.keyword,
+        location: params?.location,
+      },
+    });
+ 
+    return (
+      res.data?.internships ||
+      res.data?.data?.internships ||
+      res.data?.data ||
+      []
+    );
+  } catch (err: any) {
+    console.error("getPublicInternships error:", err);
+    throw err;
+  }
+};
+
+
 
 
   return (
@@ -334,6 +363,7 @@ const getPublicJobs = async (params?: {
         updateJob,
         deleteJob,
         getPublicJobs,
+        getPublicInternships,
       }}
     >
       {children}

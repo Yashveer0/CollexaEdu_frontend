@@ -3254,7 +3254,7 @@ const handleDeleteCompany = async (id: string) => {
                 </td>
 
                 <td className="px-4 py-3">
-                  {job.companyName || "—"}
+                  {job.company?.name || "—"}
                 </td>
 
                 <td className="px-4 py-3 text-gray-600">
@@ -3673,7 +3673,7 @@ setShowAddJobModal(false);
                 </td>
 
                 <td className="px-4 py-3">
-                  {internship.companyName || "—"}
+                  {internship.company?.name || "—"}
                 </td>
 
                 <td className="px-4 py-3 text-gray-600">
@@ -3775,155 +3775,201 @@ setShowAddJobModal(false);
 )}
 
 {showAddInternshipModal && (
-  <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center">
-    <div className="bg-white w-full max-w-2xl rounded-xl shadow-lg p-6 relative">
+  <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center px-4">
+    <div className="bg-white w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden">
 
-      {/* Header */}
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-bold">
-          {editingInternship ? "Edit Internship" : "Add Internship"}
+      {/* ================= HEADER ================= */}
+      <div className="flex items-center justify-between px-6 py-5 border-b">
+        <h3 className="text-2xl font-bold text-gray-800">
+          {editingInternship ? "Edit Internship" : "Post New Internship"}
         </h3>
         <button
           onClick={() => setShowAddInternshipModal(false)}
-          className="text-gray-500 hover:text-gray-700"
+          className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500"
         >
           ✕
         </button>
       </div>
 
-      {/* Form */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* ================= BODY ================= */}
+      <div className="p-6 space-y-8 max-h-[75vh] overflow-y-auto">
 
-        <input
-          className="input"
-          placeholder="Internship Title"
-          value={internshipForm.title}
-          onChange={(e) =>
-            setInternshipForm({ ...internshipForm, title: e.target.value })
-          }
-        />
+        {/* BASIC DETAILS */}
+        <div>
+          <h4 className="text-lg font-semibold text-gray-700 mb-4">
+            Basic Details
+          </h4>
 
-        {/* Company dropdown (same as Job) */}
-        <select
-          className="input"
-          value={internshipForm.companyId}
-          onChange={(e) => {
-            const selectedId = e.target.value;
-            const selectedCompany = companies.find(
-              (c) => c._id === selectedId
-            );
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+              <label className="text-sm font-medium text-gray-600">
+                Internship Title *
+              </label>
+              <input
+                className="mt-1 w-full rounded-xl border px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none"
+                placeholder="Software Development Intern"
+                value={internshipForm.title}
+                onChange={(e) =>
+                  setInternshipForm({ ...internshipForm, title: e.target.value })
+                }
+              />
+            </div>
 
-            setInternshipForm({
-              ...internshipForm,
-              companyId: selectedId,
-              companyName: selectedCompany?.name || "",
-            });
-          }}
-        >
-          <option value="">Select Company</option>
-          {companies.map((company) => (
-            <option key={company._id} value={company._id}>
-              {company.name}
-            </option>
-          ))}
-        </select>
+            <div>
+              <label className="text-sm font-medium text-gray-600">
+                Company *
+              </label>
+              <select
+                className="mt-1 w-full rounded-xl border px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none"
+                value={internshipForm.companyId}
+                onChange={(e) => {
+                  const selectedId = e.target.value;
+                  const selectedCompany = companies.find(c => c._id === selectedId);
+                  setInternshipForm({
+                    ...internshipForm,
+                    companyId: selectedId,
+                    companyName: selectedCompany?.name || "",
+                  });
+                }}
+              >
+                <option value="">Select Company</option>
+                {companies.map((company) => (
+                  <option key={company._id} value={company._id}>
+                    {company.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
 
-        <input
-          className="input"
-          placeholder="Location"
-          value={internshipForm.location}
-          onChange={(e) =>
-            setInternshipForm({ ...internshipForm, location: e.target.value })
-          }
-        />
+        {/* LOCATION & MODE */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <div>
+            <label className="text-sm font-medium text-gray-600">
+              Location *
+            </label>
+            <input
+              className="mt-1 w-full rounded-xl border px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none"
+              placeholder="Mumbai"
+              value={internshipForm.location}
+              onChange={(e) =>
+                setInternshipForm({ ...internshipForm, location: e.target.value })
+              }
+            />
+          </div>
 
-        <select
-          className="input"
-          value={internshipForm.mode}
-          onChange={(e) =>
-            setInternshipForm({ ...internshipForm, mode: e.target.value })
-          }
-        >
-          <option value="remote">Remote</option>
-          <option value="on-site">Onsite</option>
-          <option value="hybrid">Hybrid</option>
-        </select>
+          <div>
+            <label className="text-sm font-medium text-gray-600">
+              Work Mode *
+            </label>
+            <select
+              className="mt-1 w-full rounded-xl border px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none"
+              value={internshipForm.mode}
+              onChange={(e) =>
+                setInternshipForm({ ...internshipForm, mode: e.target.value })
+              }
+            >
+              <option value="office">Office</option>
+              <option value="remote">Remote</option>
+              <option value="hybrid">Hybrid</option>
+            </select>
+          </div>
+        </div>
 
-        <input
-          className="input"
-          placeholder="Stipend Min"
-          value={internshipForm.stipendMin}
-          onChange={(e) =>
-            setInternshipForm({ ...internshipForm, stipendMin: e.target.value })
-          }
-        />
+        {/* STIPEND */}
+        <div>
+          <h4 className="text-lg font-semibold text-gray-700 mb-4">
+            Stipend Details
+          </h4>
 
-        <input
-          className="input"
-          placeholder="Stipend Max"
-          value={internshipForm.stipendMax}
-          onChange={(e) =>
-            setInternshipForm({ ...internshipForm, stipendMax: e.target.value })
-          }
-        />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <input
+              type="number"
+              className="rounded-xl border px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none"
+              placeholder="Minimum Stipend (₹)"
+              value={internshipForm.stipendMin}
+              onChange={(e) =>
+                setInternshipForm({ ...internshipForm, stipendMin: e.target.value })
+              }
+            />
+            <input
+              type="number"
+              className="rounded-xl border px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none"
+              placeholder="Maximum Stipend (₹)"
+              value={internshipForm.stipendMax}
+              onChange={(e) =>
+                setInternshipForm({ ...internshipForm, stipendMax: e.target.value })
+              }
+            />
+          </div>
+        </div>
 
-        <input
-          className="input"
-          placeholder="Duration (e.g. 6 Months)"
-          value={internshipForm.duration}
-          onChange={(e) =>
-            setInternshipForm({ ...internshipForm, duration: e.target.value })
-          }
-        />
+        {/* OTHER DETAILS */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <input
+            className="rounded-xl border px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none"
+            placeholder="Duration (e.g. 6 Months)"
+            value={internshipForm.duration}
+            onChange={(e) =>
+              setInternshipForm({ ...internshipForm, duration: e.target.value })
+            }
+          />
+          <input
+            type="date"
+            className="rounded-xl border px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none"
+            value={internshipForm.startDate}
+            onChange={(e) =>
+              setInternshipForm({ ...internshipForm, startDate: e.target.value })
+            }
+          />
+          <input
+            type="number"
+            className="rounded-xl border px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none"
+            placeholder="Openings"
+            value={internshipForm.openings}
+            onChange={(e) =>
+              setInternshipForm({ ...internshipForm, openings: e.target.value })
+            }
+          />
+        </div>
 
-        <input
-          type="date"
-          className="input"
-          value={internshipForm.startDate}
-          onChange={(e) =>
-            setInternshipForm({ ...internshipForm, startDate: e.target.value })
-          }
-        />
+        {/* DESCRIPTION */}
+        <div>
+          <label className="text-sm font-medium text-gray-600">
+            Internship Description *
+          </label>
+          <textarea
+            className="mt-1 w-full rounded-xl border px-4 py-3 h-32 focus:ring-2 focus:ring-blue-500 outline-none"
+            placeholder="Responsibilities, expectations, learning outcomes..."
+            value={internshipForm.description}
+            onChange={(e) =>
+              setInternshipForm({ ...internshipForm, description: e.target.value })
+            }
+          />
+        </div>
 
-        <input
-          className="input"
-          placeholder="Openings"
-          value={internshipForm.openings}
-          onChange={(e) =>
-            setInternshipForm({ ...internshipForm, openings: e.target.value })
-          }
-        />
+        {/* SKILLS */}
+        <div>
+          <label className="text-sm font-medium text-gray-600">
+            Skills Required *
+          </label>
+          <input
+            className="mt-1 w-full rounded-xl border px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none"
+            placeholder="React, Node.js, MongoDB"
+            value={internshipForm.skillsRequired}
+            onChange={(e) =>
+              setInternshipForm({ ...internshipForm, skillsRequired: e.target.value })
+            }
+          />
+        </div>
       </div>
 
-      <textarea
-        className="input mt-4 w-full h-24"
-        placeholder="Internship Description"
-        value={internshipForm.description}
-        onChange={(e) =>
-          setInternshipForm({
-            ...internshipForm,
-            description: e.target.value,
-          })
-        }
-      />
-
-      <input
-        className="input mt-4 w-full"
-        placeholder="Skills (comma separated)"
-        value={internshipForm.skillsRequired}
-        onChange={(e) =>
-          setInternshipForm({
-            ...internshipForm,
-            skillsRequired: e.target.value,
-          })
-        }
-      />
-
-      {/* Footer */}
-      <div className="flex justify-end gap-3 mt-6">
+      {/* ================= FOOTER ================= */}
+      <div className="flex justify-end gap-3 px-6 py-4 border-t bg-gray-50">
         <button
           onClick={() => setShowAddInternshipModal(false)}
-          className="px-4 py-2 rounded border"
+          className="px-5 py-2 rounded-xl border hover:bg-gray-100"
         >
           Cancel
         </button>
@@ -3931,7 +3977,7 @@ setShowAddJobModal(false);
         <button
           disabled={internshipLoading}
           onClick={handleSaveInternship}
-          className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
+          className="px-6 py-2 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-60"
         >
           {internshipLoading
             ? "Saving..."
@@ -3943,6 +3989,7 @@ setShowAddJobModal(false);
     </div>
   </div>
 )}
+
 
 
 

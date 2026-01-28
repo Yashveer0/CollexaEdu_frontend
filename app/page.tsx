@@ -3,7 +3,7 @@ import "./globals.css";
 import Link from "next/link";
 import { FiUsers, FiHome, FiGlobe, FiBriefcase } from "react-icons/fi";
 import Image from "next/image";
-
+import { useRef } from "react";
 
 import { useState } from "react";
 import {
@@ -135,10 +135,36 @@ export default function Home() {
   const [activeJobTab, setActiveJobTab] = useState("Work from home");
   const [fetchedJobs, setFetchedJobs] = useState<any[]>([]);
 
+ const sliderRef = useRef<HTMLDivElement | null>(null);
+
+useEffect(() => {
+  const slider = sliderRef.current;
+  if (!slider) return;
+
+  const scrollStep = () => {
+    if (
+      slider.scrollLeft + slider.clientWidth >=
+      slider.scrollWidth - 5
+    ) {
+      // end reached → reset
+      slider.scrollTo({ left: 0, behavior: "smooth" });
+    } else {
+      slider.scrollBy({ left: 300, behavior: "smooth" });
+    }
+  };
+
+  const interval = setInterval(scrollStep, 3000); // 3 sec
+
+  return () => clearInterval(interval);
+}, []);
+
+
+
   useEffect(() => {
     const fetchJobs = async () => {
       if (getPublicJobs) {
         const data = await getPublicJobs(activeJobTab);
+        console.log(data);
         if (data && data.jobs) {
           setFetchedJobs(data.jobs);
         } else {
@@ -240,7 +266,7 @@ export default function Home() {
             </Link>
 
             <Link href="/jobs">
-              <button className="border px-6 py-3 hover:text-green-500 border-gray-700 text-gray-700 cursor-pointer rounded-lg">
+              <button className="border px-6 py-3 hover:bg-blue-900 hover:text-white  border-gray-700 text-gray-700 cursor-pointer rounded-lg">
                 Find Jobs
               </button>
             </Link>
@@ -260,7 +286,7 @@ export default function Home() {
       {/* ------------------------------------------------ */}
       {/* ⭐ STATS STRIP */}
       {/* ------------------------------------------------ */}
-      <section className="bg-white border-y py-8">
+      <section className="bg-white  py-8">
         <div className="max-w-7xl text-gray-700 mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
           {/* Students */}
           <div className="flex flex-col items-center text-center gap-2">
@@ -306,32 +332,34 @@ export default function Home() {
                 behavior: "smooth",
               })
             }
-            className="hidden md:flex absolute text-gray-700 -left-4 top-1/2 -translate-y-1/2 bg-white shadow-lg p-2 rounded-full z-10"
+            className="hidden md:flex absolute text-white -left-4 top-1/2 -translate-y-1/2 bg-[#00BC7D] shadow-lg p-2 rounded-full z-10"
           >
             <ChevronLeft />
           </button>
 
           {/* SLIDER */}
           <div
-            id="trending-slider"
-            className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 scrollbar-hide"
-          >
-            {images.map((src, i) => (
-              <div
-                key={i}
-                className="min-w-65 sm:min-w-75 md:min-w-85 snap-start"
-              >
-                <Image
-                  src={src}
-                  alt="Home_hero_image"
-                  width={1400}
-                  height={700}
-                  priority
-                  className="w-full h-full md:h-full object-cover rounded-2xl shadow-sm"
-                />
-              </div>
-            ))}
-          </div>
+  id="trending-slider"
+  ref={sliderRef}
+  className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 scrollbar-hide"
+>
+  {images.map((src, i) => (
+    <div
+      key={i}
+      className="min-w-65 sm:min-w-75 md:min-w-85 snap-start"
+    >
+      <Image
+        src={src}
+        alt="Home_hero_image"
+        width={1400}
+        height={700}
+        priority
+        className="w-full h-full object-cover rounded-2xl shadow-sm"
+      />
+    </div>
+  ))}
+</div>
+
 
           {/* RIGHT BTN */}
           <button
@@ -341,17 +369,17 @@ export default function Home() {
                 behavior: "smooth",
               })
             }
-            className="hidden md:flex text-gray-700 absolute -right-4 top-1/2 -translate-y-1/2 bg-white shadow-lg p-2 rounded-full z-10"
+            className="hidden md:flex text-white absolute -right-4 top-1/2 -translate-y-1/2 bg-[#00BC7D] shadow-lg p-2 rounded-full z-10"
           >
             <ChevronRight />
           </button>
         </div>
       </section>
-      {/* ------------------------------------------------ */}
+      
       {/* ⭐ CAMPUS COURSES */}
-      {/* ------------------------------------------------ */}
+      
       <div className="w-full bg-[#f8fbff] py-14">
-        {/* TITLE */}
+        
         <div className="text-center px-6">
           <h1 className="text-3xl md:text-4xl font-extrabold text-[#0c2c66]">
             Campus Courses
@@ -400,7 +428,7 @@ export default function Home() {
                 behavior: "smooth",
               })
             }
-            className="hidden md:flex text-gray-700 absolute left-0 top-1/2 -translate-y-1/2 bg-white shadow-md p-2 rounded-full z-10"
+            className="hidden md:flex text-white absolute left-0 top-1/2 -translate-y-1/2 bg-[#00BC7D] shadow-md p-2 rounded-full z-10"
           >
             ◀
           </button>
@@ -474,13 +502,14 @@ export default function Home() {
                 behavior: "smooth",
               })
             }
-            className="hidden md:flex text-gray-700 absolute right-0 top-1/2 -translate-y-1/2 bg-white shadow-md p-2 rounded-full z-10"
+            className="hidden md:flex text-white absolute right-0 top-1/2 -translate-y-1/2 bg-[#00BC7D] shadow-md p-2 rounded-full z-10"
           >
             ▶
           </button>
         </div>
       </div>{" "}
-      {/* -------------------Find Your Next Career Opportunity ----------------------------- */}
+       
+       {/* job section  */}
       <div className="w-full bg-[#f8fbff] py-14">
         {/* TITLE */}
         <div className="text-center px-6">
@@ -530,7 +559,7 @@ export default function Home() {
                 behavior: "smooth",
               })
             }
-            className="hidden md:flex text-gray-700 absolute left-0 top-1/2 -translate-y-1/2 bg-white shadow-md p-2 rounded-full z-10"
+            className="hidden md:flex text-white absolute left-0 top-1/2 -translate-y-1/2 bg-[#00BC7D] shadow-md p-2 rounded-full z-10"
           >
             ◀
           </button>
@@ -542,43 +571,52 @@ export default function Home() {
           >
             {fetchedJobs.length > 0 ? fetchedJobs.map((job, i) => (
               <div
-                key={i}
-                className="min-w-75 md:min-w-90 bg-white rounded-2xl border shadow-sm snap-start p-6 hover:shadow-xl transition"
-              >
-                {/* HIRING TAG */}
-                <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs">
-                  🟢 Actively hiring
-                </span>
+  key={i}
+  className="min-w-75 md:min-w-90 bg-white rounded-2xl border shadow-sm snap-start p-6 hover:shadow-xl transition"
+>
+  {/* COMPANY LOGO (ONE IMAGE ONLY) */}
+  
+  {/* HIRING TAG */}
+  <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs">
+    🟢 Actively hiring
+  </span>
 
-                {/* TITLE */}
-                <h3 className="text-lg text-gray-700 font-semibold mt-3">
-                  {job.jobTitle || job.title}
-                </h3>
-                <p className="text-gray-500">{job.companyName || job.company}</p>
+  {/* TITLE */}
+  <h3 className="text-lg text-gray-700 font-semibold mt-3">
+    {job.jobTitle || job.title}
+  </h3>
+  <p className="text-gray-500">{job.company?.name}</p>
 
-                {/* DETAILS */}
-                <div className="mt-4 space-y-2 text-sm text-gray-600">
-                  <p className="flex gap-2">
-                    <MapPin size={16} className="text-blue-500" /> {job.jobType || job.type}
-                  </p>
+  {/* DETAILS */}
+  <div className="mt-4 space-y-2 text-sm text-gray-600">
+    <p className="flex gap-2">
+      <MapPin size={16} className="text-blue-500" />
+      {job.jobType || job.type}
+    </p>
 
-                  <p className="flex gap-2">
-                    <Wallet size={16} className="text-purple-600" />{" "}
-                    {job.salaryRange || job.salary}
-                  </p>
-                </div>
+    <p className="flex gap-2">
+      <Wallet size={16} className="text-purple-600" />
+      {job.salaryMin} - {job.salaryMax}
+    </p>
+  </div>
 
-                <hr className="my-4" />
+  <hr className="my-4" />
 
-                {/* CTA ROW */}
-                <div className="flex justify-between items-center">
-                  <span className="border px-3 text-gray-700 py-1 rounded-full text-xs">
-                    Job
-                  </span>
+  {/* CTA ROW */}
+  <div className="flex justify-between items-center">
+    <span className="border px-3 text-gray-700 py-1 rounded-full text-xs">
+      Job
+    </span>
 
-                  <JobApplyModal title={job.jobTitle || job.title} btn_text="Apply"/>
-                </div>
-              </div>
+    <JobApplyModal
+      title={job.jobTitle || job.title}
+      btn_text="Apply"
+      data={job}
+    />
+  </div>
+</div>
+
+
             )) : (
               <div className="w-full text-center py-10 text-gray-500">
                 No jobs found for {activeJobTab}
@@ -596,13 +634,16 @@ export default function Home() {
                 behavior: "smooth",
               })
             }
-            className="hidden md:flex text-gray-700 absolute right-0 top-1/2 -translate-y-1/2 bg-white shadow-md p-2 rounded-full z-10"
+            className="hidden md:flex text-white absolute right-0 top-1/2 -translate-y-1/2 bg-[#00BC7D] shadow-md p-2 rounded-full z-10"
           >
             ▶
           </button>
         </div>
       </div>
-      {/* ------------------------------------------------ */}
+
+
+
+      {/* intership*/}
       <div className="w-full bg-[#f8fbff] py-14">
         {/* TITLE */}
         <div className="text-center px-6">
@@ -652,7 +693,7 @@ export default function Home() {
                 .getElementById("intern-slider")
                 ?.scrollBy({ left: -320, behavior: "smooth" })
             }
-            className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 bg-white text-gray-600 shadow-md p-2 rounded-full z-10"
+            className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 bg-[#00BC7D] text-white shadow-md p-2 rounded-full z-10"
           >
             ◀
           </button>
@@ -729,12 +770,14 @@ export default function Home() {
                 .getElementById("intern-slider")
                 ?.scrollBy({ left: 320, behavior: "smooth" })
             }
-            className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 bg-white shadow-md p-2 rounded-full z-10 text-gray-600"
+            className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 bg-[#00BC7D] shadow-md p-2 rounded-full z-10 text-white"
           >
             ▶
           </button>
         </div>
       </div>
+
+      
       <div className="w-full bg-[#f8fbff] py-14">
         {/* TITLE */}
         <div className="text-center px-6">
@@ -785,7 +828,7 @@ export default function Home() {
                 behavior: "smooth",
               })
             }
-            className="hidden md:flex text-gray-700 absolute left-0 top-1/2 -translate-y-1/2 bg-white shadow-md p-2 rounded-full z-10"
+            className="hidden md:flex text-white absolute left-0 top-1/2 -translate-y-1/2 bg-[#00BC7D] shadow-md p-2 rounded-full z-10"
           >
             ◀
           </button>
@@ -853,7 +896,7 @@ export default function Home() {
                 behavior: "smooth",
               })
             }
-            className="hidden md:flex text-gray-700 absolute right-0 top-1/2 -translate-y-1/2 bg-white shadow-md p-2 rounded-full z-10"
+            className="hidden md:flex text-white absolute right-0 top-1/2 -translate-y-1/2 bg-[#00BC7D] shadow-md p-2 rounded-full z-10"
           >
             ▶
           </button>
