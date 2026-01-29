@@ -148,6 +148,24 @@ const [blogs, setBlogs] = useState<any[]>([]);
 const [blogsLoading, setBlogsLoading] = useState(false);
 const [editingBlog, setEditingBlog] = useState<any>(null);
 
+// campus courses
+const [campusCourses, setCampusCourses] = useState<any[]>([]);
+const [campusCoursesLoading, setCampusCoursesLoading] = useState(false);
+const [editingCampusCourse, setEditingCampusCourse] = useState<any>(null);
+const [viewCampusCourse, setViewCampusCourse] = useState<any>(null);
+const [showViewCampusCourseModal, setShowViewCampusCourseModal] = useState(false);
+const [campusCourseForm, setCampusCourseForm] = useState({
+  university: "",
+  type: "",
+  title: "",
+  desc: "",
+  rating: "",
+  duration: "",
+  enrolled: "",
+  level: "",
+  category: "Engineering",
+});
+
 const [dashboardStats, setDashboardStats] = useState({
   totalUsers: 0,
   totalLeads: 0,
@@ -326,39 +344,6 @@ const fetchInternships = async () => {
   }
 };
 
-// const fetchUsers = async () => {
-//   try {
-//     setUsersLoading(true);
-
-//     const token = localStorage.getItem("collexa_token");
-
-//     const res = await API.get("/api/admin/users", {
-//       params: {
-//         search: userSearch || undefined,
-//         role: userRole !== "all" ? userRole : undefined,
-//         page: userPage,
-//         limit: userLimit,
-//       },
-//       headers: {
-//         Authorization: `Bearer ${token}`,
-//       },
-//     });
-
-//     const data =
-//       res.data?.users ||
-//       res.data?.data?.users ||
-//       res.data?.data ||
-//       [];
-
-//     setUsers(Array.isArray(data) ? data : []);
-//     setUserTotalPages(res.data?.totalPages || 1);
-//   } catch (err) {
-//     console.error("Fetch users failed", err);
-//     setUsers([]);
-//   } finally {
-//     setUsersLoading(false);
-//   }
-// };
 
 const fetchUsers = async () => {
   try {
@@ -427,6 +412,77 @@ const fetchBlogs = async () => {
   }
 };
 
+const fetchCampusCourses = async () => {
+  try {
+    setCampusCoursesLoading(true);
+    const token = localStorage.getItem("collexa_token");
+    const res = await API.get("/api/campuscourses", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setCampusCourses(res.data.courses || []);
+  } catch (err) {
+    console.error("Fetch courses failed", err);
+    setCampusCourses([]);
+  } finally {
+    setCampusCoursesLoading(false);
+  }
+};
+
+const handleDeleteCampusCourse = async (id: string) => {
+  const result = await Swal.fire({
+    title: "Delete Course?",
+    text: "This course will be permanently removed.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Yes, delete it",
+  });
+
+  if (!result.isConfirmed) return;
+
+  try {
+    const token = localStorage.getItem("collexa_token");
+    await API.delete(`/api/campuscourses/deleteCampus/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    Swal.fire("Deleted!", "Course has been deleted.", "success");
+    fetchCampusCourses();
+  } catch (err: any) {
+    Swal.fire("Error", err.response?.data?.message || "Delete failed", "error");
+  }
+};
+
+const handleSaveCampusCourse = async () => {
+  if (!campusCourseForm.title || !campusCourseForm.university) {
+    Swal.fire("Error", "Title and University are required", "warning");
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem("collexa_token");
+    const payload = { ...campusCourseForm };
+
+    if (editingCampusCourse) {
+      await API.patch(`/api/campuscourses/updateCampus/${editingCampusCourse._id}`, payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      Swal.fire("Success", "Course updated successfully", "success");
+    } else {
+      await API.post(`/api/campuscourses/createCampus`, payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      Swal.fire("Success", "Course created successfully", "success");
+    }
+    setScreen("courses");
+    fetchCampusCourses();
+  } catch (err: any) {
+    Swal.fire("Error", err.response?.data?.message || "Save failed", "error");
+  }
+};
+
+
 const fetchUsersCount = async () => {
   try {
     const token = localStorage.getItem("collexa_token");
@@ -490,6 +546,12 @@ useEffect(() => {
 }, [screen, page, search]);
 
 useEffect(() => {
+  if (screen === "courses") {
+    fetchCampusCourses();
+  }
+}, [screen]);
+
+useEffect(() => {
   if (screen === "Internships") {
     fetchInternships();
     fetchCompanies();
@@ -550,6 +612,21 @@ const resetJobForm = () => {
     openings: "",
     experienceLevel: "Fresher",
   });
+};
+
+const resetCampusCourseForm = () => {
+  setCampusCourseForm({
+    university: "",
+    type: "",
+    title: "",
+    desc: "",
+    rating: "",
+    duration: "",
+    enrolled: "",
+    level: "",
+    category: "Engineering",
+  });
+  setEditingCampusCourse(null);
 };
 
 
@@ -1159,7 +1236,7 @@ const downloadReport = () => {
       { label: "Blog Categories", key: "blog-categories", icon: FolderOpen },
       { label: "Packages", key: "packages", icon: Package },
       { label: "Admission Request", key: "admissions", icon: GraduationCap },
-      { label: "Courses", key: "courses", icon: BookOpen },     
+      { label: "Campus Courses", key: "courses", icon: BookOpen },     
       
       { label: "Testimonials", key: "testimonials", icon: Star },
       
@@ -2382,7 +2459,10 @@ const downloadReport = () => {
       </h2>
 
       <button
-        onClick={() => setScreen("add-course")}
+        onClick={() => {
+          resetCampusCourseForm();
+          setScreen("add-course");
+        }}
         className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
       >
         + Add Course
@@ -2394,69 +2474,92 @@ const downloadReport = () => {
       <table className="w-full text-sm">
         <thead className="bg-gray-50 text-gray-600">
           <tr>
-            <th className="px-4 py-3 text-left">Course Name</th>
+            <th className="px-4 py-3 text-left">Title</th>
+            <th className="px-4 py-3 text-left">University</th>
             <th className="px-4 py-3 text-left">Category</th>
             <th className="px-4 py-3 text-left">Duration</th>
-            <th className="px-4 py-3 text-left">Status</th>
-            <th className="px-4 py-3 text-left">Created Date</th>
+            <th className="px-4 py-3 text-left">Level</th>
             <th className="px-4 py-3 text-left">Action</th>
           </tr>
         </thead>
 
         <tbody className="divide-y">
-          {[
-            { name: "MBA", cat: "PG", dur: "2 Years", status: "Active" },
-            { name: "B.Tech", cat: "UG", dur: "4 Years", status: "Active" },
-            { name: "MCA", cat: "PG", dur: "2 Years", status: "Inactive" },
-            { name: "Diploma in CS", cat: "Diploma", dur: "1 Year", status: "Active" },
-          ].map((course, i) => (
+          {campusCoursesLoading && (
+            <tr>
+              <td colSpan={6} className="px-4 py-6 text-center text-gray-500">
+                Loading courses...
+              </td>
+            </tr>
+          )}
+
+          {!campusCoursesLoading && campusCourses.length === 0 && (
+            <tr>
+              <td colSpan={6} className="px-4 py-6 text-center text-gray-500">
+                No courses found
+              </td>
+            </tr>
+          )}
+
+          {!campusCoursesLoading && campusCourses.map((course: any) => (
             <tr
-              key={i}
+              key={course._id}
               className="hover:bg-blue-50 transition"
             >
-              {/* Course Name */}
               <td className="px-4 py-3 font-medium">
-                {course.name}
+                {course.title}
               </td>
-
-              {/* Category */}
               <td className="px-4 py-3">
-                {course.cat}
+                {course.university}
               </td>
-
-              {/* Duration */}
               <td className="px-4 py-3">
-                {course.dur}
+                {course.category}
               </td>
-
-              {/* Status */}
               <td className="px-4 py-3">
-                <span
-                  className={`px-2 py-1 text-xs rounded
-                    ${
-                      course.status === "Active"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
-                    }
-                  `}
-                >
-                  {course.status}
-                </span>
+                {course.duration}
               </td>
-
-              {/* Created Date */}
-              <td className="px-4 py-3 text-gray-500">
-                15 Jan 2026
+              <td className="px-4 py-3">
+                {course.level}
               </td>
 
               {/* Action */}
               <td className="px-4 py-3">
-                <button
-                  onClick={() => setScreen("add-course")}
-                  className="text-blue-600 text-xs hover:underline"
-                >
-                  Edit
-                </button>
+                <div className="flex gap-3 text-xs">
+                  <button
+                    onClick={() => {
+                      setViewCampusCourse(course);
+                      setShowViewCampusCourseModal(true);
+                    }}
+                    className="text-green-600 hover:underline"
+                  >
+                    View
+                  </button>
+                  <button
+                    onClick={() => {
+                      setEditingCampusCourse(course);
+                      setCampusCourseForm({
+                        university: course.university || "",
+                        type: course.type || "",
+                        title: course.title || "",
+                        desc: course.desc || "",
+                        rating: course.rating || "",
+                        duration: course.duration || "",
+                        enrolled: course.enrolled || "",
+                        level: course.level || "",
+                        category: course.category || "Engineering",
+                      });
+                      setScreen("add-course");
+                    }}
+                    className="text-blue-600 hover:underline"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDeleteCampusCourse(course._id)}
+                    className="text-red-600 hover:underline"
+                  >
+                    Delete
+                  </button>
+                </div>
               </td>
             </tr>
           ))}
@@ -2472,7 +2575,7 @@ const downloadReport = () => {
     {/* ================= HEADER ================= */}
     <div className="mb-6">
       <h2 className="text-xl font-bold">
-        Add / Edit Course
+        {editingCampusCourse ? "Edit Course" : "Add Course"}
       </h2>
       <p className="text-sm text-gray-500">
         Manage course details and availability
@@ -2484,10 +2587,12 @@ const downloadReport = () => {
       {/* Course Name */}
       <div>
         <label className="text-sm font-medium">
-          Course Name <span className="text-red-500">*</span>
+          Course Title <span className="text-red-500">*</span>
         </label>
         <input
-          placeholder="e.g. MBA"
+          value={campusCourseForm.title}
+          onChange={(e) => setCampusCourseForm({ ...campusCourseForm, title: e.target.value })}
+          placeholder="e.g. B.Tech Mechanical"
           className="w-full mt-1 border rounded-lg px-4 py-2
             focus:ring-2 focus:ring-blue-600 outline-none transition"
         />
@@ -2496,18 +2601,34 @@ const downloadReport = () => {
         </p>
       </div>
 
+      {/* University */}
+      <div>
+        <label className="text-sm font-medium">
+          University <span className="text-red-500">*</span>
+        </label>
+        <input
+          value={campusCourseForm.university}
+          onChange={(e) => setCampusCourseForm({ ...campusCourseForm, university: e.target.value })}
+          placeholder="e.g. IIT Bombay"
+          className="w-full mt-1 border rounded-lg px-4 py-2
+            focus:ring-2 focus:ring-blue-600 outline-none transition"
+        />
+      </div>
+
       {/* Category */}
       <div>
         <label className="text-sm font-medium">
           Category
         </label>
         <select
+          value={campusCourseForm.category}
+          onChange={(e) => setCampusCourseForm({ ...campusCourseForm, category: e.target.value })}
           className="w-full mt-1 border rounded-lg px-4 py-2
             hover:border-blue-600 focus:ring-2 focus:ring-blue-600 outline-none transition"
         >
-          <option>UG</option>
-          <option>PG</option>
-          <option>Diploma</option>
+          {["Engineering", "Management", "Technology", "Business", "Design", "Arts", "Science"].map(cat => (
+            <option key={cat} value={cat}>{cat}</option>
+          ))}
         </select>
       </div>
 
@@ -2517,34 +2638,38 @@ const downloadReport = () => {
           Duration
         </label>
         <input
+          value={campusCourseForm.duration}
+          onChange={(e) => setCampusCourseForm({ ...campusCourseForm, duration: e.target.value })}
           placeholder="e.g. 2 Years"
           className="w-full mt-1 border rounded-lg px-4 py-2
             focus:ring-2 focus:ring-blue-600 outline-none transition"
         />
       </div>
 
-      {/* Status Toggle */}
-      <div className="flex items-end">
-        <label className="flex items-center gap-3 cursor-pointer">
-          <input
-            type="checkbox"
-            defaultChecked
-            className="accent-blue-600 scale-110"
-          />
-          <span className="text-sm font-medium">
-            Active Course
-          </span>
+      {/* Type */}
+      <div>
+        <label className="text-sm font-medium">
+          Type (Degree)
         </label>
+        <input
+          value={campusCourseForm.type}
+          onChange={(e) => setCampusCourseForm({ ...campusCourseForm, type: e.target.value })}
+          placeholder="e.g. B.Tech"
+          className="w-full mt-1 border rounded-lg px-4 py-2
+            focus:ring-2 focus:ring-blue-600 outline-none transition"
+        />
       </div>
     </div>
 
-    {/* Eligibility */}
+    {/* Level */}
     <div className="mt-6">
       <label className="text-sm font-medium">
-        Eligibility
+        Level
       </label>
       <input
-        placeholder="e.g. Graduation in any discipline"
+        value={campusCourseForm.level}
+        onChange={(e) => setCampusCourseForm({ ...campusCourseForm, level: e.target.value })}
+        placeholder="e.g. Undergraduate"
         className="w-full mt-1 border rounded-lg px-4 py-2
           focus:ring-2 focus:ring-blue-600 outline-none transition"
       />
@@ -2556,6 +2681,8 @@ const downloadReport = () => {
         Description
       </label>
       <textarea
+        value={campusCourseForm.desc}
+        onChange={(e) => setCampusCourseForm({ ...campusCourseForm, desc: e.target.value })}
         rows={4}
         placeholder="Brief description about the course..."
         className="w-full mt-1 border rounded-lg px-4 py-2
@@ -2563,20 +2690,46 @@ const downloadReport = () => {
       />
     </div>
 
+    {/* Extra Fields */}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+      <div>
+        <label className="text-sm font-medium">Rating</label>
+        <input
+          value={campusCourseForm.rating}
+          onChange={(e) => setCampusCourseForm({ ...campusCourseForm, rating: e.target.value })}
+          placeholder="e.g. 4.8"
+          className="w-full mt-1 border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-600 outline-none"
+        />
+      </div>
+      <div>
+        <label className="text-sm font-medium">Enrolled Count</label>
+        <input
+          value={campusCourseForm.enrolled}
+          onChange={(e) => setCampusCourseForm({ ...campusCourseForm, enrolled: e.target.value })}
+          placeholder="e.g. 950"
+          className="w-full mt-1 border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-600 outline-none"
+        />
+      </div>
+    </div>
+
     {/* ================= ACTIONS ================= */}
     <div className="mt-8 flex justify-end gap-3">
       <button
-        onClick={() => setScreen("courses")}
+        onClick={() => {
+          resetCampusCourseForm();
+          setScreen("courses");
+        }}
         className="px-5 py-2 rounded-lg border hover:bg-gray-100 transition"
       >
         Cancel
       </button>
 
       <button
+        onClick={handleSaveCampusCourse}
         className="px-6 py-2 rounded-lg bg-blue-600 text-white
           hover:bg-blue-700 transition shadow"
       >
-        Save Course
+        {editingCampusCourse ? "Update Course" : "Save Course"}
       </button>
     </div>
   </div>
@@ -4573,6 +4726,40 @@ setShowAddJobModal(false);
   </div>
 </div>
 
+)}
+
+{/* ================= VIEW CAMPUS COURSE MODAL ================= */}
+{showViewCampusCourseModal && viewCampusCourse && (
+  <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+    <div className="bg-white w-full max-w-lg rounded-2xl shadow-xl p-6 relative animate-fadeIn">
+      <button
+        onClick={() => setShowViewCampusCourseModal(false)}
+        className="absolute top-4 right-4 text-gray-500 hover:text-gray-800"
+      >
+        ✕
+      </button>
+
+      <h3 className="text-xl font-bold text-blue-800 mb-1">{viewCampusCourse.title}</h3>
+      <p className="text-sm text-gray-500 mb-4">{viewCampusCourse.university}</p>
+
+      <div className="space-y-3 text-sm text-gray-700">
+        <p><strong>Type:</strong> {viewCampusCourse.type}</p>
+        <p><strong>Category:</strong> {viewCampusCourse.category}</p>
+        <p><strong>Level:</strong> {viewCampusCourse.level}</p>
+        <p><strong>Duration:</strong> {viewCampusCourse.duration}</p>
+        <p><strong>Rating:</strong> {viewCampusCourse.rating} ★</p>
+        <p><strong>Enrolled:</strong> {viewCampusCourse.enrolled}</p>
+        <div className="bg-gray-50 p-3 rounded-lg border mt-2">
+          <strong>Description:</strong>
+          <p className="mt-1 text-gray-600">{viewCampusCourse.desc}</p>
+        </div>
+      </div>
+
+      <div className="mt-6 flex justify-end">
+        <button onClick={() => setShowViewCampusCourseModal(false)} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Close</button>
+      </div>
+    </div>
+  </div>
 )}
 
 

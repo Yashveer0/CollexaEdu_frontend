@@ -39,18 +39,25 @@ export default function AdminLoginPage() {
       password,
     });
 
-    // ✅ SUCCESS
-    Swal.fire({
-      icon: "success",
-      title: "Login Successful",
-      text: "Welcome Admin 🎉",
-      timer: 1500,
-      showConfirmButton: false,
-    });
+    // Store for client usage
+localStorage.setItem("collexa_token", res.token);
+localStorage.setItem("collexa_role", res.user.role);
 
-    setTimeout(() => {
-      router.push("/admin-dashboard");
-    }, 1500);
+// 🔐 IMPORTANT for middleware
+document.cookie = `collexa_token=${res.token}; path=/`;
+
+Swal.fire({
+  icon: "success",
+  title: "Login Successful",
+  text: "Welcome Admin 🎉",
+  timer: 1500,
+  showConfirmButton: false,
+});
+
+setTimeout(() => {
+  router.push("/admin-dashboard");
+}, 1500);
+
 
   } catch (err: any) {
     Swal.fire({

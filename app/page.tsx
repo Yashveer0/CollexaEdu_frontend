@@ -23,6 +23,14 @@ import {
   Globe,
   BrainCircuit,
 } from "lucide-react";
+ import {
+  Scale,
+  UserCheck,
+  Brain,
+  Layers,
+  Network,
+  BadgeCheck,
+} from "lucide-react";
 import { useEffect } from "react";
 
 import TestimonialsMarquee from "./(components)/TestimonialsMarquee";
@@ -30,7 +38,7 @@ import JobApplyModal from "./(components)/JobApplyModal";
 import { useAuth } from "./context_api/AuthContext";
 
 export default function Home() {
-  const { getPublicJobs, getPublicInternships } = useAuth();
+  const { getPublicJobs, getPublicInternships , getPublicCampusCourses } = useAuth();
 
   const tabs = [
     "Big brands",
@@ -135,48 +143,91 @@ export default function Home() {
     "Data Science",
   ];
 
-  const features = [
+  const universities = [
+  { img: "/assect/img1.JPG", logo: "/assect/logo1.JPG", name: "Jain University Online" },
+  { img: "/assect/img2.JPG", logo: "/assect/logo2.JPG", name: "LPU Online" },
+  { img: "/assect/img3.JPG", logo: "/assect/logo3.JPG", name: "Online Manipal" },
+  { img: "/assect/img4.JPG", logo: "/assect/logo4.JPG", name: "Chandigarh University Online" },
+  { img: "/assect/img5.JPG", logo: "/assect/logo5.JPG", name: "Amity University Online" },
+  { img: "/assect/img6.JPG", logo: "/assect/logo6.JPG", name: "SMU Online" },
+  { img: "/assect/img7.JPG", logo: "/assect/logo7.JPG", name: "Uttaranchal University Online" },
+  { img: "/assect/img8.JPG", logo: "/assect/logo8.JPG", name: "DPU Online" },
+  { img: "/assect/img9.JPG", logo: "/assect/logo9.JPG", name: "UPES Online" },
+  { img: "/assect/img10.JPG", logo: "/assect/logo10.JPG", name: "VGU Online" },
+  { img: "/assect/img11.JPG", logo: "/assect/logo11.JPG", name: "Vignan University Online" },
+  { img: "/assect/img12.JPG", logo: "/assect/logo12.JPG", name: "Shoolini University Online" },
+  ];
+
+ const logos = [
+  "/assect/logo1.JPG",
+  "/assect/logo2.JPG",
+  "/assect/logo3.JPG",
+  "/assect/logo4.JPG",
+  "/assect/logo5.JPG",
+  "/assect/logo6.JPG",
+  "/assect/logo7.JPG",
+  "/assect/logo8.JPG",
+  "/assect/logo9.JPG",
+  "/assect/logo10.JPG",
+  "/assect/logo11.JPG",
+  "/assect/logo12.JPG",
+ ];
+
+
+ const features = [
   {
-    title: "Fast-Growing Roles",
-    desc: "Discover opportunities in high-demand industries and rapidly scaling companies.",
-    icon: TrendingUp,
+    title: "Unbiased Guidance",
+    desc: "We provide transparent and honest recommendations, focused only on what’s best for your career — no hidden agendas, no favoritism.",
+    icon: Scale,
   },
   {
-    title: "Trusted Employers",
-    desc: "Work with verified companies across India and global markets.",
-    icon: Building2,
+    title: "Expert Insights",
+    desc: "Get advice and direction shaped by industry experts who understand real-world skills, hiring trends, and career pathways.",
+    icon: UserCheck,
   },
   {
-    title: "Work Anywhere",
-    desc: "Choose on-site, hybrid, or remote roles that fit your lifestyle.",
-    icon: Globe,
+    title: "AI-Powered Intelligence",
+    desc: "Our AI analyzes your profile, preferences, and goals to match you with the most relevant opportunities faster and smarter.",
+    icon: Brain,
   },
   {
-    title: "Student Friendly",
-    desc: "Internships and entry-level jobs crafted for students and freshers.",
-    icon: GraduationCap,
+    title: "End-to-End Solutions",
+    desc: "From exploration and shortlisting to application and guidance — Collexa supports you at every step of your journey.",
+    icon: Layers,
   },
   {
-    title: "Career Growth",
-    desc: "Upskill, get mentorship, and accelerate your professional journey.",
-    icon: Award,
+    title: "Strong Industry Connections",
+    desc: "Access opportunities through our growing network of trusted companies, universities, and hiring partners.",
+    icon: Network,
   },
   {
-    title: "Smart Matching",
-    desc: "AI-powered recommendations connect you with the right opportunities.",
-    icon: BrainCircuit,
+    title: "Success-Focused Approach",
+    desc: "We measure our success by yours — ensuring clarity, confidence, and outcomes that truly move your career forward.",
+    icon: BadgeCheck,
   },
-];
+ ];
+
+ const images = [
+    "/img1.jpeg",
+    "/img2.jpeg",
+    "/img3.jpeg",
+    "/img4.jpeg",
+    "/img5.jpeg",
+    "/img6.jpeg",
+    "/img7.jpeg",
+    "/img9.jpeg"
+  ];
 
   const [activeJobTab, setActiveJobTab] = useState("Work from home");
   const [fetchedJobs, setFetchedJobs] = useState<any[]>([]);
   const [fetchedInternships, setFetchedInternships] = useState<any[]>([]);
+  const [fetchedCampusCourses, setFetchedCampusCourses] = useState<any[]>([]);
 
-
+//  job
   useEffect(() => {
     const fetchJobs = async () => {
       if (getPublicJobs) {
-        const data = await getPublicJobs(activeJobTab);
+        const data = await getPublicJobs({ keyword: activeJobTab });
         console.log(data);
         if (data && data.jobs) {
           setFetchedJobs(data.jobs);
@@ -186,12 +237,12 @@ export default function Home() {
       }
     };
     fetchJobs();
-  }, [activeJobTab]);
-
+  }, [activeJobTab, getPublicJobs]);
+// intership
   useEffect(() => {
     const fetchInternships = async () => {
       if (getPublicInternships) {
-        const data = await getPublicInternships(active);
+        const data = await getPublicInternships({ keyword: active });
         console.log(data);
         if (Array.isArray(data)) {
           setFetchedInternships(data);
@@ -203,62 +254,27 @@ export default function Home() {
       }
     };
     fetchInternships();
-  }, [active]);
+  }, [active, getPublicInternships]);
+  
 
   const [activeCourseTab, setActiveCourseTab] = useState("Engineering");
-
-  const courses2 = [
-    {
-      university: "IIT Bombay",
-      type: "B.Tech",
-      title: "B.Tech Mechanical",
-      desc: "Learn design, manufacturing, and thermal systems",
-      rating: "4.8",
-      duration: "4 Years",
-      enrolled: "950",
-      level: "Undergraduate",
-    },
-    {
-      university: "IIT Madras",
-      type: "B.Tech",
-      title: "B.Tech Civil",
-      desc: "Build infrastructure and construction expertise",
-      rating: "4.7",
-      duration: "4 Years",
-      enrolled: "800",
-      level: "Undergraduate",
-    },
-    {
-      university: "IIT Delhi",
-      type: "B.Tech",
-      title: "B.Tech Computer Science",
-      desc: "Master programming, algorithms, and software development",
-      rating: "4.9",
-      duration: "4 Years",
-      enrolled: "1.2k",
-      level: "Undergraduate",
-    },
-    {
-      university: "IIT Bombay",
-      type: "B.Tech",
-      title: "B.Tech Mechanical",
-      desc: "Learn design, manufacturing, and thermal systems",
-      rating: "4.8",
-      duration: "4 Years",
-      enrolled: "950",
-      level: "Undergraduate",
-    },
-    {
-      university: "IIT Madras",
-      type: "B.Tech",
-      title: "B.Tech Civil",
-      desc: "Build infrastructure and construction expertise",
-      rating: "4.7",
-      duration: "4 Years",
-      enrolled: "800",
-      level: "Undergraduate",
-    },
-  ];
+//  campush courses
+  useEffect(() => {
+    const fetchCampusCourses = async () => {
+      if (getPublicCampusCourses) {
+        const data = await getPublicCampusCourses({ category: activeCourseTab });
+        console.log( "campus " ,data);
+        if (Array.isArray(data)) {
+          setFetchedCampusCourses(data);
+        } else if (data && data.campusCourses) {
+          setFetchedCampusCourses(data.campusCourses);
+        } else {
+          setFetchedCampusCourses([]);
+        }
+      }
+    };
+    fetchCampusCourses();
+  }, [activeCourseTab, getPublicCampusCourses]);
 
   return (
     <div className="bg-[#f7fbff] overflow-hidden">
@@ -332,10 +348,113 @@ export default function Home() {
           </div>
         </div>
       </section>
+      {/* Universities Marquee */}
+      <section className="bg-gray-100 py-10 overflow-hidden">
+  <div className="max-w-7xl mx-auto px-4">
+
+    {/* Heading (optional – hata bhi sakte ho) */}
+    
+
+    {/* Marquee Container */}
+    <div className="relative w-full overflow-hidden">
+      <div className="flex w-max marquee gap-10">
+
+        {/* First set */}
+        {logos.map((logo, index) => (
+          <div
+            key={`logo-1-${index}`}
+            className="flex items-center justify-center min-w-[160px]"
+          >
+            <img
+              src={logo}
+              alt="University Logo"
+              className="h-14 object-contain transition-transform duration-300 hover:scale-110"
+            />
+          </div>
+        ))}
+
+        {/* Duplicate set for seamless loop */}
+        {logos.map((logo, index) => (
+          <div
+            key={`logo-2-${index}`}
+            className="flex items-center justify-center min-w-[160px]"
+          >
+            <img
+              src={logo}
+              alt="University Logo"
+              className="h-14 object-contain transition-transform duration-300 hover:scale-110"
+            />
+          </div>
+        ))}
+
+      </div>
+    </div>
+
+  </div>
+</section>
       {/* ------------------------------------------------ */}
       {/* ⭐ TRENDING NOW */}
       {/* ------------------------------------------------ */}
+      <section className="w-full bg-[#f8fbff] py-14">
+        {/* TITLE */}
+        <h1 className="text-2xl md:text-3xl font-extrabold text-[#0c2c66] flex items-center justify-center gap-2 px-4">
+          Trending now <TrendingUp className="text-blue-600" />
+        </h1>
+
+        {/* SLIDER WRAPPER */}
+        <div className="relative max-w-6xl mx-auto mt-10 px-6">
+          {/* LEFT BTN (Desktop only) */}
+          <button
+            onClick={() =>
+              document.getElementById("trending-slider")?.scrollBy({
+                left: -350,
+                behavior: "smooth",
+              })
+            }
+            className="hidden md:flex absolute text-white -left-4 top-1/2 -translate-y-1/2 bg-blue-900 shadow-lg p-2 rounded-full z-10"
+          >
+            <ChevronLeft />
+          </button>
+
+          {/* SLIDER */}
+          <div
+            id="trending-slider"
+            className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 scrollbar-hide"
+          >
+            {images.map((src, i) => (
+              <div
+                key={i}
+                className="min-w-65 sm:min-w-75 md:min-w-85 snap-start"
+              >
+                <Image
+                  src={src}
+                  alt="Home_hero_image"
+                  width={1400}
+                  height={700}
+                  priority
+                  className="w-full h-full md:h-full object-cover rounded-2xl shadow-sm"
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* RIGHT BTN */}
+          <button
+            onClick={() =>
+              document.getElementById("trending-slider")?.scrollBy({
+                left: 350,
+                behavior: "smooth",
+              })
+            }
+            className="hidden md:flex text-white absolute -right-4 top-1/2 -translate-y-1/2 bg-blue-900 shadow-lg p-2 rounded-full z-10"
+          >
+            <ChevronRight />
+          </button>
+        </div>
+      </section>
+
       
+
       {/* ⭐ CAMPUS COURSES */}
       
       <div className="w-full bg-[#f8fbff] py-14">
@@ -388,7 +507,7 @@ export default function Home() {
                 behavior: "smooth",
               })
             }
-            className="hidden md:flex text-white absolute left-0 top-1/2 -translate-y-1/2 bg-[#00BC7D] shadow-md p-2 rounded-full z-10"
+            className="hidden md:flex text-white absolute left-0 top-1/2 -translate-y-1/2 bg-[#153483] shadow-md p-2 rounded-full z-10"
           >
             ◀
           </button>
@@ -398,7 +517,8 @@ export default function Home() {
             id="campus-slider"
             className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-6 scrollbar-hide"
           >
-            {courses2.map((c, i) => (
+            {fetchedCampusCourses.length > 0 ? (
+              fetchedCampusCourses.map((c, i) => (
               <div
                 key={i}
                 className="min-w-80 md:min-w-90 bg-white rounded-2xl border shadow-sm snap-start p-4 hover:shadow-xl transition"
@@ -451,7 +571,12 @@ export default function Home() {
               </div>
 
               </div>
-            ))}
+            ))
+            ) : (
+              <div className="w-full text-center py-10 text-gray-500">
+                No courses found for {activeCourseTab}
+              </div>
+            )}
           </div>
 
           {/* RIGHT BUTTON */}
@@ -462,12 +587,13 @@ export default function Home() {
                 behavior: "smooth",
               })
             }
-            className="hidden md:flex text-white absolute right-0 top-1/2 -translate-y-1/2 bg-[#00BC7D] shadow-md p-2 rounded-full z-10"
+            className="hidden md:flex text-white absolute right-0 top-1/2 -translate-y-1/2 bg-[#153483] shadow-md p-2 rounded-full z-10"
           >
             ▶
           </button>
         </div>
       </div>{" "}
+
        
        {/* job section  */}
       <div className="w-full bg-[#f8fbff] py-14">
@@ -519,7 +645,7 @@ export default function Home() {
                 behavior: "smooth",
               })
             }
-            className="hidden md:flex text-white absolute left-0 top-1/2 -translate-y-1/2 bg-[#00BC7D] shadow-md p-2 rounded-full z-10"
+            className="hidden md:flex text-white absolute left-0 top-1/2 -translate-y-1/2 bg-[#153483] shadow-md p-2 rounded-full z-10"
           >
             ◀
           </button>
@@ -594,7 +720,7 @@ export default function Home() {
                 behavior: "smooth",
               })
             }
-            className="hidden md:flex text-white absolute right-0 top-1/2 -translate-y-1/2 bg-[#00BC7D] shadow-md p-2 rounded-full z-10"
+            className="hidden md:flex text-white absolute right-0 top-1/2 -translate-y-1/2 bg-[#153483] shadow-md p-2 rounded-full z-10"
           >
             ▶
           </button>
@@ -653,7 +779,7 @@ export default function Home() {
                 .getElementById("intern-slider")
                 ?.scrollBy({ left: -320, behavior: "smooth" })
             }
-            className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 bg-[#00BC7D] text-white shadow-md p-2 rounded-full z-10"
+            className="hidden md:flex absolute left-0 top-1/2 -translate-y-1/2 bg-[#153483] text-white shadow-md p-2 rounded-full z-10"
           >
             ◀
           </button>
@@ -715,7 +841,7 @@ export default function Home() {
                 .getElementById("intern-slider")
                 ?.scrollBy({ left: 320, behavior: "smooth" })
             }
-            className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 bg-[#00BC7D] shadow-md p-2 rounded-full z-10 text-white"
+            className="hidden md:flex absolute right-0 top-1/2 -translate-y-1/2 bg-[#153483] shadow-md p-2 rounded-full z-10 text-white"
           >
             ▶
           </button>
@@ -773,7 +899,7 @@ export default function Home() {
                 behavior: "smooth",
               })
             }
-            className="hidden md:flex text-white absolute left-0 top-1/2 -translate-y-1/2 bg-[#00BC7D] shadow-md p-2 rounded-full z-10"
+            className="hidden md:flex text-white absolute left-0 top-1/2 -translate-y-1/2 bg-[#153483] shadow-md p-2 rounded-full z-10"
           >
             ◀
           </button>
@@ -841,12 +967,63 @@ export default function Home() {
                 behavior: "smooth",
               })
             }
-            className="hidden md:flex text-white absolute right-0 top-1/2 -translate-y-1/2 bg-[#00BC7D] shadow-md p-2 rounded-full z-10"
+            className="hidden md:flex text-white absolute right-0 top-1/2 -translate-y-1/2 bg-[#153483] shadow-md p-2 rounded-full z-10"
           >
             ▶
           </button>
         </div>
       </div>
+
+      {/* Universities Section */}
+      <section className="bg-white py-16">
+  <div className="max-w-7xl mx-auto px-4 ">
+
+    {/* Heading */}
+    <div className="text-center mb-10">
+      <h2 className="text-3xl md:text-4xl font-bold text-[#0b3c5d]">
+        Top Online & Distance Education Universities in 2026
+      </h2>
+      <p className="mt-3 text-gray-700 max-w-4xl mx-auto text-sm md:text-base">
+        Explore updated information about leading UGC-DEB-approved universities
+        offering online & distance education in the January 2026 academic session.
+      </p>
+    </div>
+
+    {/* Grid */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      {universities.map((uni, index) => (
+        <div
+          key={index}
+          className="border border-gray-200 bg-white"
+        >
+          {/* University Image */}
+          <div className="relative w-full h-36 overflow-hidden">
+            <Image
+              src={uni.img}
+              alt="University campus"
+              fill
+              className="object-cover"
+            />
+          </div>
+
+          {/* Logo */}
+          <div className="flex items-center justify-center py-3 bg-white">
+            <Image
+              src={uni.logo}
+              alt="University logo"
+              width={90}
+              height={40}
+              className="object-contain"
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+
+  </div>
+</section>
+
+
 
       {/* why chose collexa ? */}
       <section className="bg-white py-16">
@@ -854,13 +1031,14 @@ export default function Home() {
         
         {/* Heading */}
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
-            Why Choose <span className="text-blue-600">Collexa</span>?
-          </h2>
-          <p className="mt-3 text-gray-600 max-w-2xl mx-auto">
-            Designed to help you discover verified opportunities faster, smarter, and easier.
-          </p>
-        </div>
+  <h2 className="text-3xl md:text-4xl font-bold text-gray-900">
+    Why Choose <span className="text-blue-600">Collexa</span>?
+  </h2>
+  <p className="mt-3 text-gray-600 max-w-2xl mx-auto">
+    A smarter, unbiased, and technology-driven platform built to guide you from
+    discovery to success — without confusion or compromise.
+  </p>
+</div>
 
         {/* Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -342,6 +342,32 @@ const getPublicInternships = async (params?: {
 };
 
 
+const getPublicCampusCourses = async (params?: {
+  page?: number;
+  limit?: number;
+  category?: string;
+}) => {
+  try {
+    const res = await API.get("/api/campuscourses", {
+      params: {
+        page: params?.page || 1,
+        limit: params?.limit || 10,
+        category: params?.category,
+      },
+    });
+
+    return (
+      res.data?.campusCourses ||
+      res.data?.data?.campusCourses ||
+      res.data?.data ||
+      []
+    );
+  } catch (err: any) {
+    console.error("getPublicCampusCourses error:", err);
+    throw err;
+  }
+};
+
 
 
   return (
@@ -364,6 +390,7 @@ const getPublicInternships = async (params?: {
         deleteJob,
         getPublicJobs,
         getPublicInternships,
+        getPublicCampusCourses,
       }}
     >
       {children}
