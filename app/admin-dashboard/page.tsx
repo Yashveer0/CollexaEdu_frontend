@@ -155,15 +155,17 @@ const [editingCampusCourse, setEditingCampusCourse] = useState<any>(null);
 const [viewCampusCourse, setViewCampusCourse] = useState<any>(null);
 const [showViewCampusCourseModal, setShowViewCampusCourseModal] = useState(false);
 const [campusCourseForm, setCampusCourseForm] = useState({
-  university: "",
-  type: "",
-  title: "",
-  desc: "",
+  courseName: "",
+  universityName: "",
+  degreeType: "",
+  description: "",
   rating: "",
   duration: "",
-  enrolled: "",
+  enrolledCount: "",
   level: "",
   category: "Engineering",
+  isTop: false,
+  location: "",
 });
 
 const [dashboardStats, setDashboardStats] = useState({
@@ -455,8 +457,8 @@ const handleDeleteCampusCourse = async (id: string) => {
 };
 
 const handleSaveCampusCourse = async () => {
-  if (!campusCourseForm.title || !campusCourseForm.university) {
-    Swal.fire("Error", "Title and University are required", "warning");
+  if (!campusCourseForm.courseName || !campusCourseForm.universityName) {
+    Swal.fire("Error", "Course Name and University Name are required", "warning");
     return;
   }
 
@@ -616,15 +618,17 @@ const resetJobForm = () => {
 
 const resetCampusCourseForm = () => {
   setCampusCourseForm({
-    university: "",
-    type: "",
-    title: "",
-    desc: "",
+    universityName: "",
+    courseName: "",
+    degreeType: "",
+    description: "",
     rating: "",
     duration: "",
-    enrolled: "",
+    enrolledCount: "",
     level: "",
     category: "Engineering",
+    isTop: false,
+    location: "",
   });
   setEditingCampusCourse(null);
 };
@@ -1122,6 +1126,65 @@ const handleDeleteCompany = async (id: string) => {
   }
 };
 
+const handleSaveJob = async () => {
+  try {
+    // 🔎 Frontend validation
+    if (
+      !jobForm.title ||
+      !jobForm.description ||
+      !jobForm.companyId ||
+      !jobForm.location ||
+      !jobForm.salaryMin ||
+      !jobForm.salaryMax ||
+      !jobForm.openings ||
+      !jobForm.skillsRequired
+    ) {
+      Swal.fire({
+        icon: "warning",
+        title: "Missing fields",
+        text: "Please fill all required job details",
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    const payload = {
+      title: jobForm.title.trim(),
+      description: jobForm.description.trim(),
+      company: jobForm.companyId,
+      companyName: jobForm.companyName,
+      location: jobForm.location.trim(),
+      type: jobForm.type,
+      salaryMin: Number(jobForm.salaryMin),
+      salaryMax: Number(jobForm.salaryMax),
+      openings: Number(jobForm.openings),
+      experienceLevel: jobForm.experienceLevel,
+      skillsRequired: jobForm.skillsRequired
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean),
+    };
+
+    if (editingJob) {
+      await updateJob(editingJob._id, payload);
+      await Swal.fire("Job Updated", "Job details updated successfully.", "success");
+    } else {
+      await addJob(payload);
+      await Swal.fire("Job Created", "Job has been added successfully.", "success");
+    }
+
+    await fetchJobs();
+    resetJobForm();
+    setShowAddJobModal(false);
+  } catch (err: any) {
+    console.error("Add/Update job failed 👉", err.response?.data || err.message);
+    Swal.fire("Operation Failed", err.response?.data?.message || "Failed to save job", "error");
+  } finally {
+    setLoading(false);
+  }
+};
+
 const handleGenerateReport = async () => {
   setReportLoading(true);
   try {
@@ -1354,7 +1417,7 @@ const downloadReport = () => {
 
 
 
-        <div className="p-3 sm:p-4 md:p-6">
+        <div className="p-3 sm:p-4 md:p-6"> 
           {/* ================= DASHBOARD ================= */}
           {screen === "dashboard" && (
   <>
@@ -2454,9 +2517,7 @@ const downloadReport = () => {
   <>
     {/* ================= HEADER ================= */}
     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-      <h2 className="text-xl font-bold">
-        Courses
-      </h2>
+      <h2 className="text-xl font-bold">Courses</h2>
 
       <button
         onClick={() => {
@@ -2474,11 +2535,14 @@ const downloadReport = () => {
       <table className="w-full text-sm">
         <thead className="bg-gray-50 text-gray-600">
           <tr>
-            <th className="px-4 py-3 text-left">Title</th>
             <th className="px-4 py-3 text-left">University</th>
-            <th className="px-4 py-3 text-left">Category</th>
+            <th className="px-4 py-3 text-left">Course</th>
+            <th className="px-4 py-3 text-left">Degree</th>
             <th className="px-4 py-3 text-left">Duration</th>
             <th className="px-4 py-3 text-left">Level</th>
+            <th className="px-4 py-3 text-left">Rating</th>
+            <th className="px-4 py-3 text-left">Enrolled</th>
+            <th className="px-4 py-3 text-left">Location</th>
             <th className="px-4 py-3 text-left">Action</th>
           </tr>
         </thead>
@@ -2486,7 +2550,7 @@ const downloadReport = () => {
         <tbody className="divide-y">
           {campusCoursesLoading && (
             <tr>
-              <td colSpan={6} className="px-4 py-6 text-center text-gray-500">
+              <td colSpan={9} className="px-4 py-6 text-center text-gray-500">
                 Loading courses...
               </td>
             </tr>
@@ -2494,80 +2558,86 @@ const downloadReport = () => {
 
           {!campusCoursesLoading && campusCourses.length === 0 && (
             <tr>
-              <td colSpan={6} className="px-4 py-6 text-center text-gray-500">
+              <td colSpan={9} className="px-4 py-6 text-center text-gray-500">
                 No courses found
               </td>
             </tr>
           )}
 
-          {!campusCoursesLoading && campusCourses.map((course: any) => (
-            <tr
-              key={course._id}
-              className="hover:bg-blue-50 transition"
-            >
-              <td className="px-4 py-3 font-medium">
-                {course.title}
-              </td>
-              <td className="px-4 py-3">
-                {course.university}
-              </td>
-              <td className="px-4 py-3">
-                {course.category}
-              </td>
-              <td className="px-4 py-3">
-                {course.duration}
-              </td>
-              <td className="px-4 py-3">
-                {course.level}
-              </td>
+          {!campusCoursesLoading &&
+            campusCourses.map((course: any) => (
+              <tr
+                key={course._id}
+                className="hover:bg-blue-50 transition"
+              >
+                <td className="px-4 py-3">{course.universityName}</td>
+                <td className="px-4 py-3 font-medium">
+                  {course.courseName}
+                  {course.isTop && (
+                    <span className="ml-2 text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">
+                      TOP
+                    </span>
+                  )}
+                </td>
+                <td className="px-4 py-3">{course.degreeType}</td>
+                <td className="px-4 py-3">{course.duration}</td>
+                <td className="px-4 py-3">{course.level}</td>
+                <td className="px-4 py-3">⭐ {course.rating}</td>
+                <td className="px-4 py-3">{course.enrolledCount}</td>
+                <td className="px-4 py-3">{course.location}</td>
 
-              {/* Action */}
-              <td className="px-4 py-3">
-                <div className="flex gap-3 text-xs">
-                  <button
-                    onClick={() => {
-                      setViewCampusCourse(course);
-                      setShowViewCampusCourseModal(true);
-                    }}
-                    className="text-green-600 hover:underline"
-                  >
-                    View
-                  </button>
-                  <button
-                    onClick={() => {
-                      setEditingCampusCourse(course);
-                      setCampusCourseForm({
-                        university: course.university || "",
-                        type: course.type || "",
-                        title: course.title || "",
-                        desc: course.desc || "",
-                        rating: course.rating || "",
-                        duration: course.duration || "",
-                        enrolled: course.enrolled || "",
-                        level: course.level || "",
-                        category: course.category || "Engineering",
-                      });
-                      setScreen("add-course");
-                    }}
-                    className="text-blue-600 hover:underline"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDeleteCampusCourse(course._id)}
-                    className="text-red-600 hover:underline"
-                  >
-                    Delete
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
+                {/* Action */}
+                <td className="px-4 py-3">
+                  <div className="flex gap-3 text-xs">
+                    <button
+                      onClick={() => {
+                        setViewCampusCourse(course);
+                        setShowViewCampusCourseModal(true);
+                      }}
+                      className="text-green-600 hover:underline"
+                    >
+                      View
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setEditingCampusCourse(course);
+                        setCampusCourseForm({
+                          universityName: course.universityName || "",
+                          courseName: course.courseName || "",
+                          degreeType: course.degreeType || "",
+                          description: course.description || "",
+                          rating: course.rating || "",
+                          duration: course.duration || "",
+                          enrolledCount: course.enrolledCount || "",
+                          level: course.level || "",
+                          location: course.location || "",
+                          isTop: course.isTop || false,
+                          category: course.category || "Engineering",
+                        });
+                        setScreen("add-course");
+                      }}
+                      className="text-blue-600 hover:underline"
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      onClick={() => handleDeleteCampusCourse(course._id)}
+                      className="text-red-600 hover:underline"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
         </tbody>
       </table>
     </div>
   </>
 )}
+
 
 
 {screen === "add-course" && (
@@ -2587,29 +2657,43 @@ const downloadReport = () => {
       {/* Course Name */}
       <div>
         <label className="text-sm font-medium">
-          Course Title <span className="text-red-500">*</span>
+          Course Name <span className="text-red-500">*</span>
         </label>
         <input
-          value={campusCourseForm.title}
-          onChange={(e) => setCampusCourseForm({ ...campusCourseForm, title: e.target.value })}
+          value={campusCourseForm.courseName}
+          onChange={(e) => setCampusCourseForm({ ...campusCourseForm, courseName: e.target.value })}
           placeholder="e.g. B.Tech Mechanical"
           className="w-full mt-1 border rounded-lg px-4 py-2
             focus:ring-2 focus:ring-blue-600 outline-none transition"
         />
         <p className="text-xs text-gray-400 mt-1">
-          Course name is required
+          Course name is required.
         </p>
       </div>
 
       {/* University */}
       <div>
         <label className="text-sm font-medium">
-          University <span className="text-red-500">*</span>
+          University Name <span className="text-red-500">*</span>
         </label>
         <input
-          value={campusCourseForm.university}
-          onChange={(e) => setCampusCourseForm({ ...campusCourseForm, university: e.target.value })}
+          value={campusCourseForm.universityName}
+          onChange={(e) => setCampusCourseForm({ ...campusCourseForm, universityName: e.target.value })}
           placeholder="e.g. IIT Bombay"
+          className="w-full mt-1 border rounded-lg px-4 py-2
+            focus:ring-2 focus:ring-blue-600 outline-none transition"
+        />
+      </div>
+
+      {/* Duration */}
+      <div>
+        <label className="text-sm font-medium">
+          Duration
+        </label>
+        <input
+          value={campusCourseForm.duration}
+          onChange={(e) => setCampusCourseForm({ ...campusCourseForm, duration: e.target.value })}
+          placeholder="e.g. 2 Years"
           className="w-full mt-1 border rounded-lg px-4 py-2
             focus:ring-2 focus:ring-blue-600 outline-none transition"
         />
@@ -2632,28 +2716,14 @@ const downloadReport = () => {
         </select>
       </div>
 
-      {/* Duration */}
+      {/* Degree Type */}
       <div>
         <label className="text-sm font-medium">
-          Duration
+          Degree Type
         </label>
         <input
-          value={campusCourseForm.duration}
-          onChange={(e) => setCampusCourseForm({ ...campusCourseForm, duration: e.target.value })}
-          placeholder="e.g. 2 Years"
-          className="w-full mt-1 border rounded-lg px-4 py-2
-            focus:ring-2 focus:ring-blue-600 outline-none transition"
-        />
-      </div>
-
-      {/* Type */}
-      <div>
-        <label className="text-sm font-medium">
-          Type (Degree)
-        </label>
-        <input
-          value={campusCourseForm.type}
-          onChange={(e) => setCampusCourseForm({ ...campusCourseForm, type: e.target.value })}
+          value={campusCourseForm.degreeType}
+          onChange={(e) => setCampusCourseForm({ ...campusCourseForm, degreeType: e.target.value })}
           placeholder="e.g. B.Tech"
           className="w-full mt-1 border rounded-lg px-4 py-2
             focus:ring-2 focus:ring-blue-600 outline-none transition"
@@ -2681,8 +2751,8 @@ const downloadReport = () => {
         Description
       </label>
       <textarea
-        value={campusCourseForm.desc}
-        onChange={(e) => setCampusCourseForm({ ...campusCourseForm, desc: e.target.value })}
+        value={campusCourseForm.description}
+        onChange={(e) => setCampusCourseForm({ ...campusCourseForm, description: e.target.value })}
         rows={4}
         placeholder="Brief description about the course..."
         className="w-full mt-1 border rounded-lg px-4 py-2
@@ -2691,7 +2761,7 @@ const downloadReport = () => {
     </div>
 
     {/* Extra Fields */}
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
       <div>
         <label className="text-sm font-medium">Rating</label>
         <input
@@ -2704,12 +2774,32 @@ const downloadReport = () => {
       <div>
         <label className="text-sm font-medium">Enrolled Count</label>
         <input
-          value={campusCourseForm.enrolled}
-          onChange={(e) => setCampusCourseForm({ ...campusCourseForm, enrolled: e.target.value })}
+          value={campusCourseForm.enrolledCount}
+          onChange={(e) => setCampusCourseForm({ ...campusCourseForm, enrolledCount: e.target.value })}
           placeholder="e.g. 950"
           className="w-full mt-1 border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-600 outline-none"
         />
       </div>
+      <div>
+        <label className="text-sm font-medium">Location</label>
+        <input
+          value={campusCourseForm.location}
+          onChange={(e) => setCampusCourseForm({ ...campusCourseForm, location: e.target.value })}
+          placeholder="e.g. Chennai, India"
+          className="w-full mt-1 border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-600 outline-none"
+        />
+      </div>
+    </div>
+
+    {/* isTop Toggle */}
+    <div className="mt-6 flex items-center gap-3">
+      <input
+        type="checkbox"
+        checked={campusCourseForm.isTop}
+        onChange={(e) => setCampusCourseForm({ ...campusCourseForm, isTop: e.target.checked })}
+        className="accent-blue-600 scale-110"
+      />
+      <span className="text-sm font-medium">Mark as Top Course</span>
     </div>
 
     {/* ================= ACTIONS ================= */}
@@ -3790,100 +3880,10 @@ const downloadReport = () => {
 
         <button
   disabled={loading}
-  onClick={async () => {
-    try {
-      // 🔎 Frontend validation
-      if (
-        !jobForm.title ||
-        !jobForm.description ||
-        !jobForm.companyId ||
-        !jobForm.location ||
-        !jobForm.salaryMin ||
-        !jobForm.salaryMax ||
-        !jobForm.openings ||
-        !jobForm.skillsRequired
-      ) {
-        Swal.fire({
-  icon: "warning",
-  title: "Missing fields",
-  text: "Please fill all required job details",
-});
-
-        return;
-      }
-
-      setLoading(true);
-
-     const payload = {
-  title: jobForm.title.trim(),
-  description: jobForm.description.trim(),
-
-  // 👇 BACKEND KE LIYE
-  company: jobForm.companyId,        // ObjectId
-  companyName: jobForm.companyName,  // String
-
-  location: jobForm.location.trim(),
-  type: jobForm.type,
-  salaryMin: Number(jobForm.salaryMin),
-  salaryMax: Number(jobForm.salaryMax),
-  openings: Number(jobForm.openings),
-  experienceLevel: jobForm.experienceLevel,
-  skillsRequired: jobForm.skillsRequired
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean),
-};
-
-
-      console.log("ADD JOB PAYLOAD 👉", payload);
-
-      if (editingJob) {
-  await updateJob(editingJob._id, payload);
-  Swal.fire({
-  icon: "success",
-  title: "Job Updated",
-  text: "Job details updated successfully",
-  timer: 1500,
-  showConfirmButton: false,
-});
-
-} else {
-  await addJob(payload);
-  Swal.fire({
-  icon: "success",
-  title: "Job Created",
-  text: "Job has been added successfully",
-  timer: 1500,
-  showConfirmButton: false,
-});
-
-}
-
-      await fetchJobs();
-resetJobForm();
-
-Swal.fire({
-  icon: "success",
-  title: "Job Created",
-  text: "Job has been added successfully",
-  timer: 1500,
-  showConfirmButton: false,
-});
-
-setShowAddJobModal(false);
-      
-    } catch (err: any) {
-      console.error("Add job failed 👉", err.response?.data || err.message);
-      alert(
-        err.response?.data?.message || "Failed to add job"
-      );
-    } finally {
-      setLoading(false);
-    }
-  }}
+  onClick={handleSaveJob}
   className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
 >
-  {loading ? "Saving..." : "Create Job"}
+  {loading ? "Saving..." : editingJob ? "Update Job" : "Create Job"}
 </button>
 
       </div>
@@ -4739,19 +4739,21 @@ setShowAddJobModal(false);
         ✕
       </button>
 
-      <h3 className="text-xl font-bold text-blue-800 mb-1">{viewCampusCourse.title}</h3>
-      <p className="text-sm text-gray-500 mb-4">{viewCampusCourse.university}</p>
+      <h3 className="text-xl font-bold text-blue-800 mb-1">{viewCampusCourse.courseName}</h3>
+      <p className="text-sm text-gray-500 mb-4">{viewCampusCourse.universityName}</p>
 
       <div className="space-y-3 text-sm text-gray-700">
-        <p><strong>Type:</strong> {viewCampusCourse.type}</p>
+        <p><strong>Degree:</strong> {viewCampusCourse.degreeType}</p>
         <p><strong>Category:</strong> {viewCampusCourse.category}</p>
         <p><strong>Level:</strong> {viewCampusCourse.level}</p>
         <p><strong>Duration:</strong> {viewCampusCourse.duration}</p>
+        <p><strong>Location:</strong> {viewCampusCourse.location}</p>
         <p><strong>Rating:</strong> {viewCampusCourse.rating} ★</p>
-        <p><strong>Enrolled:</strong> {viewCampusCourse.enrolled}</p>
+        <p><strong>Enrolled:</strong> {viewCampusCourse.enrolledCount}</p>
+        <p><strong>Top Course:</strong> {viewCampusCourse.isTop ? 'Yes' : 'No'}</p>
         <div className="bg-gray-50 p-3 rounded-lg border mt-2">
           <strong>Description:</strong>
-          <p className="mt-1 text-gray-600">{viewCampusCourse.desc}</p>
+          <p className="mt-1 text-gray-600">{viewCampusCourse.description}</p>
         </div>
       </div>
 

@@ -56,6 +56,8 @@ const JobApplyModal = ({
   };
 const [showFullJD, setShowFullJD] = useState(false);
 const [resumeFile, setResumeFile] = useState<File | null>(null);
+const isCampusCourse = !!data?.rating;
+
 
   return (
     
@@ -75,7 +77,14 @@ const [resumeFile, setResumeFile] = useState<File | null>(null);
             {/* Header */}
             <div className="mb-4 flex items-center justify-between border-b pb-3">
               <h2 className="text-xl font-semibold text-blue-900">
-                {data.mode ? ` Internship Details & Application` : "Job Details & Application"}
+                {
+  data.mode
+    ? "Internship Details & Application"
+    : data.rating
+    ? "Campus Courses Details & Application"
+    : "Job Details & Application"
+}
+
               </h2>
               <button
                 onClick={() => setOpen(false)}
@@ -91,14 +100,27 @@ const [resumeFile, setResumeFile] = useState<File | null>(null);
               {data && (
                 <div className="bg-blue-50 p-5 rounded-xl space-y-4">
                   <div>
-                    <h3 className="text-2xl font-bold">{data.title}</h3>
+                    {/* <h3 className="text-2xl font-bold">{data.title}</h3>
                     <p className="text-blue-700 flex items-center gap-1">
                       <Building2 size={16} />
                       {data.companyName || data.company?.name}
-                    </p>
+                    </p> */}
+
+                    <h3 className="text-2xl font-bold">
+  {isCampusCourse ? data.courseName : data.title}
+</h3>
+
+<p className="text-blue-700 flex items-center gap-1">
+  <Building2 size={16} />
+  {isCampusCourse
+    ? data.universityName
+    : data.companyName || data.company?.name}
+</p>
+
+                    
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3 text-sm">
+                  {/* <div className="grid grid-cols-2 gap-3 text-sm">
                     <p className="flex items-center gap-2">
                       <MapPin size={16} /> {data.location}
                     </p>
@@ -119,10 +141,55 @@ const [resumeFile, setResumeFile] = useState<File | null>(null);
                       <Calendar size={16} /> Posted:
                       {formatDate(data.createdAt)}
                     </p>
-                  </div>
+                  </div> */}
+
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+  {/* Location (common) */}
+  <p className="flex items-center gap-2">
+    <MapPin size={16} /> {data.location}
+  </p>
+
+  {/* TYPE / LEVEL */}
+  <p className="flex items-center gap-2">
+    <Briefcase size={16} />
+    {isCampusCourse ? data.level : data.type || data.mode}
+  </p>
+
+  {/* SALARY OR DEGREE */}
+  <p className="flex items-center gap-2">
+    <DollarSign size={16} />
+    {isCampusCourse
+      ? data.degreeType
+      : `₹${data.salaryMin || data.stipendMin || 0} - ₹${
+          data.salaryMax || data.stipendMax || 0
+        }`}
+  </p>
+
+  {/* EXPERIENCE / DURATION */}
+  <p className="flex items-center gap-2">
+    <Clock size={16} />
+    {isCampusCourse
+      ? data.duration
+      : data.experienceLevel || data.duration}
+  </p>
+
+  {/* ENROLLED / VACANCIES */}
+  <p className="flex items-center gap-2">
+    <Users size={16} />
+    {isCampusCourse
+      ? `Enrolled: ${data.enrolledCount ?? 0}`
+      : `Vacancies: ${data.openings ?? 0}`}
+  </p>
+
+  {/* DATE */}
+  <p className="flex items-center gap-2">
+    <Calendar size={16} /> Posted: {formatDate(data.createdAt)}
+  </p>
+</div>
+
 
                   {/* Skills */}
-                  {data.skillsRequired?.length > 0 && (
+                  {/* {data.skillsRequired?.length > 0 && (
                     <div className="flex flex-wrap gap-2">
                       {data.skillsRequired.map((skill: string, i: number) => (
                         <span
@@ -133,14 +200,34 @@ const [resumeFile, setResumeFile] = useState<File | null>(null);
                         </span>
                       ))}
                     </div>
-                  )}
+                  )} */}
+
+                  {!isCampusCourse && data.skillsRequired?.length > 0 && (
+  <div className="flex flex-wrap gap-2">
+    {data.skillsRequired.map((skill: string, i: number) => (
+      <span
+        key={i}
+        className="bg-white border text-blue-700 px-2 py-1 rounded text-xs"
+      >
+        {skill}
+      </span>
+    ))}
+  </div>
+)}
+
 
                   
                   {/* Description */}
 <div>
   <h4 className="font-semibold text-sm text-gray-900 mb-1">
-    Job Description
-  </h4>
+  {isCampusCourse
+    ? "Course Description"
+    : data.mode
+    ? "Internship Description"
+    : "Job Description"}
+</h4>
+
+
 
   <p
     className={`text-sm text-gray-600 whitespace-pre-line transition-all ${

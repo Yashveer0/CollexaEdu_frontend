@@ -356,10 +356,14 @@ const getPublicCampusCourses = async (params?: {
       },
     });
 
+    console.log("getPublicCampusCourses response:", res.data);
+
     return (
       res.data?.campusCourses ||
+      res.data?.courses ||
       res.data?.data?.campusCourses ||
       res.data?.data ||
+      res.data ||
       []
     );
   } catch (err: any) {

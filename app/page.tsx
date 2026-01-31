@@ -521,54 +521,57 @@ export default function Home() {
               fetchedCampusCourses.map((c, i) => (
               <div
                 key={i}
-                className="min-w-80 md:min-w-90 bg-white rounded-2xl border shadow-sm snap-start p-4 hover:shadow-xl transition"
+                className="min-w-80 md:min-w-90 bg-white rounded-2xl border shadow-sm snap-start p-5 hover:shadow-xl transition flex flex-col justify-between h-full"
               >
-                {/* HEADER */}
-                <div className="flex justify-between">
-                  <div>
-                    <p className="font-semibold text-gray-700 flex items-center gap-1">
-                      <GraduationCap size={18} /> {c.university}
-                    </p>
-                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
-                      {c.type}
-                    </span>
+                <div>
+                  {/* HEADER */}
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-700 shrink-0">
+                        <GraduationCap size={20} />
+                      </div>
+                      <div className="overflow-hidden">
+                        <p className="font-bold text-gray-800 text-sm truncate">
+                          {c.university || c.universityName || "University"}
+                        </p>
+                        <span className="text-[10px] font-medium bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full inline-block mt-0.5">
+                          {c.type || "Course"}
+                        </span>
+                      </div>
+                    </div>
                   </div>
 
-                  <span className="text-gray-700 text-xs ">🔝 Top</span>
-                </div>
+                  {/* TITLE */}
+                  <h3 className="text-lg text-gray-900 font-bold mt-2 line-clamp-2 leading-tight h-14">
+                    {c.title || c.courseName || "Untitled Course"}
+                  </h3>
+                  <p className="text-gray-500 text-sm mt-0 line-clamp-2 h-10">
+                    {c.desc || c.description || "No description available."}
+                  </p>
 
-                {/* TITLE */}
-                <h3 className="text-lg text-gray-700 font-bold mt-3">
-                  {c.title}
-                </h3>
-                <p className="text-gray-500 text-sm">{c.desc}</p>
+                  {/* INFO ROW */}
+                  <div className="flex flex-wrap gap-2 text-gray-600 mt-4 text-xs font-medium">
+                    <div className="flex items-center gap-1 px-2 py-1 bg-gray-50 border border-gray-100 rounded-md">
+                      <Star className="text-yellow-500 fill-yellow-500" size={12} /> {c.rating || "4.5"}
+                    </div>
 
-                {/* INFO ROW */}
-                <div className="flex gap-3 text-gray-700 mt-4 text-sm">
-                  <div className="flex text-gray-700 items-center gap-1 px-3 py-2 border rounded-lg">
-                    <Star className="text-yellow-400" size={16} /> {c.rating}{" "}
-                    Rating
-                  </div>
+                    <div className="flex items-center gap-1 px-2 py-1 bg-gray-50 border border-gray-100 rounded-md">
+                      <Clock3 size={12} /> {c.duration || "Flexible"}
+                    </div>
 
-                  <div className="flex items-center  gap-1 px-3 py-2 border rounded-lg">
-                    <Clock3 size={16} /> {c.duration}
-                  </div>
-
-                  <div className="flex items-center gap-1 px-3 py-2 border rounded-lg">
-                    <Users size={16} /> {c.enrolled} Enrolled
+                    <div className="flex items-center gap-1 px-2 py-1 bg-gray-50 border border-gray-100 rounded-md">
+                      <Users size={12} /> {c.enrolledCount || "0"} Enrolled
+                    </div>
                   </div>
                 </div>
                   
-                  <div className="mt-4 flex justify-between "> 
-                <div className="mt-5   text-gray-700">
-                  <span className="border px-2 py-1 rounded-full text-xs">
-                    {c.level}
+                <div className="mt-5 pt-4 border-t border-gray-100 flex justify-between items-center"> 
+                  <span className="text-xs font-semibold text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
+                    {c.level || "Beginner"}
                   </span>
                   
-                  
+                  <JobApplyModal title={c.title || c.courseName} btn_text="Enroll Now" data={c} />
                 </div>
-                <JobApplyModal title={c.title} btn_text="Enroll Now" />
-              </div>
 
               </div>
             ))
