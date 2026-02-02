@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { API }from "../lib/axios";
+import { API } from "../lib/axios";
 
 type UserType = {
   id: string;
@@ -372,6 +372,32 @@ const getPublicCampusCourses = async (params?: {
   }
 };
 
+const applyForCampusCourse = async (data: any) => {
+  const res = await API.post("/api/campuscourses/lead", data);
+  return res.data;
+};
+
+const applyForJob = async (id: string, formData: any) => {
+  const token = localStorage.getItem("collexa_token");
+
+  const res = await API.post(`/api/applications/apply/${id}`, formData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return res.data;
+};
+
+const getJobApplications = async (jobId: string) => {
+  const token = localStorage.getItem("collexa_token");
+  const res = await API.get(`/api/applications/job-applications/${jobId}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return res.data;
+};
 
 
   return (
@@ -395,6 +421,9 @@ const getPublicCampusCourses = async (params?: {
         getPublicJobs,
         getPublicInternships,
         getPublicCampusCourses,
+        applyForJob,
+        applyForCampusCourse,
+        getJobApplications,
       }}
     >
       {children}

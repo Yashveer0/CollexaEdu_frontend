@@ -107,7 +107,12 @@ export default function AdminPage() {
   const [status, setStatus] = useState<"Pending" | "Approved" | "Rejected">("Pending");
   const [showRequestInfo, setShowRequestInfo] = useState(false);
 
-  const { addJob, addCompany, updateCompany , updateJob , deleteJob } = useAuth();
+  // admissions / leads
+  const [admissionLeads, setAdmissionLeads] = useState<any[]>([]);
+  const [admissionLeadsLoading, setAdmissionLeadsLoading] = useState(false);
+  const [selectedAdmissionLead, setSelectedAdmissionLead] = useState<any>(null);
+
+  const { addJob, addCompany, updateCompany , updateJob , deleteJob, getJobApplications } = useAuth();
 
 
   const [jobs, setJobs] = useState<any[]>([]);
@@ -213,6 +218,10 @@ const [endDate, setEndDate] = useState("");
 const [reportData, setReportData] = useState<any[]>([]);
 const [reportLoading, setReportLoading] = useState(false);
 
+// applications
+const [applications, setApplications] = useState<any[]>([]);
+const [applicationsLoading, setApplicationsLoading] = useState(false);
+const [selectedJobIdForApp, setSelectedJobIdForApp] = useState<string>("");
 
   const [activeSettingTab, setActiveSettingTab] = useState<
   "General" |
@@ -414,6 +423,46 @@ const fetchBlogs = async () => {
   }
 };
 
+const fetchAdmissionLeads = async () => {
+  try {
+    setAdmissionLeadsLoading(true);
+    const token = localStorage.getItem("collexa_token");
+    const res = await API.get("/api/campuscourses/leads", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setAdmissionLeads(res.data?.leads || []);
+  } catch (err) {
+    console.error("Fetch admission leads failed", err);
+    setAdmissionLeads([]);
+  } finally {
+    setAdmissionLeadsLoading(false);
+  }
+};
+
+const handleDeleteAdmissionLead = async (id: string) => {
+  const result = await Swal.fire({
+    title: "Delete Lead?",
+    text: "This action cannot be undone.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    confirmButtonText: "Delete",
+  });
+
+  if (!result.isConfirmed) return;
+
+  try {
+    const token = localStorage.getItem("collexa_token");
+    await API.delete(`/api/campuscourses/leads/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    Swal.fire("Deleted!", "Lead has been deleted.", "success");
+    fetchAdmissionLeads();
+  } catch (err: any) {
+    Swal.fire("Error", err.response?.data?.message || "Delete failed", "error");
+  }
+};
+
 const fetchCampusCourses = async () => {
   try {
     setCampusCoursesLoading(true);
@@ -422,6 +471,12 @@ const fetchCampusCourses = async () => {
       headers: { Authorization: `Bearer ${token}` },
     });
     setCampusCourses(res.data.courses || []);
+    const data =
+      res.data?.campusCourses ||
+      res.data?.courses ||
+      res.data?.data ||
+      [];
+    setCampusCourses(Array.isArray(data) ? data : []);
   } catch (err) {
     console.error("Fetch courses failed", err);
     setCampusCourses([]);
@@ -519,6 +574,50 @@ const fetchDashboardData = async () => {
   }
 };
 
+const handleUpdateApplicationStatus = async (appId: string, newStatus: string) => {
+  try {
+    const token = localStorage.getItem("collexa_token");
+    await API.patch(`/api/applications/status/${appId}`, { status: newStatus }, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    
+    setApplications((prev) => 
+      prev.map((app) => app._id === appId ? { ...app, status: newStatus } : app)
+    );
+    
+    const Toast = Swal.mixin({
+      toast: true,
+      position: 'top-end',
+      showConfirmButton: false,
+      timer: 3000,
+      timerProgressBar: true,
+    });
+    
+    Toast.fire({
+      icon: 'success',
+      title: `Status updated to ${newStatus}`
+    });
+
+  } catch (err: any) {
+    console.error("Update status failed", err);
+    Swal.fire("Error", err.response?.data?.message || "Failed to update status", "error");
+  }
+};
+
+const fetchApplications = async (jobId: string) => {
+  if (!jobId) return;
+  try {
+    setApplicationsLoading(true);
+    const data = await getJobApplications(jobId);
+    setApplications(data.applications || []);
+  } catch (err: any) {
+    console.error("Fetch applications failed", err);
+    Swal.fire("Error", err.response?.data?.message || "Failed to fetch applications", "error");
+    setApplications([]);
+  } finally {
+    setApplicationsLoading(false);
+  }
+};
 
 useEffect(() => {
   if (screen === "create-blog" && editingBlog) {
@@ -546,6 +645,12 @@ useEffect(() => {
     fetchJobs();
   }
 }, [screen, page, search]);
+
+useEffect(() => {
+  if (screen === "admissions") {
+    fetchAdmissionLeads();
+  }
+}, [screen]);
 
 useEffect(() => {
   if (screen === "courses") {
@@ -598,6 +703,16 @@ useEffect(() => {
     fetchBlogs();
   }
 }, [screen]);
+
+useEffect(() => {
+  if (screen === "applications") {
+    if (selectedJobIdForApp) {
+      fetchApplications(selectedJobIdForApp);
+    } else if (jobs.length === 0) {
+      fetchJobs(); // Fetch jobs to populate dropdown if no job selected
+    }
+  }
+}, [screen, selectedJobIdForApp]);
 
 
 const resetJobForm = () => {
@@ -1553,7 +1668,7 @@ const downloadReport = () => {
 )}
 
           {/* ================= USERS LIST ================= */}
-          {screen === "users" && (
+  {screen === "users" && (
   <>
     {/* ================= HEADER ================= */}
     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
@@ -1692,6 +1807,17 @@ const downloadReport = () => {
                       className="text-red-600 hover:underline"
                     >
                       Delete
+                    </button>
+                  </div>
+                  <div className="mt-1">
+                    <button
+                      onClick={() => {
+                        setSelectedJobIdForApp(jobs._id);
+                        setScreen("applications");
+                      }}
+                      className="text-purple-600 text-xs hover:underline"
+                    >
+                      View Applications
                     </button>
                   </div>
                 </td>
@@ -2248,7 +2374,7 @@ const downloadReport = () => {
     {/* ================= HEADER ================= */}
     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
       <h2 className="text-xl font-bold">
-        Admission Requests
+       Campus Courses Admission Requests
       </h2>
 
       <input
@@ -2262,69 +2388,76 @@ const downloadReport = () => {
       <table className="w-full text-sm">
         <thead className="bg-gray-50 text-gray-600">
           <tr>
-            <th className="px-4 py-3 text-left">Student Name</th>
+            <th className="px-4 py-3 text-left">Name</th>
+            <th className="px-4 py-3 text-left">Email</th>
+            <th className="px-4 py-3 text-left">Phone</th>
             <th className="px-4 py-3 text-left">Course</th>
-            <th className="px-4 py-3 text-left">University</th>
-            <th className="px-4 py-3 text-left">Status</th>
+            <th className="px-4 py-3 text-left">State</th>
             <th className="px-4 py-3 text-left">Request Date</th>
             <th className="px-4 py-3 text-left">Action</th>
           </tr>
         </thead>
 
         <tbody className="divide-y">
-          {[1, 2, 3, 4, 5].map((i) => (
+          {admissionLeadsLoading ? (
+            <tr>
+              <td colSpan={7} className="px-4 py-6 text-center text-gray-500">
+                Loading requests...
+              </td>
+            </tr>
+          ) : admissionLeads.length === 0 ? (
+            <tr>
+              <td colSpan={7} className="px-4 py-6 text-center text-gray-500">
+                No admission requests found
+              </td>
+            </tr>
+          ) : (
+            admissionLeads.map((lead: any) => (
             <tr
-              key={i}
+              key={lead._id}
               className="hover:bg-blue-50 transition"
             >
-              {/* Student Name */}
               <td className="px-4 py-3 font-medium">
-                Student Name {i}
+                {lead.name}
               </td>
-
-              {/* Course */}
-              <td className="px-4 py-3">
-                MBA
-              </td>
-
-              {/* University */}
               <td className="px-4 py-3 text-gray-600">
-                Delhi University
+                {lead.email}
               </td>
-
-              {/* Status */}
               <td className="px-4 py-3">
-                {i % 3 === 0 ? (
-                  <span className="px-2 py-1 text-xs rounded bg-green-100 text-green-700">
-                    Approved
-                  </span>
-                ) : i % 2 === 0 ? (
-                  <span className="px-2 py-1 text-xs rounded bg-yellow-100 text-yellow-700">
-                    Pending
-                  </span>
-                ) : (
-                  <span className="px-2 py-1 text-xs rounded bg-red-100 text-red-700">
-                    Rejected
-                  </span>
-                )}
+                {lead.phone}
               </td>
-
-              {/* Date */}
+              <td className="px-4 py-3">
+                {lead.course}
+              </td>
+              <td className="px-4 py-3">
+                {lead.state}
+              </td>
               <td className="px-4 py-3 text-gray-500">
-                14 Jan 2026
+                {new Date(lead.createdAt).toLocaleDateString()}
               </td>
 
               {/* Action */}
               <td className="px-4 py-3">
+                <div className="flex gap-3 text-xs">
                 <button
-                  onClick={() => setScreen("admission-detail")}
+                  onClick={() => {
+                    setSelectedAdmissionLead(lead);
+                    setScreen("admission-detail");
+                  }}
                   className="text-blue-600 text-xs hover:underline"
                 >
                   View
                 </button>
+                <button
+                  onClick={() => handleDeleteAdmissionLead(lead._id)}
+                  className="text-red-600 text-xs hover:underline"
+                >
+                  Delete
+                </button>
+                </div>
               </td>
             </tr>
-          ))}
+          )))}
         </tbody>
       </table>
     </div>
@@ -2332,28 +2465,15 @@ const downloadReport = () => {
     {/* ================= PAGINATION ================= */}
     <div className="flex justify-between items-center mt-6 text-sm">
       <p className="text-gray-500">
-        Showing 1–5 of 28 requests
+        Total Requests: {admissionLeads.length}
       </p>
-
-      <div className="flex gap-2">
-        <button className="px-3 py-1 border rounded hover:bg-gray-100">
-          Prev
-        </button>
-        <button className="px-3 py-1 border rounded bg-blue-600 text-white">
-          1
-        </button>
-        <button className="px-3 py-1 border rounded hover:bg-gray-100">
-          2
-        </button>
-        <button className="px-3 py-1 border rounded hover:bg-gray-100">
-          Next
-        </button>
-      </div>
     </div>
   </>
 )}
 
 {screen === "admission-detail" && (() => {
+  const lead = selectedAdmissionLead;
+  if (!lead) return <div className="p-6">No lead selected</div>;
   
 
   return (
@@ -2417,10 +2537,10 @@ const downloadReport = () => {
         <div className="bg-white rounded-xl shadow p-3 sm:p-4 md:p-6">
           <div className="flex items-center gap-4 mb-4">
             <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-2xl font-bold text-blue-700">
-              S
+              {lead.name?.[0] || "S"}
             </div>
             <div>
-              <h3 className="font-semibold">Aman Gupta</h3>
+              <h3 className="font-semibold">{lead.name}</h3>
               <p className="text-sm text-gray-500">Student</p>
 
               <span
@@ -2436,10 +2556,10 @@ const downloadReport = () => {
           </div>
 
           <div className="text-sm text-gray-600 space-y-2">
-            <p><b>Email:</b> aman@gmail.com</p>
-            <p><b>Phone:</b> 9876543210</p>
-            <p><b>DOB:</b> 12 Feb 2002</p>
-            <p><b>City:</b> Delhi</p>
+            <p><b>Email:</b> {lead.email}</p>
+            <p><b>Phone:</b> {lead.phone}</p>
+            <p><b>State:</b> {lead.state}</p>
+            <p><b>Source:</b> {lead.source}</p>
           </div>
         </div>
 
@@ -2447,10 +2567,9 @@ const downloadReport = () => {
         <div className="bg-white rounded-xl shadow p-3 sm:p-4 md:p-6">
           <h3 className="font-semibold mb-3">Course Details</h3>
           <div className="text-sm text-gray-600 space-y-2">
-            <p><b>Course:</b> MBA – Marketing</p>
-            <p><b>University:</b> Delhi University</p>
-            <p><b>Intake:</b> 2026</p>
-            <p><b>Mode:</b> Full Time</p>
+            <p><b>Course:</b> {lead.course}</p>
+            <p><b>Terms Accepted:</b> {lead.termsAccepted ? "Yes" : "No"}</p>
+            <p><b>Date:</b> {new Date(lead.createdAt).toLocaleDateString()}</p>
           </div>
         </div>
 
@@ -2517,7 +2636,7 @@ const downloadReport = () => {
   <>
     {/* ================= HEADER ================= */}
     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-      <h2 className="text-xl font-bold">Courses</h2>
+      <h2 className="text-xl font-bold">Courses Courses</h2>
 
       <button
         onClick={() => {
@@ -4304,6 +4423,22 @@ const downloadReport = () => {
           Review job applications and candidates
         </p>
       </div>
+
+      {/* Job Selector */}
+      <div>
+        <select
+          className="border rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-blue-600 outline-none"
+          value={selectedJobIdForApp}
+          onChange={(e) => setSelectedJobIdForApp(e.target.value)}
+        >
+          <option value="">-- Select Job to View Applications --</option>
+          {jobs.map((job) => (
+            <option key={job._id} value={job._id}>
+              {job.title} ({job.company?.name})
+            </option>
+          ))}
+        </select>
+      </div>
     </div>
 
     {/* ================= TABLE ================= */}
@@ -4322,88 +4457,97 @@ const downloadReport = () => {
         </thead>
 
         <tbody className="divide-y">
-          {[
-            {
-              name: "Rohit Sharma",
-              job: "MERN Stack Developer",
-              email: "rohit@gmail.com",
-              phone: "9876543210",
-              status: "New",
-            },
-            {
-              name: "Neha Verma",
-              job: "Content Writer",
-              email: "neha@gmail.com",
-              phone: "9876543201",
-              status: "Reviewed",
-            },
-            {
-              name: "Aman Singh",
-              job: "Admission Counselor",
-              email: "aman@gmail.com",
-              phone: "9876543299",
-              status: "Rejected",
-            },
-          ].map((app, i) => (
-            <tr
-              key={i}
-              className="hover:bg-blue-50 transition"
-            >
-              {/* Candidate */}
-              <td className="px-4 py-3 font-medium">
-                {app.name}
-              </td>
-
-              {/* Job */}
-              <td className="px-4 py-3">
-                {app.job}
-              </td>
-
-              {/* Email */}
-              <td className="px-4 py-3 text-gray-600">
-                {app.email}
-              </td>
-
-              {/* Phone */}
-              <td className="px-4 py-3">
-                {app.phone}
-              </td>
-
-              {/* Status */}
-              <td className="px-4 py-3">
-                <span
-                  className={`px-2 py-1 text-xs rounded
-                    ${
-                      app.status === "New"
-                        ? "bg-yellow-100 text-yellow-700"
-                        : app.status === "Reviewed"
-                        ? "bg-blue-100 text-blue-700"
-                        : "bg-red-100 text-red-700"
-                    }
-                  `}
-                >
-                  {app.status}
-                </span>
-              </td>
-
-              {/* Date */}
-              <td className="px-4 py-3 text-gray-500">
-                26 Jan 2026
-              </td>
-
-              {/* Action */}
-              <td className="px-4 py-3">
-                <div className="flex gap-3 text-xs">
-                  <button className="text-blue-600 hover:underline">
-                    View
-                  </button>
-                  <button className="text-red-600 hover:underline">
-                    Reject
-                  </button>
-                </div>
+          {applicationsLoading ? (
+            <tr>
+              <td colSpan={7} className="px-4 py-6 text-center text-gray-500">
+                Loading applications...
               </td>
             </tr>
-          ))}
+          ) : applications.length === 0 ? (
+            <tr>
+              <td colSpan={7} className="px-4 py-6 text-center text-gray-500">
+                {selectedJobIdForApp ? "No applications found for this job" : "Select a job to view applications"}
+              </td>
+            </tr>
+          ) : (
+            applications.map((app: any) => (
+              <tr
+                key={app._id}
+                className="hover:bg-blue-50 transition"
+              >
+                {/* Candidate */}
+                <td className="px-4 py-3 font-medium">
+                  {app.fullName || (app.user ? `${app.user.firstName} ${app.user.lastName || ""}` : "Unknown")}
+                </td>
+                
+                {/* Job */}
+                <td className="px-4 py-3">
+                  {app.job?.title || app.jobTitle || "—"}
+                </td>
+
+                {/* Email */}
+                <td className="px-4 py-3 text-gray-600">
+                  {app.email || app.user?.emailId || "—"}
+                </td>
+
+                {/* Phone */}
+                <td className="px-4 py-3">
+                  {app.phone || app.phoneNumber || app.user?.phoneNumber || "—"}
+                </td>
+
+                {/* Status */}
+                <td className="px-4 py-3">
+                  <select
+                    value={app.status}
+                    onChange={(e) => handleUpdateApplicationStatus(app._id, e.target.value)}
+                    className={`px-2 py-1 text-xs rounded border-0 cursor-pointer focus:ring-2 focus:ring-blue-500 outline-none
+                      ${
+                        (app.status === "New" || app.status === "Applied")
+                          ? "bg-yellow-100 text-yellow-700"
+                          : (app.status === "Reviewed" || app.status === "Shortlisted")
+                          ? "bg-blue-100 text-blue-700"
+                          : app.status === "Hired"
+                          ? "bg-green-100 text-green-700"
+                          : "bg-red-100 text-red-700"
+                      }
+                    `}
+                  >
+                    {['Applied', 'Shortlisted', 'Rejected', 'Hired'].map(s => (
+                      <option key={s} value={s} className="bg-white text-gray-800">{s}</option>
+                    ))}
+                  </select>
+                </td>
+
+                {/* Date */}
+                <td className="px-4 py-3 text-gray-500">
+                  {app.createdAt ? new Date(app.createdAt).toLocaleDateString() : "—"}
+                </td>
+
+                {/* Action */}
+                <td className="px-4 py-3">
+                  <div className="flex gap-3 text-xs">
+                    
+                    <button 
+                      onClick={() => handleUpdateApplicationStatus(app._id, 'Rejected')}
+                      className="text-red-600 hover:underline"
+                    >
+                      Reject
+                    </button>
+                    {app.resumeUrl && (
+                      <a 
+                        href={app.resumeUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline"
+                      >
+                        Resume
+                      </a>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </table>
     </div>
@@ -4743,8 +4887,7 @@ const downloadReport = () => {
       <p className="text-sm text-gray-500 mb-4">{viewCampusCourse.universityName}</p>
 
       <div className="space-y-3 text-sm text-gray-700">
-        <p><strong>Degree:</strong> {viewCampusCourse.degreeType}</p>
-        <p><strong>Category:</strong> {viewCampusCourse.category}</p>
+        <p><strong>Degree:</strong> {viewCampusCourse.degreeType}</p>     
         <p><strong>Level:</strong> {viewCampusCourse.level}</p>
         <p><strong>Duration:</strong> {viewCampusCourse.duration}</p>
         <p><strong>Location:</strong> {viewCampusCourse.location}</p>
@@ -4792,7 +4935,7 @@ const downloadReport = () => {
           { label: "Leads", key: "leads", icon: PhoneCall },
           { label: "Packages", key: "packages", icon: Package },
           { label: "Admissions", key: "admissions", icon: GraduationCap },
-          { label: "Courses", key: "courses", icon: BookOpen },
+          { label: "Campus Courses", key: "courses", icon: BookOpen },
           { label: "companies", key: "companies", icon: FileText },
           { label: "Reports", key: "reports", icon: FileBarChart },
           { label: "Settings", key: "settings", icon: Settings },

@@ -26,11 +26,12 @@ const JobApplyModal = ({
   data?: any;
 }) => {
   const [open, setOpen] = useState(false);
-  const { user } = useAuth();
+  const { user, applyForJob, applyForCampusCourse } = useAuth();
   const router = useRouter();
+  const isCampusCourse = !!data?.rating;
 
   const handleOpen = () => {
-    if (!user) {
+    if (!user && !isCampusCourse) {
       Swal.fire({
         title: "Login Required",
         text: "Please login to apply for this job.",
@@ -56,7 +57,73 @@ const JobApplyModal = ({
   };
 const [showFullJD, setShowFullJD] = useState(false);
 const [resumeFile, setResumeFile] = useState<File | null>(null);
-const isCampusCourse = !!data?.rating;
+const [loading, setLoading] = useState(false);
+
+const [formData, setFormData] = useState({
+  fullName: "",
+  email: "",
+  phoneNumber: "",
+  whyHireYou: "", 
+  phone: "",
+  coverLetter: "",
+  resume: "",
+  state: "",
+});
+
+const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const { name, value } = e.target;
+  setFormData((prev) => ({ ...prev, [name]: value }));
+};
+
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!resumeFile && !isCampusCourse) {
+    Swal.fire("Warning", "Please upload your resume.", "warning");
+    return;
+  }
+
+  setLoading(true);
+  try {
+    if (isCampusCourse) {
+      await applyForCampusCourse({
+        name: formData.fullName,
+        email: formData.email,
+        phone: formData.phoneNumber,
+        course: data.courseName || data.title,
+        state: formData.state,
+        termsAccepted: true,
+      });
+      Swal.fire("Success", "Enquiry Submitted Successfully!", "success");
+    } else {
+      const payload = new FormData();
+      payload.append("fullName", formData.fullName);
+      payload.append("email", formData.email);
+      payload.append("phoneNumber", formData.phoneNumber);
+      payload.append("whyHireYou", formData.coverLetter);
+      if (resumeFile) payload.append("resume", resumeFile);
+
+      await applyForJob(data._id, payload);
+      Swal.fire("Success", "Application Submitted Successfully!", "success");
+    }
+
+    setOpen(false);
+    setFormData({
+      fullName: "",
+      email: "",
+      phoneNumber: "",
+      coverLetter: "",
+      state: "",
+      whyHireYou: "",
+      phone: "",
+      resume: ""
+    });
+    setResumeFile(null);
+  } catch (error: any) {
+    Swal.fire("Error", error.response?.data?.message || "Failed to submit application", "error");
+  } finally {
+    setLoading(false);
+  }
+};
 
 
   return (
@@ -188,21 +255,9 @@ const isCampusCourse = !!data?.rating;
 </div>
 
 
-                  {/* Skills */}
-                  {/* {data.skillsRequired?.length > 0 && (
-                    <div className="flex flex-wrap gap-2">
-                      {data.skillsRequired.map((skill: string, i: number) => (
-                        <span
-                          key={i}
-                          className="bg-white border text-blue-700 px-2 py-1 rounded text-xs"
-                        >
-                          {skill}
-                        </span>
-                      ))}
-                    </div>
-                  )} */}
+                  
 
-                  {!isCampusCourse && data.skillsRequired?.length > 0 && (
+    {!isCampusCourse && data.skillsRequired?.length > 0 && (
   <div className="flex flex-wrap gap-2">
     {data.skillsRequired.map((skill: string, i: number) => (
       <span
@@ -253,11 +308,7 @@ const isCampusCourse = !!data?.rating;
               {/* RIGHT: APPLY FORM */}
               <form
   className="flex flex-col gap-4"
-  onSubmit={(e) => {
-    e.preventDefault();
-    Swal.fire("Success", "Application Submitted!", "success");
-    setOpen(false);
-  }}
+  onSubmit={handleSubmit}
 >
   {/* Full Name */}
   <div className="flex flex-col gap-1">
@@ -266,6 +317,9 @@ const isCampusCourse = !!data?.rating;
     </label>
     <input
       type="text"
+      name="fullName"
+      value={formData.fullName}
+      onChange={handleInputChange}
       required
       placeholder="Enter your full name"
       className="rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -279,6 +333,9 @@ const isCampusCourse = !!data?.rating;
     </label>
     <input
       type="email"
+      name="email"
+      value={formData.email}
+      onChange={handleInputChange}
       required
       placeholder="Enter your email"
       className="rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -292,13 +349,35 @@ const isCampusCourse = !!data?.rating;
     </label>
     <input
       type="tel"
+      name="phoneNumber"
+      value={formData.phoneNumber}
+      onChange={handleInputChange}
       required
       placeholder="Enter your phone number"
       className="rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
     />
   </div>
 
+  {/* State / City for Campus Course */}
+  {isCampusCourse && (
+    <div className="flex flex-col gap-1">
+      <label className="text-sm font-medium text-gray-700">
+        City / State <span className="text-red-500">*</span>
+      </label>
+      <input
+        type="text"
+        name="state"
+        value={formData.state}
+        onChange={handleInputChange}
+        required
+        placeholder="e.g. Noida"
+        className="rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+    </div>
+  )}
+
   {/* Resume Upload */}
+  {!isCampusCourse && (
   <div className="flex flex-col gap-1">
     <label className="text-sm font-medium text-gray-700">
       Upload Resume (PDF / DOC) <span className="text-red-500">*</span>
@@ -338,25 +417,32 @@ const isCampusCourse = !!data?.rating;
       Only PDF or DOC files. Max size recommended: 2MB.
     </p>
   </div>
+  )}
 
   {/* Why Hire You */}
+  {!isCampusCourse && (
   <div className="flex flex-col gap-1">
     <label className="text-sm font-medium text-gray-700">
       Why should we hire you? <span className="text-red-500">*</span>
     </label>
     <textarea
+      name="coverLetter"
+      value={formData.coverLetter}
+      onChange={handleInputChange}
       required
       placeholder="Briefly explain your skills and experience"
       className="min-h-[100px] rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
     />
   </div>
+  )}
 
   {/* Submit */}
   <button
     type="submit"
-    className="mt-3 rounded-xl bg-green-600 py-2.5 text-sm font-semibold text-white hover:bg-green-700 transition"
+    disabled={loading}
+    className={`mt-3 rounded-xl py-2.5 text-sm font-semibold text-white transition ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-green-600 hover:bg-green-700'}`}
   >
-    Submit Application
+    {loading ? "Submitting..." : "Submit Application"}
   </button>
 </form>
 
