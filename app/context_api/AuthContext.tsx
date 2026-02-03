@@ -372,6 +372,36 @@ const getPublicCampusCourses = async (params?: {
   }
 };
 
+const getCertificationCourses = async (params?: {
+  page?: number;
+  limit?: number;
+  category?: string;
+}) => {
+  try {
+    const res = await API.get("/api/certificatecourses/listAll", {
+      params: {
+        page: params?.page || 1,
+        limit: params?.limit || 10,
+        category: params?.category,
+      },
+    });
+
+    console.log("getCertificationCourses response:", res.data);
+
+    return (
+      res.data?.courses ||
+      res.data?.data?.courses ||
+      res.data?.data ||
+      res.data ||
+      []
+    );
+  } catch (err: any) {
+    console.error("getCertificationCourses error:", err);
+    throw err;
+  }
+};
+
+
 const applyForCampusCourse = async (data: any) => {
   const res = await API.post("/api/campuscourses/lead", data);
   return res.data;
@@ -421,6 +451,7 @@ const getJobApplications = async (jobId: string) => {
         getPublicJobs,
         getPublicInternships,
         getPublicCampusCourses,
+        getCertificationCourses,
         applyForJob,
         applyForCampusCourse,
         getJobApplications,

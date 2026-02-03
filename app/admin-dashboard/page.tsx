@@ -1,18 +1,15 @@
 "use client";
 import JoditEditor from "jodit-react";
-import { useRef } from "react";
-
-import { useState } from "react";
-
-
+import { useState, useEffect, useRef } from "react";
 
 import Swal from "sweetalert2";
 
 import { useRouter } from "next/navigation";
 import { Bell,  UserCircle } from "lucide-react";
 import { useAuth } from "../context_api/AuthContext";
-import { API } from "../lib/axios"
-import { useEffect } from "react"
+import { API } from "../lib/axios";
+// It's generally recommended to import global CSS files in your root layout (e.g., app/layout.tsx)
+// instead of a specific page component to avoid side effects and ensure consistent styling.
 import "../globals.css";
 
 
@@ -59,6 +56,8 @@ type Screen =
   | "admissions"
   | "admission-detail"
   | "courses"
+  | "certification-courses"
+  | "add-certification-course"
   | "add-course"
   | "create-blog"
   | "blog-categories"
@@ -171,6 +170,29 @@ const [campusCourseForm, setCampusCourseForm] = useState({
   category: "Engineering",
   isTop: false,
   location: "",
+});
+
+// certification courses
+const [certificationCourses, setCertificationCourses] = useState<any[]>([]);
+const [certificationCoursesLoading, setCertificationCoursesLoading] = useState(false);
+const [editingCertificationCourse, setEditingCertificationCourse] = useState<any>(null);
+const [viewCertificationCourse, setViewCertificationCourse] = useState<any>(null);
+const [showViewCertificationCourseModal, setShowViewCertificationCourseModal] = useState(false);
+const [certificationCourseForm, setCertificationCourseForm] = useState({
+  title: "",
+  courseName: "",
+  providerName: "",
+  instructor: "",
+  level: "Beginner",
+  badge: "",
+  rating: "",
+  studentsEnrolled: "",
+  duration: "",
+  category: "",
+  currentPrice: "",
+  originalPrice: "",
+  image: "",
+  enrollLink: "",
 });
 
 const [dashboardStats, setDashboardStats] = useState({
@@ -539,6 +561,87 @@ const handleSaveCampusCourse = async () => {
   }
 };
 
+const fetchCertificationCourses = async () => {
+  try {
+    setCertificationCoursesLoading(true);
+    // The GET endpoint for all courses is /api/certificatecourses/listAll
+    const res = await API.get("/api/certificatecourses/listAll");
+    const data =
+      res.data?.courses ||
+      res.data?.certificateCourses ||
+      res.data?.data ||
+      res.data ||
+      [];
+      console.log("Certification Courses", data)
+    setCertificationCourses(Array.isArray(data) ? data : []);
+  } catch (err) {
+    console.error("Fetch certification courses failed", err);
+    setCertificationCourses([]);
+  } finally {
+    setCertificationCoursesLoading(false);
+  }
+};
+
+const handleDeleteCertificationCourse = async (id: string) => {
+  const result = await Swal.fire({
+    title: "Delete Course?",
+    text: "This course will be permanently removed.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Yes, delete it",
+  });
+
+  if (!result.isConfirmed) return;
+
+  try {
+    const token = localStorage.getItem("collexa_token");
+    await API.delete(`/api/certificatecourses/delete/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    Swal.fire("Deleted!", "Course has been deleted.", "success");
+    fetchCertificationCourses();
+  } catch (err: any) {
+    Swal.fire("Error", err.response?.data?.message || "Delete failed", "error");
+  }
+};
+
+const handleSaveCertificationCourse = async () => {
+  if (!certificationCourseForm.title || !certificationCourseForm.instructor) {
+    Swal.fire("Error", "Course Name and Instructor are required", "warning");
+    return;
+  }
+
+  try {
+    const token = localStorage.getItem("collexa_token");
+    const payload = {
+        ...certificationCourseForm,
+        rating: Number(certificationCourseForm.rating) || 0,
+        studentsEnrolled: Number(certificationCourseForm.studentsEnrolled) || 0,
+        currentPrice: Number(certificationCourseForm.currentPrice) || 0,
+        originalPrice: Number(certificationCourseForm.originalPrice) || 0,
+    };
+
+    if (editingCertificationCourse) {
+      await API.patch(`/api/certificatecourses/update/${editingCertificationCourse._id}`, payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      Swal.fire("Success", "Course updated successfully", "success");
+    } else {
+      await API.post(`/api/certificatecourses/add`, payload, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      Swal.fire("Success", "Course created successfully", "success");
+    }
+    setScreen("certification-courses");
+    fetchCertificationCourses();
+  } catch (err: any) {
+    Swal.fire("Error", err.response?.data?.message || "Save failed", "error");
+  }
+};
+
 
 const fetchUsersCount = async () => {
   try {
@@ -632,6 +735,27 @@ useEffect(() => {
   }
 }, [screen, editingBlog]);
 
+useEffect(() => {
+  if (screen === "add-certification-course" && editingCertificationCourse) {
+    setCertificationCourseForm({
+      title: editingCertificationCourse.title || "",
+      courseName: editingCertificationCourse.courseName || "",
+      providerName: editingCertificationCourse.providerName || "",
+      instructor: editingCertificationCourse.instructor || "",
+      level: editingCertificationCourse.level || "Beginner",
+      badge: editingCertificationCourse.badge || "",
+      rating: String(editingCertificationCourse.rating || ""),
+      studentsEnrolled: String(editingCertificationCourse.studentsEnrolled || ""),
+      duration: editingCertificationCourse.duration || "",
+      category: editingCertificationCourse.category || "",
+      currentPrice: String(editingCertificationCourse.currentPrice || ""),
+      originalPrice: String(editingCertificationCourse.originalPrice || ""),
+      image: editingCertificationCourse.image || "",
+      enrollLink: editingCertificationCourse.enrollLink || "",
+    });
+  }
+}, [screen, editingCertificationCourse]);
+
 
 useEffect(() => {
   if (screen === "dashboard") {
@@ -655,6 +779,12 @@ useEffect(() => {
 useEffect(() => {
   if (screen === "courses") {
     fetchCampusCourses();
+  }
+}, [screen]);
+
+useEffect(() => {
+  if (screen === "certification-courses") {
+    fetchCertificationCourses();
   }
 }, [screen]);
 
@@ -748,6 +878,25 @@ const resetCampusCourseForm = () => {
   setEditingCampusCourse(null);
 };
 
+const resetCertificationCourseForm = () => {
+  setCertificationCourseForm({
+    title: "",
+    courseName: "",
+    providerName: "",
+    instructor: "",
+    level: "Beginner",
+    badge: "",
+    rating: "",
+    studentsEnrolled: "",
+    duration: "",
+    category: "",
+    currentPrice: "",
+    originalPrice: "",
+    image: "",
+    enrollLink: "",
+  });
+  setEditingCertificationCourse(null);
+};
 
 
 
@@ -920,7 +1069,7 @@ const handleDeleteBlog = async (id: string) => {
       showConfirmButton: false,
     });
 
-    setBlogs((prev) => prev.filter((b) => b._id !== id));
+    fetchBlogs(); // Re-fetch blogs to ensure UI is in sync with the database
   } catch (err: any) {
     Swal.fire(
       "Failed",
@@ -1222,9 +1371,7 @@ const handleDeleteCompany = async (id: string) => {
       },
     });
 
-    setCompanies((prev) =>
-      prev.filter((c) => c._id !== id)
-    );
+    fetchCompanies(); // Re-fetch companies to ensure UI is in sync with the database
 
     Swal.fire({
       icon: "success",
@@ -1413,7 +1560,8 @@ const downloadReport = () => {
       { label: "Create Blog", key: "create-blog", icon: FileText },
       { label: "Blog Categories", key: "blog-categories", icon: FolderOpen },
       { label: "Packages", key: "packages", icon: Package },
-      { label: "Admission Request", key: "admissions", icon: GraduationCap },
+      { label: "Admission Request", key: "admissions", icon: GraduationCap },      
+      { label: "Certification Courses", key: "certification-courses", icon: BookOpen },
       { label: "Campus Courses", key: "courses", icon: BookOpen },     
       
       { label: "Testimonials", key: "testimonials", icon: Star },
@@ -1798,26 +1946,11 @@ const downloadReport = () => {
 >
   View
 </button>
-
-
-                    
-
                     <button
                       onClick={() => handleDeleteUser(user._id)}
                       className="text-red-600 hover:underline"
                     >
                       Delete
-                    </button>
-                  </div>
-                  <div className="mt-1">
-                    <button
-                      onClick={() => {
-                        setSelectedJobIdForApp(jobs._id);
-                        setScreen("applications");
-                      }}
-                      className="text-purple-600 text-xs hover:underline"
-                    >
-                      View Applications
                     </button>
                   </div>
                 </td>
@@ -2471,6 +2604,8 @@ const downloadReport = () => {
   </>
 )}
 
+
+
 {screen === "admission-detail" && (() => {
   const lead = selectedAdmissionLead;
   if (!lead) return <div className="p-6">No lead selected</div>;
@@ -2757,6 +2892,285 @@ const downloadReport = () => {
   </>
 )}
 
+{screen === "certification-courses" && (
+  <>
+    {/* ================= HEADER ================= */}
+    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+      <h2 className="text-xl font-bold">Certification Courses</h2>
+
+      <button
+        onClick={() => {
+          resetCertificationCourseForm();
+          setEditingCertificationCourse(null);
+          setScreen("add-certification-course");
+        }}
+        className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+      >
+        + Add Certification Course
+      </button>
+    </div>
+
+    {/* ================= TABLE ================= */}
+    <div className="bg-white rounded-xl shadow overflow-x-auto">
+      <table className="w-full text-sm">
+        <thead className="bg-gray-50 text-gray-600">
+          <tr>
+            <th className="px-4 py-3 text-left">Instructor</th>
+            <th className="px-4 py-3 text-left">Title</th>
+            <th className="px-4 py-3 text-left">Category</th>
+            <th className="px-4 py-3 text-left">Duration</th>
+            <th className="px-4 py-3 text-left">Level</th>
+            <th className="px-4 py-3 text-left">Rating</th>
+            <th className="px-4 py-3 text-left">Students</th>
+            <th className="px-4 py-3 text-left">Price</th>
+            <th className="px-4 py-3 text-left">Action</th>
+          </tr>
+        </thead>
+
+        <tbody className="divide-y">
+          {certificationCoursesLoading && (
+            <tr>
+              <td colSpan={9} className="px-4 py-6 text-center text-gray-500">
+                Loading certification courses...
+              </td>
+            </tr>
+          )}
+
+          {!certificationCoursesLoading && certificationCourses.length === 0 && (
+            <tr>
+              <td colSpan={9} className="px-4 py-6 text-center text-gray-500">
+                No certification courses found
+              </td>
+            </tr>
+          )}
+
+          {!certificationCoursesLoading &&
+            certificationCourses.map((course: any) => (
+              <tr key={course._id} className="hover:bg-blue-50 transition">
+                <td className="px-4 py-3">{course.instructor}</td>
+
+                <td className="px-4 py-3 font-medium">
+                  {course.title}
+                  {course.badge && (
+                    <span className="ml-2 text-xs bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">
+                      {course.badge}
+                    </span>
+                  )}
+                </td>
+
+                <td className="px-4 py-3">{course.category}</td>
+                <td className="px-4 py-3">{course.duration}</td>
+                <td className="px-4 py-3">{course.level}</td>
+                <td className="px-4 py-3">⭐ {course.rating}</td>
+                <td className="px-4 py-3">{course.studentsEnrolled}</td>
+
+                <td className="px-4 py-3">
+                  ₹{course.currentPrice}
+                  {course.originalPrice > course.currentPrice && (
+                    <span className="ml-2 text-xs line-through text-gray-400">
+                      ₹{course.originalPrice}
+                    </span>
+                  )}
+                </td>
+
+                {/* ================= ACTION ================= */}
+                <td className="px-4 py-3">
+                  <div className="flex gap-3 text-xs">
+                    <button
+                      onClick={() => {
+                        setViewCertificationCourse(course);
+                        setShowViewCertificationCourseModal(true);
+                      }}
+                      className="text-green-600 hover:underline"
+                    >
+                      View
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        setEditingCertificationCourse(course);
+                        setScreen("add-certification-course");
+                      }}
+                      className="text-blue-600 hover:underline"
+                    >
+                      Edit
+                    </button>
+
+                    <button
+                      onClick={() => handleDeleteCertificationCourse(course._id)}
+                      className="text-red-600 hover:underline"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+        </tbody>
+      </table>
+    </div>
+  </>
+)}
+
+{screen === "add-certification-course" && (
+  <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow p-3 sm:p-4 md:p-6 md:p-8">
+    <div className="mb-6">
+      <h2 className="text-xl font-bold">
+        {editingCertificationCourse ? "Edit Certification Course" : "Add Certification Course"}
+      </h2>
+      <p className="text-sm text-gray-500">
+        Manage certification course details
+      </p>
+    </div>
+
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <label className="text-sm font-medium">Title <span className="text-red-500">*</span></label>
+        <input
+          value={certificationCourseForm.title}
+          onChange={(e) => setCertificationCourseForm({ ...certificationCourseForm, title: e.target.value })}
+          className="w-full mt-1 border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-600 outline-none"
+          placeholder="e.g. Advanced React Patterns"
+        />
+      </div>
+      <div>
+        <label className="text-sm font-medium">Provider Name</label>
+        <input
+          value={certificationCourseForm.providerName}
+          onChange={(e) => setCertificationCourseForm({ ...certificationCourseForm, providerName: e.target.value })}
+          className="w-full mt-1 border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-600 outline-none"
+          placeholder="e.g. Coursera"
+        />
+      </div>
+      <div>
+        <label className="text-sm font-medium">Instructor <span className="text-red-500">*</span></label>
+        <input
+          value={certificationCourseForm.instructor}
+          onChange={(e) => setCertificationCourseForm({ ...certificationCourseForm, instructor: e.target.value })}
+          className="w-full mt-1 border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-600 outline-none"
+          placeholder="e.g. John Doe"
+        />
+      </div>
+      <div>
+        <label className="text-sm font-medium">Category</label>
+        <input
+          value={certificationCourseForm.category}
+          onChange={(e) => setCertificationCourseForm({ ...certificationCourseForm, category: e.target.value })}
+          className="w-full mt-1 border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-600 outline-none"
+          placeholder="e.g. Development"
+        />
+      </div>
+      <div>
+        <label className="text-sm font-medium">Duration</label>
+        <input
+          value={certificationCourseForm.duration}
+          onChange={(e) => setCertificationCourseForm({ ...certificationCourseForm, duration: e.target.value })}
+          className="w-full mt-1 border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-600 outline-none"
+          placeholder="e.g. 10 Hours"
+        />
+      </div>
+      <div>
+        <label className="text-sm font-medium">Level</label>
+        <select
+          value={certificationCourseForm.level}
+          onChange={(e) => setCertificationCourseForm({ ...certificationCourseForm, level: e.target.value })}
+          className="w-full mt-1 border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-600 outline-none"
+        >
+          <option value="Beginner">Beginner</option>
+          <option value="Intermediate">Intermediate</option>
+          <option value="Advanced">Advanced</option>
+        </select>
+      </div>
+      <div>
+        <label className="text-sm font-medium">Rating</label>
+        <input
+          type="number"
+          step="0.1"
+          value={certificationCourseForm.rating}
+          onChange={(e) => setCertificationCourseForm({ ...certificationCourseForm, rating: e.target.value })}
+          className="w-full mt-1 border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-600 outline-none"
+          placeholder="e.g. 4.5"
+        />
+      </div>
+      <div>
+        <label className="text-sm font-medium">Students Enrolled</label>
+        <input
+          type="number"
+          value={certificationCourseForm.studentsEnrolled}
+          onChange={(e) => setCertificationCourseForm({ ...certificationCourseForm, studentsEnrolled: e.target.value })}
+          className="w-full mt-1 border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-600 outline-none"
+          placeholder="e.g. 1000"
+        />
+      </div>
+      <div>
+        <label className="text-sm font-medium">Current Price</label>
+        <input
+          type="number"
+          value={certificationCourseForm.currentPrice}
+          onChange={(e) => setCertificationCourseForm({ ...certificationCourseForm, currentPrice: e.target.value })}
+          className="w-full mt-1 border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-600 outline-none"
+          placeholder="e.g. 499"
+        />
+      </div>
+      <div>
+        <label className="text-sm font-medium">Original Price</label>
+        <input
+          type="number"
+          value={certificationCourseForm.originalPrice}
+          onChange={(e) => setCertificationCourseForm({ ...certificationCourseForm, originalPrice: e.target.value })}
+          className="w-full mt-1 border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-600 outline-none"
+          placeholder="e.g. 999"
+        />
+      </div>
+      <div>
+        <label className="text-sm font-medium">Badge</label>
+        <input
+          value={certificationCourseForm.badge}
+          onChange={(e) => setCertificationCourseForm({ ...certificationCourseForm, badge: e.target.value })}
+          className="w-full mt-1 border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-600 outline-none"
+          placeholder="e.g. Bestseller"
+        />
+      </div>
+      <div>
+        <label className="text-sm font-medium">Enroll Link</label>
+        <input
+          value={certificationCourseForm.enrollLink}
+          onChange={(e) => setCertificationCourseForm({ ...certificationCourseForm, enrollLink: e.target.value })}
+          className="w-full mt-1 border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-600 outline-none"
+          placeholder="https://..."
+        />
+      </div>
+    </div>
+
+    <div className="mt-6">
+      <label className="text-sm font-medium">Image URL</label>
+      <input
+        value={certificationCourseForm.image}
+        onChange={(e) => setCertificationCourseForm({ ...certificationCourseForm, image: e.target.value })}
+        className="w-full mt-1 border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-600 outline-none"
+        placeholder="https://..."
+      />
+    </div>
+
+    <div className="mt-8 flex justify-end gap-3">
+      <button
+        onClick={() => {
+          resetCertificationCourseForm();
+          setScreen("certification-courses");
+        }}
+        className="px-5 py-2 rounded-lg border hover:bg-gray-100 transition"
+      >
+        Cancel
+      </button>
+      <button
+        onClick={handleSaveCertificationCourse}
+        className="px-6 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition shadow"
+      >
+        {editingCertificationCourse ? "Update Course" : "Save Course"}
+      </button>
+    </div>
+  </div>
+)}
 
 
 {screen === "add-course" && (
@@ -4907,6 +5321,40 @@ const downloadReport = () => {
   </div>
 )}
 
+{/* ================= VIEW CERTIFICATION COURSE MODAL ================= */}
+{showViewCertificationCourseModal && viewCertificationCourse && (
+  <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+    <div className="bg-white w-full max-w-lg rounded-2xl shadow-xl p-6 relative animate-fadeIn">
+      <button
+        onClick={() => setShowViewCertificationCourseModal(false)}
+        className="absolute top-4 right-4 text-gray-500 hover:text-gray-800"
+      >
+        ✕
+      </button>
+
+      <h3 className="text-xl font-bold text-blue-800 mb-1">{viewCertificationCourse.title}</h3>
+      <p className="text-sm text-gray-500 mb-4">{viewCertificationCourse.instructor}</p>
+
+      <div className="space-y-3 text-sm text-gray-700">
+        <p><strong>Instructor:</strong> {viewCertificationCourse.instructor}</p>
+        <p><strong>Category:</strong> {viewCertificationCourse.category}</p>
+        <p><strong>Level:</strong> {viewCertificationCourse.level}</p>
+        <p><strong>Duration:</strong> {viewCertificationCourse.duration}</p>
+        <p><strong>Rating:</strong> {viewCertificationCourse.rating} ★</p>
+        <p><strong>Students:</strong> {viewCertificationCourse.studentsEnrolled}</p>
+        <p><strong>Price:</strong> ₹{viewCertificationCourse.currentPrice} <span className="line-through text-gray-400">₹{viewCertificationCourse.originalPrice}</span></p>
+        <p><strong>Badge:</strong> {viewCertificationCourse.badge}</p>
+        {viewCertificationCourse.enrollLink && (
+          <p><strong>Link:</strong> <a href={viewCertificationCourse.enrollLink} target="_blank" rel="noreferrer" className="text-blue-600 underline">Enroll Here</a></p>
+        )}
+      </div>
+
+      <div className="mt-6 flex justify-end">
+        <button onClick={() => setShowViewCertificationCourseModal(false)} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">Close</button>
+      </div>
+    </div>
+  </div>
+)}
 
           
         </div>
@@ -4933,10 +5381,17 @@ const downloadReport = () => {
           { label: "Dashboard", key: "dashboard", icon: LayoutDashboard },
           { label: "Users", key: "users", icon: Users },
           { label: "Leads", key: "leads", icon: PhoneCall },
+          { label: "Companies", key: "companies", icon: Factory },
+          { label: "Jobs", key: "Jobs", icon: Briefcase },
+          { label: "Internships", key: "Internships", icon: Briefcase },
+          { label: "Create Blog", key: "create-blog", icon: FileText },
+          { label: "Blog Categories", key: "blog-categories", icon: FolderOpen },
           { label: "Packages", key: "packages", icon: Package },
-          { label: "Admissions", key: "admissions", icon: GraduationCap },
+          { label: "Admission Request", key: "admissions", icon: GraduationCap },
+          { label: "Certification Courses", key: "certification-courses", icon: BookOpen },
           { label: "Campus Courses", key: "courses", icon: BookOpen },
-          { label: "companies", key: "companies", icon: FileText },
+          { label: "Testimonials", key: "testimonials", icon: Star },
+          { label: "Applications", key: "applications", icon: FileText },
           { label: "Reports", key: "reports", icon: FileBarChart },
           { label: "Settings", key: "settings", icon: Settings },
         ].map(({ label, key, icon: Icon }) => (
@@ -4965,4 +5420,5 @@ const downloadReport = () => {
       </main>
     </div>
   );
-}
+} 
+ 

@@ -30,6 +30,9 @@ const JobApplyModal = ({
   const router = useRouter();
   const isCampusCourse = !!data?.rating;
 
+  const isCertificationCourse = !!data?.currentPrice && !!data?.instructor;
+const isJobOrInternship = !isCampusCourse && !isCertificationCourse;
+
   const handleOpen = () => {
     if (!user && !isCampusCourse) {
       Swal.fire({
@@ -77,24 +80,45 @@ const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaE
 
 const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
-  if (!resumeFile && !isCampusCourse) {
+
+  // Resume required only for Job / Internship
+  if (!resumeFile && !isCampusCourse && !isCertificationCourse) {
     Swal.fire("Warning", "Please upload your resume.", "warning");
     return;
   }
 
   setLoading(true);
   try {
-    if (isCampusCourse) {
+    // ✅ CERTIFICATION COURSE
+    if (isCertificationCourse) {
       await applyForCampusCourse({
         name: formData.fullName,
         email: formData.email,
         phone: formData.phoneNumber,
-        course: data.courseName || data.title,
+        course: data.title,
         state: formData.state,
         termsAccepted: true,
       });
-      Swal.fire("Success", "Enquiry Submitted Successfully!", "success");
-    } else {
+
+      Swal.fire("Success", "Certification Enquiry Submitted!", "success");
+    }
+
+    // ✅ CAMPUS COURSE
+    else if (isCampusCourse) {
+      await applyForCampusCourse({
+        name: formData.fullName,
+        email: formData.email,
+        phone: formData.phoneNumber,
+        course: data.courseName,
+        state: formData.state,
+        termsAccepted: true,
+      });
+
+      Swal.fire("Success", "Campus Course Enquiry Submitted!", "success");
+    }
+
+    // ✅ JOB / INTERNSHIP
+    else {
       const payload = new FormData();
       payload.append("fullName", formData.fullName);
       payload.append("email", formData.email);
@@ -106,6 +130,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       Swal.fire("Success", "Application Submitted Successfully!", "success");
     }
 
+    // Reset
     setOpen(false);
     setFormData({
       fullName: "",
@@ -115,16 +140,20 @@ const handleSubmit = async (e: React.FormEvent) => {
       state: "",
       whyHireYou: "",
       phone: "",
-      resume: ""
+      resume: "",
     });
     setResumeFile(null);
+
   } catch (error: any) {
-    Swal.fire("Error", error.response?.data?.message || "Failed to submit application", "error");
+    Swal.fire(
+      "Error",
+      error.response?.data?.message || "Failed to submit application",
+      "error"
+    );
   } finally {
     setLoading(false);
   }
 };
-
 
   return (
     
@@ -144,13 +173,14 @@ const handleSubmit = async (e: React.FormEvent) => {
             {/* Header */}
             <div className="mb-4 flex items-center justify-between border-b pb-3">
               <h2 className="text-xl font-semibold text-blue-900">
-                {
-  data.mode
-    ? "Internship Details & Application"
-    : data.rating
-    ? "Campus Courses Details & Application"
-    : "Job Details & Application"
-}
+                {isCertificationCourse
+  ? "Certification Course Details & Enquiry"
+  : isCampusCourse
+  ? "Campus Course Details & Enquiry"
+  : data.mode
+  ? "Internship Details & Application"
+  : "Job Details & Application"}
+
 
               </h2>
               <button
@@ -174,12 +204,23 @@ const handleSubmit = async (e: React.FormEvent) => {
                     </p> */}
 
                     <h3 className="text-2xl font-bold">
-  {isCampusCourse ? data.courseName : data.title}
+  <h3 className="text-2xl font-bold">
+  {isCertificationCourse
+    ? data.title
+    : isCampusCourse
+    ? data.courseName
+    : data.title}
+</h3>
+
+
+
 </h3>
 
 <p className="text-blue-700 flex items-center gap-1">
   <Building2 size={16} />
-  {isCampusCourse
+  {isCertificationCourse
+    ? data.instructor
+    : isCampusCourse
     ? data.universityName
     : data.companyName || data.company?.name}
 </p>
@@ -187,70 +228,52 @@ const handleSubmit = async (e: React.FormEvent) => {
                     
                   </div>
 
-                  {/* <div className="grid grid-cols-2 gap-3 text-sm">
-                    <p className="flex items-center gap-2">
-                      <MapPin size={16} /> {data.location}
-                    </p>
-                    <p className="flex items-center gap-2">
-                      <Briefcase size={16} /> {data.type || data.mode}
-                    </p>
-                    <p className="flex items-center gap-2">
-                      <DollarSign size={16} /> ₹{data.salaryMin || data.stipendMin || 0} - ₹
-                      {data.salaryMax || data.stipendMax || 0}
-                    </p>
-                    <p className="flex items-center gap-2">
-                      <Clock size={16} /> {data.experienceLevel || data.duration}
-                    </p>
-                    <p className="flex items-center gap-2">
-                      <Users size={16} /> Vacancies: {data.openings ?? 0}
-                    </p>
-                    <p className="flex items-center gap-2">
-                      <Calendar size={16} /> Posted:
-                      {formatDate(data.createdAt)}
-                    </p>
-                  </div> */}
-
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-  {/* Location (common) */}
+                  
+  <div className="grid grid-cols-2 gap-3 text-sm">
+  {/* Location / Category */}
   <p className="flex items-center gap-2">
-    <MapPin size={16} /> {data.location}
+    <MapPin size={16} />
+    {isCertificationCourse ? data.category : data.location}
   </p>
 
-  {/* TYPE / LEVEL */}
+  {/* Level / Type */}
   <p className="flex items-center gap-2">
     <Briefcase size={16} />
-    {isCampusCourse ? data.level : data.type || data.mode}
+    {isCertificationCourse ? data.level : isCampusCourse ? data.level : data.type || data.mode}
   </p>
 
-  {/* SALARY OR DEGREE */}
+  {/* Price / Salary / Degree */}
   <p className="flex items-center gap-2">
     <DollarSign size={16} />
-    {isCampusCourse
+    {isCertificationCourse
+      ? `${data.currency || "₹"}${data.currentPrice}`
+      : isCampusCourse
       ? data.degreeType
       : `₹${data.salaryMin || data.stipendMin || 0} - ₹${
           data.salaryMax || data.stipendMax || 0
         }`}
   </p>
 
-  {/* EXPERIENCE / DURATION */}
+  {/* Duration */}
   <p className="flex items-center gap-2">
     <Clock size={16} />
-    {isCampusCourse
-      ? data.duration
-      : data.experienceLevel || data.duration}
+    {data.duration}
   </p>
 
-  {/* ENROLLED / VACANCIES */}
+  {/* Students / Vacancies */}
   <p className="flex items-center gap-2">
     <Users size={16} />
-    {isCampusCourse
+    {isCertificationCourse
+      ? `Students: ${data.studentsEnrolled}`
+      : isCampusCourse
       ? `Enrolled: ${data.enrolledCount ?? 0}`
       : `Vacancies: ${data.openings ?? 0}`}
   </p>
 
-  {/* DATE */}
+  {/* Date */}
   <p className="flex items-center gap-2">
-    <Calendar size={16} /> Posted: {formatDate(data.createdAt)}
+    <Calendar size={16} />
+    Posted: {formatDate(data.createdAt)}
   </p>
 </div>
 
@@ -275,12 +298,15 @@ const handleSubmit = async (e: React.FormEvent) => {
                   {/* Description */}
 <div>
   <h4 className="font-semibold text-sm text-gray-900 mb-1">
-  {isCampusCourse
+  {isCertificationCourse
+    ? "Certification Course Description"
+    : isCampusCourse
     ? "Course Description"
     : data.mode
     ? "Internship Description"
     : "Job Description"}
 </h4>
+
 
 
 

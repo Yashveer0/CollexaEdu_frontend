@@ -38,7 +38,7 @@ import JobApplyModal from "./(components)/JobApplyModal";
 import { useAuth } from "./context_api/AuthContext";
 
 export default function Home() {
-  const { getPublicJobs, getPublicInternships , getPublicCampusCourses } = useAuth();
+  const { getPublicJobs, getPublicInternships , getPublicCampusCourses, getCertificationCourses } = useAuth();
 
   const tabs = [
     "Big brands",
@@ -67,59 +67,6 @@ export default function Home() {
 
   const [activeSkillCategory, setActiveSkillCategory] =
     useState("Digital Skills");
-
-  const courses = [
-    {
-      tag: "Popular",
-      level: "Beginner",
-      title: "Digital Marketing Complete Course",
-      institute: "Digital Pro Institute",
-      rating: "4.7 (18.4k students)",
-      duration: "8 weeks • Digital Marketing",
-      price: "₹1,999",
-      old: "₹5,999",
-    },
-    {
-      tag: "Popular",
-      level: "Intermediate",
-      title: "Social Media Marketing Mastery",
-      institute: "Social Experts",
-      rating: "4.6 (12.3k students)",
-      duration: "6 weeks • Social Media",
-      price: "₹1,499",
-      old: "₹3,999",
-    },
-    {
-      tag: "Popular",
-      level: "Intermediate",
-      title: "Social Media Marketing Mastery",
-      institute: "Social Experts",
-      rating: "4.6 (12.3k students)",
-      duration: "6 weeks • Social Media",
-      price: "₹1,499",
-      old: "₹3,999",
-    },
-    {
-      tag: "Popular",
-      level: "Intermediate",
-      title: "Social Media Marketing Mastery",
-      institute: "Social Experts",
-      rating: "4.6 (12.3k students)",
-      duration: "6 weeks • Social Media",
-      price: "₹1,499",
-      old: "₹3,999",
-    },
-    {
-      tag: "Beginner",
-      level: "Beginner",
-      title: "Google Analytics & SEO Fundamentals",
-      institute: "SEO Academy",
-      rating: "4.5 (9.9k students)",
-      duration: "7 weeks • Analytics",
-      price: "₹1,799",
-      old: "₹4,499",
-    },
-  ];
 
   const courseTabs = [
     "Engineering",
@@ -222,6 +169,7 @@ export default function Home() {
   const [fetchedJobs, setFetchedJobs] = useState<any[]>([]);
   const [fetchedInternships, setFetchedInternships] = useState<any[]>([]);
   const [fetchedCampusCourses, setFetchedCampusCourses] = useState<any[]>([]);
+  const [fetchedCertificationCourses, setFetchedCertificationCourses] = useState<any[]>([]);
 
 //  job
   useEffect(() => {
@@ -275,6 +223,29 @@ export default function Home() {
     };
     fetchCampusCourses();
   }, [activeCourseTab, getPublicCampusCourses]);
+
+  //  certification courses
+  useEffect(() => {
+    const fetchCertificationCourses = async () => {
+      if (getCertificationCourses) {
+        try {
+          const data = await getCertificationCourses({ category: activeSkillCategory });
+          console.log("Certification Courses data:", data);
+          let coursesData = [];
+          if (Array.isArray(data)) {
+            coursesData = data;
+          } else if (data && Array.isArray(data.courses)) {
+            coursesData = data.courses;
+          }
+          setFetchedCertificationCourses(coursesData);
+        } catch (error) {
+          console.error("Failed to fetch certification courses:", error);
+          setFetchedCertificationCourses([]);
+        }
+      }
+    };
+    fetchCertificationCourses();
+  }, [activeSkillCategory, getCertificationCourses]);
 
   return (
     <div className="bg-[#f7fbff] overflow-hidden">
@@ -912,54 +883,63 @@ export default function Home() {
             id="skills-slider"
             className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 scrollbar-hide"
           >
-            {courses.map((c, i) => (
-              <div
-                key={i}
-                className="min-w-75 md:min-w-90 bg-white rounded-2xl border shadow-sm snap-start p-6 hover:shadow-xl transition"
-              >
-                {/* TOP TAGS */}
-                <div className="flex justify-between">
-                  <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs">
-                    {c.tag}
-                  </span>
+            {fetchedCertificationCourses.length > 0 ? (
+              fetchedCertificationCourses.map((c, i) => (
+                <div
+                  key={c._id || i}
+                  className="min-w-75 md:min-w-90 bg-white rounded-2xl border shadow-sm snap-start p-6 hover:shadow-xl transition"
+                >
+                  {/* TOP TAGS */}
+                  <div className="flex justify-between">
+                    {c.badge && (
+                      <span className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-xs">
+                        {c.badge}
+                      </span>
+                    )}
 
-                  <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs">
-                    {c.level}
-                  </span>
-                </div>
-
-                {/* TITLE */}
-                <h3 className="text-lg text-blue-700 font-semibold mt-3">
-                  {c.title}
-                </h3>
-                <p className="text-gray-500">{c.institute}</p>
-
-                {/* RATING */}
-                <p className="flex items-center gap-1 text-sm text-gray-700 mt-3">
-                  <Star size={16} className="text-yellow-400" />
-                  {c.rating}
-                </p>
-
-                {/* DURATION */}
-                <p className="text-sm text-gray-600 mt-2">{c.duration}</p>
-
-                <hr className="my-4" />
-
-                {/* PRICE ROW */}
-                <div className="flex justify-between items-center">
-                  <div>
-                    <p className="text-xl text-blue-700 font-bold">{c.price}</p>
-                    <p className="text-gray-400 text-sm line-through">
-                      {c.old}
-                    </p>
+                    {c.level && (
+                      <span className="bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full text-xs">
+                        {c.level}
+                      </span>
+                    )}
                   </div>
 
-                  <JobApplyModal title={c.title} btn_text="Enroll Now" />
+                  {/* TITLE */}
+                  <h3 className="text-lg text-blue-700 font-semibold mt-3">
+                    {c.title}
+                  </h3>
+                  <p className="text-gray-500">{c.instructor}</p>
 
-                  
+                  {/* RATING */}
+                  <p className="flex items-center gap-1 text-sm text-gray-700 mt-3">
+                    <Star size={16} className="text-yellow-400" />
+                    {c.rating} ({c.studentsEnrolled} students)
+                  </p>
+
+                  {/* DURATION */}
+                  <p className="text-sm text-gray-600 mt-2">{c.duration} • {c.category}</p>
+
+                  <hr className="my-4" />
+
+                  {/* PRICE ROW */}
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <p className="text-xl text-blue-700 font-bold">{c.currency}{c.currentPrice}</p>
+                      <p className="text-gray-400 text-sm line-through">
+                        {c.currency}{c.originalPrice}
+                      </p>
+                    </div>
+
+                    <JobApplyModal title={c.title} btn_text="Enroll Now" data={c} />
+
+                  </div>
                 </div>
+              ))
+            ) : (
+              <div className="w-full text-center py-10 text-gray-500">
+                No courses found for {activeSkillCategory}
               </div>
-            ))}
+            )}
           </div>
 
           {/* RIGHT BUTTON */}
