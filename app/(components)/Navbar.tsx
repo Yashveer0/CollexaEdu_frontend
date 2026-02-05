@@ -771,35 +771,35 @@ export default function Navbar() {
             {openSub === "programming" && openMenu === "learn" && (
               <div className="absolute top-8 text-lg font-light left-75 rounded-r-md bg-white shadow-md  p-7 text-nowrap">
                 <Link
-                  href="#"
+                  href="/certification-courses"
                   className="block mt-1 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Python Masterclass
                 </Link>
 
                 <Link
-                  href="#"
+                  href="/certification-courses"
                   className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   JavaScript Deep Dive
                 </Link>
 
                 <Link
-                  href="#"
+                  href="/certification-courses"
                   className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Java Programming
                 </Link>
 
                 <Link
-                  href="#"
+                  href="/certification-courses"
                   className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   C++ Programming
                 </Link>
 
                 <Link
-                  href="#"
+                  href="/certification-courses"
                   className="block px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Go Programming
@@ -810,35 +810,35 @@ export default function Navbar() {
             {openSub === "web" && openMenu === "learn" && (
               <div className="absolute top-8 text-lg font-light left-75 rounded-r-md bg-white shadow-md  p-8 text-nowrap">
                 <Link
-                  href="#"
+                  href="/certification-courses"
                   className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   React Development
                 </Link>
 
                 <Link
-                  href="#"
+                  href="/certification-courses"
                   className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Node.js Backend
                 </Link>
 
                 <Link
-                  href="#"
+                  href="/certification-courses"
                   className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Full Stack Development
                 </Link>
 
                 <Link
-                  href="#"
+                  href="/certification-courses"
                   className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Next.js Framework
                 </Link>
 
                 <Link
-                  href="#"
+                  href="/certification-courses"
                   className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Vue.js Development
@@ -849,35 +849,35 @@ export default function Navbar() {
             {openSub === "data" && openMenu === "learn" && (
               <div className="absolute top-8 text-lg font-light left-75 rounded-r-md bg-white shadow-md  p-8 text-nowrap">
                 <Link
-                  href="#"
+                  href="/certification-courses"
                   className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Machine Learning
                 </Link>
 
                 <Link
-                  href="#"
+                  href="/certification-courses"
                   className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Deep Learning
                 </Link>
 
                 <Link
-                  href="#"
+                  href="/certification-courses"
                   className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Data Analytics
                 </Link>
 
                 <Link
-                  href="#"
+                  href="/certification-courses"
                   className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Big Data
                 </Link>
 
                 <Link
-                  href="#"
+                  href="/certification-courses"
                   className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   AI Fundamentals
@@ -888,35 +888,35 @@ export default function Navbar() {
             {openSub === "marketing" && openMenu === "learn" && (
               <div className="absolute top-8 text-lg font-light left-75 rounded-r-md bg-white shadow-md  p-8 text-nowrap">
                 <Link
-                  href="#"
+                  href="/certification-courses"
                   className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   SEO Mastery
                 </Link>
 
                 <Link
-                  href="#"
+                  href="/certification-courses"
                   className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Google Ads
                 </Link>
 
                 <Link
-                  href="#"
+                  href="/certification-courses"
                   className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Social Media Marketing
                 </Link>
 
                 <Link
-                  href="#"
+                  href="/certification-courses"
                   className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Content Marketing
                 </Link>
 
                 <Link
-                  href="#"
+                  href="/certification-courses"
                   className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Email Marketing
@@ -927,35 +927,35 @@ export default function Navbar() {
             {openSub === "design" && openMenu === "learn" && (
               <div className="absolute top-8 text-lg font-light left-75 rounded-r-md bg-white shadow-md  p-8 text-nowrap">
                 <Link
-                  href="#"
+                  href="/certification-courses"
                   className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   UI/UX Design
                 </Link>
 
                 <Link
-                  href="#"
+                  href="/certification-courses"
                   className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Figma Mastery
                 </Link>
 
                 <Link
-                  href="#"
+                  href="/certification-courses"
                   className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Adobe Creative Suite
                 </Link>
 
                 <Link
-                  href="#"
+                  href="/certification-courses"
                   className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Web Design
                 </Link>
 
                 <Link
-                  href="#"
+                  href="/certification-courses"
                   className="block mt-2 px-3 py-1 text-gray-800 hover:bg-blue-900 hover:text-[#fff] hover:rounded-md"
                 >
                   Motion Graphics
@@ -966,7 +966,7 @@ export default function Navbar() {
         </ul>
 
         {/* DESKTOP BUTTONS */}
-        {/* DESKTOP AUTH AREA */}
+        
 <div className="hidden md:flex relative items-center">
   {!user ? (
     // 🔒 NOT LOGGED IN

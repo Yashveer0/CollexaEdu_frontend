@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaRocket, FaBuilding, FaUserFriends } from "react-icons/fa";
 import Link from "next/link";
 import { FiSearch , FiUser , FiSend  , FiFilter } from "react-icons/fi";
@@ -29,73 +29,38 @@ import {
 
 
 import { MdMenuBook } from "react-icons/md";
+import { useAuth, CampusCourseType } from "../context_api/AuthContext";
+import JobApplyModal from "../(components)/JobApplyModal";
+
 export default function InternshipHero() {
 
- const demoCourses = [
-  {
-    id: 1,
-    title: "BCA - Bachelor of Computer Applications",
-    university: "Online University A",
-    level: "UG",
-    duration: "3 Years",
-    mode: "Online",
-    tags: ["Programming", "IT", "Software"],
-  },
-  {
-    id: 2,
-    title: "BBA - Bachelor of Business Administration",
-    university: "Online University B",
-    level: "UG",
-    duration: "3 Years",
-    mode: "Online",
-    tags: ["Management", "Marketing", "Finance"],
-  },
-  {
-    id: 3,
-    title: "B.Com - Bachelor of Commerce",
-    university: "Open University",
-    level: "UG",
-    duration: "3 Years",
-    mode: "Distance",
-    tags: ["Accounting", "Finance"],
-  },
-  {
-    id: 4,
-    title: "MCA - Master of Computer Applications",
-    university: "Tech University",
-    level: "PG",
-    duration: "2 Years",
-    mode: "Online",
-    tags: ["Software", "AI", "Data Science"],
-  },
-  {
-    id: 5,
-    title: "MBA - General",
-    university: "Business School X",
-    level: "PG",
-    duration: "2 Years",
-    mode: "Online",
-    tags: ["HR", "Marketing", "Finance"],
-  },
-  {
-    id: 6,
-    title: "MBA - Business Analytics",
-    university: "Business School X",
-    level: "PG",
-    duration: "2 Years",
-    mode: "Online",
-    tags: ["Analytics", "Data", "BI"],
-  },
-];
-
-
+  const { getPublicCampusCourses } = useAuth();
   const [search, setSearch] = useState("");
+  const [courses, setCourses] = useState<CampusCourseType[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const filtered = demoCourses.filter((course) =>
-  `${course.title} ${course.university} ${course.tags.join(" ")}`
-    .toLowerCase()
-    .includes(search.toLowerCase())
-);
+  const fetchCourses = async () => {
+    setLoading(true);
+    try {
+      const data = await getPublicCampusCourses({ keyword: search });
+      // Handle response structure { success: true, count: 3, courses: [...] }
+      if (data?.courses) {
+        setCourses(data.courses);
+      } else if (Array.isArray(data)) {
+        setCourses(data);
+      } else {
+        setCourses([]);
+      }
+    } catch (error) {
+      console.error("Error fetching courses:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCourses();
+  }, []);
   
   /* Reusable Card */
 function FeatureCard({
@@ -375,27 +340,32 @@ const faqs = [
             </button>
 
             <p className="text-gray-500">
-              {filtered.length} Courses found
+              {courses.length} Courses found
             </p>
           </div>
         </div>
 
         {/* Search Button */}
         <div className="text-center mt-8">
-          <button className="bg-[#0B2B6B] hover:bg-[#123c9c] text-white px-6 py-2 rounded-lg shadow">
+          <button 
+            onClick={() => fetchCourses()}
+            className="bg-[#0B2B6B] hover:bg-[#123c9c] text-white px-6 py-2 rounded-lg shadow">
             Search Courses →
           </button>
         </div>
-<div className="max-w-6xl mx-auto mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-  {filtered.map((course) => (
+        <div className="max-w-6xl mx-auto mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {loading ? (
+            <p className="col-span-full text-center text-gray-500 py-10">Loading courses...</p>
+          ) : courses.length > 0 ? (
+            courses.map((course) => (
     <div
-      key={course.id}
+      key={course._id}
       className="bg-white border rounded-xl p-5 shadow-sm hover:shadow-md transition"
     >
       {/* Header */}
       <div className="flex items-start justify-between">
         <h3 className="font-semibold text-[#0B2B6B] text-sm">
-          {course.title}
+          {course.courseName}
         </h3>
         <span className="text-xs bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">
           {course.level}
@@ -404,37 +374,29 @@ const faqs = [
 
       {/* University */}
       <p className="text-xs text-gray-500 mt-1">
-        ○ {course.university}
+        ○ {course.universityName}
       </p>
 
       {/* Meta */}
       <div className="flex items-center gap-4 text-xs text-gray-500 mt-3">
         <span>○ {course.duration}</span>
-        <span>○ {course.mode}</span>
+        <span>○ {course.location}</span>
       </div>
 
       {/* Tags */}
       <div className="flex flex-wrap gap-2 mt-3">
-        {course.tags.map((tag, i) => (
-          <span
-            key={i}
-            className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded"
-          >
-            {tag}
-          </span>
-        ))}
+        <span className="text-xs bg-blue-50 text-blue-700 px-2 py-0.5 rounded">
+          {course.degreeType}
+        </span>
       </div>
 
       {/* Footer */}
-      <div className="text-right mt-4">
-        <button className="text-sm text-[#0B2B6B] font-medium hover:underline">
-          View details →
-        </button>
+      <div className=" mt-4">
+        <JobApplyModal title={course.courseName} btn_text="View details" data={course} />
       </div>
     </div>
-  ))}
-
-  {filtered.length === 0 && (
+  ))
+  ) : (
     <p className="col-span-full text-center text-gray-500 py-10">
       No courses match your search
     </p>

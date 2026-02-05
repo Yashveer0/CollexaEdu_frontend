@@ -176,7 +176,8 @@ export default function Home() {
     const fetchJobs = async () => {
       if (getPublicJobs) {
         const data = await getPublicJobs({ keyword: activeJobTab });
-        console.log(data);
+        
+        
         if (data && data.jobs) {
           setFetchedJobs(data.jobs);
         } else {
@@ -191,7 +192,8 @@ export default function Home() {
     const fetchInternships = async () => {
       if (getPublicInternships) {
         const data = await getPublicInternships({ keyword: active });
-        console.log(data);
+        
+        
         if (Array.isArray(data)) {
           setFetchedInternships(data);
         } else if (data && data.internships) {
@@ -211,7 +213,7 @@ export default function Home() {
     const fetchCampusCourses = async () => {
       if (getPublicCampusCourses) {
         const data = await getPublicCampusCourses({ category: activeCourseTab });
-        console.log( "campus " ,data);
+        
         if (Array.isArray(data)) {
           setFetchedCampusCourses(data);
         } else if (data && data.campusCourses) {
@@ -230,7 +232,7 @@ export default function Home() {
       if (getCertificationCourses) {
         try {
           const data = await getCertificationCourses({ category: activeSkillCategory });
-          console.log("Certification Courses data:", data);
+          
           let coursesData = [];
           if (Array.isArray(data)) {
             coursesData = data;

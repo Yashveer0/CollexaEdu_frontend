@@ -12,6 +12,7 @@ import {
   Users,
   Calendar,
 } from "lucide-react";
+import { API } from "../lib/axios";
 
 
 
@@ -26,11 +27,11 @@ const JobApplyModal = ({
   data?: any;
 }) => {
   const [open, setOpen] = useState(false);
-  const { user, applyForJob, applyForCampusCourse } = useAuth();
+  const { user, applyForJob, applyForCampusCourse, applyForCertificationCourse } = useAuth();
   const router = useRouter();
-  const isCampusCourse = !!data?.rating;
+  const isCampusCourse = !!data?.universityName;
 
-  const isCertificationCourse = !!data?.currentPrice && !!data?.instructor;
+  const isCertificationCourse = !!data?.instructor;
 const isJobOrInternship = !isCampusCourse && !isCertificationCourse;
 
   const handleOpen = () => {
@@ -91,13 +92,13 @@ const handleSubmit = async (e: React.FormEvent) => {
   try {
     // ✅ CERTIFICATION COURSE
     if (isCertificationCourse) {
-      await applyForCampusCourse({
-        name: formData.fullName,
-        email: formData.email,
-        phone: formData.phoneNumber,
-        course: data.title,
-        state: formData.state,
-        termsAccepted: true,
+        await applyForCertificationCourse({
+          fullName: formData.fullName,
+           email: formData.email,
+          phoneNumber: formData.phoneNumber,
+          cityState: formData.state,
+          courseName: data.title,
+          courseId: data._id,
       });
 
       Swal.fire("Success", "Certification Enquiry Submitted!", "success");
@@ -117,7 +118,26 @@ const handleSubmit = async (e: React.FormEvent) => {
       Swal.fire("Success", "Campus Course Enquiry Submitted!", "success");
     }
 
-    // ✅ JOB / INTERNSHIP
+    // ✅ INTERNSHIP
+    else if (data.mode) {
+      const payload = new FormData();
+      payload.append("fullName", formData.fullName);
+      payload.append("email", formData.email);
+      payload.append("phoneNumber", formData.phoneNumber);
+      payload.append("whyHireYou", formData.coverLetter);
+      if (resumeFile) payload.append("resume", resumeFile);
+
+      const token = localStorage.getItem("collexa_token");
+      await API.post(`/api/internship-applications/apply/${data._id}`, payload, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
+      Swal.fire("Success", "Internship Application Submitted Successfully!", "success");
+    }
+
+    // ✅ JOB
     else {
       const payload = new FormData();
       payload.append("fullName", formData.fullName);
@@ -127,7 +147,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       if (resumeFile) payload.append("resume", resumeFile);
 
       await applyForJob(data._id, payload);
-      Swal.fire("Success", "Application Submitted Successfully!", "success");
+      Swal.fire("Success", "Job Application Submitted Successfully!", "success");
     }
 
     // Reset
@@ -203,7 +223,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                       {data.companyName || data.company?.name}
                     </p> */}
 
-                    <h3 className="text-2xl font-bold">
+                    
   <h3 className="text-2xl font-bold">
   {isCertificationCourse
     ? data.title
@@ -214,7 +234,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 
 
 
-</h3>
+
 
 <p className="text-blue-700 flex items-center gap-1">
   <Building2 size={16} />
@@ -385,7 +405,7 @@ const handleSubmit = async (e: React.FormEvent) => {
   </div>
 
   {/* State / City for Campus Course */}
-  {isCampusCourse && (
+  {(isCampusCourse || isCertificationCourse) && (
     <div className="flex flex-col gap-1">
       <label className="text-sm font-medium text-gray-700">
         City / State <span className="text-red-500">*</span>
@@ -403,7 +423,7 @@ const handleSubmit = async (e: React.FormEvent) => {
   )}
 
   {/* Resume Upload */}
-  {!isCampusCourse && (
+  {!isCampusCourse && !isCertificationCourse && (
   <div className="flex flex-col gap-1">
     <label className="text-sm font-medium text-gray-700">
       Upload Resume (PDF / DOC) <span className="text-red-500">*</span>
@@ -446,7 +466,7 @@ const handleSubmit = async (e: React.FormEvent) => {
   )}
 
   {/* Why Hire You */}
-  {!isCampusCourse && (
+  {!isCampusCourse && !isCertificationCourse && (
   <div className="flex flex-col gap-1">
     <label className="text-sm font-medium text-gray-700">
       Why should we hire you? <span className="text-red-500">*</span>

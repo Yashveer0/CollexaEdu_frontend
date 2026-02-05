@@ -51,10 +51,12 @@ type Screen =
   | "user-detail"
   | "leads"
   | "lead-detail"
-  | "packages"
+  // | "packages"
   | "create-package"
   | "admissions"
   | "admission-detail"
+  | "certification-admissions"
+  | "certification-admission-detail"
   | "courses"
   | "certification-courses"
   | "add-certification-course"
@@ -66,6 +68,7 @@ type Screen =
   | "testimonials"
   | "Jobs"
   | "Internships"
+  | "internship-applications"
   | "applications"
   | "reports"
   | "settings";
@@ -110,6 +113,16 @@ export default function AdminPage() {
   const [admissionLeads, setAdmissionLeads] = useState<any[]>([]);
   const [admissionLeadsLoading, setAdmissionLeadsLoading] = useState(false);
   const [selectedAdmissionLead, setSelectedAdmissionLead] = useState<any>(null);
+
+  // certification leads
+  const [certificationLeads, setCertificationLeads] = useState<any[]>([]);
+  const [certificationLeadsLoading, setCertificationLeadsLoading] = useState(false);
+  const [selectedCertificationLead, setSelectedCertificationLead] = useState<any>(null);
+
+  // contact leads
+  const [contactLeads, setContactLeads] = useState<any[]>([]);
+  const [contactLeadsLoading, setContactLeadsLoading] = useState(false);
+  const [selectedContactLead, setSelectedContactLead] = useState<any>(null);
 
   const { addJob, addCompany, updateCompany , updateJob , deleteJob, getJobApplications } = useAuth();
 
@@ -198,7 +211,7 @@ const [certificationCourseForm, setCertificationCourseForm] = useState({
 const [dashboardStats, setDashboardStats] = useState({
   totalUsers: 0,
   totalLeads: 0,
-  totalPackages: 0,
+  // totalPackages: 0,
   activeSubscriptions: 0,
   monthlyRevenue: 0,
 });
@@ -244,6 +257,12 @@ const [reportLoading, setReportLoading] = useState(false);
 const [applications, setApplications] = useState<any[]>([]);
 const [applicationsLoading, setApplicationsLoading] = useState(false);
 const [selectedJobIdForApp, setSelectedJobIdForApp] = useState<string>("");
+
+// internship applications
+const [internshipApplications, setInternshipApplications] = useState<any[]>([]);
+const [internshipApplicationsLoading, setInternshipApplicationsLoading] = useState(false);
+const [selectedInternshipIdForApp, setSelectedInternshipIdForApp] = useState<string>("");
+
 
   const [activeSettingTab, setActiveSettingTab] = useState<
   "General" |
@@ -390,7 +409,7 @@ const fetchUsers = async () => {
       },
     });
 
-    console.log("USERS API RAW RESPONSE 👉", res.data);
+    
 
     const data =
       res.data?.users ||
@@ -398,7 +417,7 @@ const fetchUsers = async () => {
       res.data?.data ||
       [];
 
-    console.log("FINAL USERS ARRAY 👉", data);
+    
 
     setUsers(Array.isArray(data) ? data : []);
   } catch (err) {
@@ -442,6 +461,89 @@ const fetchBlogs = async () => {
     setBlogs([]);
   } finally {
     setBlogsLoading(false);
+  }
+};
+
+const fetchCertificationLeads = async () => {
+  try {
+    setCertificationLeadsLoading(true);
+    const token = localStorage.getItem("collexa_token");
+    const res = await API.get("/api/certificatecourses/leads", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = res.data?.leads || res.data?.data || [];
+    setCertificationLeads(Array.isArray(data) ? data : []);
+  } catch (err) {
+    console.error("Fetch certification leads failed", err);
+    setCertificationLeads([]);
+  } finally {
+    setCertificationLeadsLoading(false);
+  }
+};
+
+const handleDeleteCertificationLead = async (id: string) => {
+  const result = await Swal.fire({
+    title: "Delete Lead?",
+    text: "This action cannot be undone.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    confirmButtonText: "Delete",
+  });
+
+  if (!result.isConfirmed) return;
+
+  try {
+    const token = localStorage.getItem("collexa_token");
+    await API.delete(`/api/certificatecourses/leads/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    Swal.fire("Deleted!", "Lead has been deleted.", "success");
+    fetchCertificationLeads();
+  } catch (err: any) {
+    Swal.fire("Error", err.response?.data?.message || "Delete failed", "error");
+  }
+};
+
+const fetchContactLeads = async () => {
+  try {
+    setContactLeadsLoading(true);
+    const token = localStorage.getItem("collexa_token");
+    const res = await API.get("/api/contactus", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = res.data?.leads || res.data?.data || res.data || [];
+    console.log(data)
+    setContactLeads(Array.isArray(data) ? data : []);
+  } catch (err) {
+    console.error("Fetch contact leads failed", err);
+    setContactLeads([]);
+  } finally {
+    setContactLeadsLoading(false);
+  }
+};
+
+const handleDeleteContactLead = async (id: string) => {
+  const result = await Swal.fire({
+    title: "Delete Lead?",
+    text: "This action cannot be undone.",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    confirmButtonText: "Delete",
+  });
+
+  if (!result.isConfirmed) return;
+
+  try {
+    const token = localStorage.getItem("collexa_token");
+    await API.delete(`/api/contactus/${id}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    Swal.fire("Deleted!", "Lead has been deleted.", "success");
+    fetchContactLeads();
+  } catch (err: any) {
+    Swal.fire("Error", err.response?.data?.message || "Delete failed", "error");
   }
 };
 
@@ -663,7 +765,7 @@ const fetchDashboardData = async () => {
       setDashboardStats({
         totalUsers: res.data.totalUsers || res.data.stats?.totalUsers || 0,
         totalLeads: res.data.totalLeads || res.data.stats?.totalLeads || 0,
-        totalPackages: res.data.totalPackages || res.data.stats?.totalPackages || 0,
+        // totalPackages: res.data.totalPackages || res.data.stats?.totalPackages || 0,
         activeSubscriptions: res.data.activeSubscriptions || res.data.stats?.activeSubscriptions || 0,
         monthlyRevenue: res.data.monthlyRevenue || res.data.stats?.monthlyRevenue || 0,
       });
@@ -703,6 +805,47 @@ const handleUpdateApplicationStatus = async (appId: string, newStatus: string) =
 
   } catch (err: any) {
     console.error("Update status failed", err);
+    Swal.fire("Error", err.response?.data?.message || "Failed to update status", "error");
+  }
+};
+
+const fetchInternshipApplications = async (internshipId: string) => {
+  if (!internshipId) return;
+  try {
+    setInternshipApplicationsLoading(true);
+    const token = localStorage.getItem("collexa_token");
+    const res = await API.get(`/api/internship-applications/all-applications/${internshipId}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    setInternshipApplications(res.data.applications || []);
+    console.log("Internship Applications API RESPONSE 👉", res.data);
+  } catch (err: any) {
+    console.error("Fetch internship applications failed", err);
+    Swal.fire("Error", err.response?.data?.message || "Failed to fetch internship applications", "error");
+    setInternshipApplications([]);
+  } finally {
+    setInternshipApplicationsLoading(false);
+  }
+};
+
+const handleUpdateInternshipApplicationStatus = async (appId: string, newStatus: string) => {
+  try {
+    const token = localStorage.getItem("collexa_token");
+    await API.patch(`/api/internship-applications/status/${appId}`, { status: newStatus }, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    
+    setInternshipApplications((prev) => 
+      prev.map((app) => app._id === appId ? { ...app, status: newStatus } : app)
+    );
+    
+    const Toast = Swal.mixin({
+      toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, timerProgressBar: true,
+    });
+    
+    Toast.fire({ icon: 'success', title: `Status updated to ${newStatus}` });
+  } catch (err: any) {
+    console.error("Update internship application status failed", err);
     Swal.fire("Error", err.response?.data?.message || "Failed to update status", "error");
   }
 };
@@ -777,6 +920,18 @@ useEffect(() => {
 }, [screen]);
 
 useEffect(() => {
+  if (screen === "leads") {
+    fetchContactLeads();
+  }
+}, [screen]);
+
+useEffect(() => {
+  if (screen === "certification-admissions") {
+    fetchCertificationLeads();
+  }
+}, [screen]);
+
+useEffect(() => {
   if (screen === "courses") {
     fetchCampusCourses();
   }
@@ -843,6 +998,17 @@ useEffect(() => {
     }
   }
 }, [screen, selectedJobIdForApp]);
+
+useEffect(() => {
+  if (screen === "internship-applications") {
+    if (internships.length === 0) {
+      fetchInternships();
+    }
+    if (selectedInternshipIdForApp) {
+      fetchInternshipApplications(selectedInternshipIdForApp);
+    }
+  }
+}, [screen, selectedInternshipIdForApp]);
 
 
 const resetJobForm = () => {
@@ -1556,17 +1722,21 @@ const downloadReport = () => {
       { label: "Leads", key: "leads", icon: PhoneCall },
       { label: "Companies", key: "companies", icon: Factory },
       { label: "Jobs", key: "Jobs", icon: Briefcase },
+       { label: "Job Applications", key: "applications", icon: FileText },
       { label: "Internships", key: "Internships", icon: Briefcase },
+      { label: "Internship Applications", key: "internship-applications", icon: FileText },
       { label: "Create Blog", key: "create-blog", icon: FileText },
       { label: "Blog Categories", key: "blog-categories", icon: FolderOpen },
-      { label: "Packages", key: "packages", icon: Package },
-      { label: "Admission Request", key: "admissions", icon: GraduationCap },      
+      // { label: "Packages", key: "packages", icon: Package },
+      { label: "Campus Courses", key: "courses", icon: BookOpen },   
+      { label: " Campus Admission", key: "admissions", icon: GraduationCap },      
+      
       { label: "Certification Courses", key: "certification-courses", icon: BookOpen },
-      { label: "Campus Courses", key: "courses", icon: BookOpen },     
+      { label: "Certification Admission", key: "certification-admissions", icon: GraduationCap },
       
-      { label: "Testimonials", key: "testimonials", icon: Star },
+     
       
-      { label: "Applications", key: "applications", icon: FileText },
+      
       { label: "Reports", key: "reports", icon: FileBarChart },
       { label: "Settings", key: "settings", icon: Settings },
     ].map(({ label, key, icon: Icon }) => (
@@ -1705,7 +1875,9 @@ const downloadReport = () => {
       {[
         { title: "Total Users", value: dashboardStats.totalUsers, link: "users" },
         { title: "Total Leads", value: dashboardStats.totalLeads, link: "leads" },
+
         { title: "Total Packages", value: dashboardStats.totalPackages, link: "packages" },
+        
         { title: "Active Subscriptions", value: dashboardStats.activeSubscriptions, link: "packages" },
         { title: "Monthly Revenue", value: `₹${dashboardStats.monthlyRevenue}`, link: "packages" },
       ].map((item) => (
@@ -2127,7 +2299,7 @@ const downloadReport = () => {
     {/* ================= HEADER ================= */}
     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
       <h2 className="text-xl font-bold">Leads</h2>
-
+      
       <input
         placeholder="Search leads..."
         className="border rounded-lg px-4 py-2 text-sm max-w-xs"
@@ -2139,83 +2311,97 @@ const downloadReport = () => {
       <table className="w-full text-sm">
         <thead className="bg-gray-50 text-gray-600">
           <tr>
-            <th className="px-4 py-3">
-              <input type="checkbox" />
-            </th>
             <th className="px-4 py-3 text-left">Lead Name</th>
             <th className="px-4 py-3 text-left">Email</th>
             <th className="px-4 py-3 text-left">Phone</th>
-            <th className="px-4 py-3 text-left">Source</th>
-            <th className="px-4 py-3 text-left">Course</th>
-            <th className="px-4 py-3 text-left">Status</th>
-            <th className="px-4 py-3 text-left">Counselor</th>
+            <th className="px-4 py-3 text-left">Subject</th>
+            <th className="px-4 py-3 text-left">Message</th>
             <th className="px-4 py-3 text-left">Created</th>
             <th className="px-4 py-3 text-left">Action</th>
           </tr>
         </thead>
 
         <tbody className="divide-y">
-          {[1, 2, 3, 4].map((i) => (
+          {contactLeadsLoading ? (
+            <tr>
+              <td colSpan={7} className="px-4 py-6 text-center text-gray-500">
+                Loading leads...
+              </td>
+            </tr>
+          ) : contactLeads.length === 0 ? (
+            <tr>
+              <td colSpan={7} className="px-4 py-6 text-center text-gray-500">
+                No leads found
+              </td>
+            </tr>
+          ) : (
+            contactLeads.map((lead: any) => (
             <tr
-              key={i}
+              key={lead._id}
               className="hover:bg-blue-50 transition"
             >
-              <td className="px-4 py-3">
-                <input type="checkbox" />
-              </td>
-
               <td className="px-4 py-3 font-medium">
-                Lead Name {i}
+                {lead.fullName}
               </td>
 
               <td className="px-4 py-3 text-gray-600">
-                lead{i}@gmail.com
+                {lead.email}
               </td>
 
               <td className="px-4 py-3">
-                98765432{i}
+                {lead.phoneNumber}
               </td>
 
               <td className="px-4 py-3">
-                Website
+                {lead.subject}
               </td>
 
               <td className="px-4 py-3">
-                MBA
-              </td>
-
-              {/* Status */}
-              <td className="px-4 py-3">
-                <span className="px-2 py-1 text-xs rounded bg-yellow-100 text-yellow-700">
-                  New
-                </span>
-              </td>
-
-              <td className="px-4 py-3">
-                Ankit
+                <div className="truncate max-w-xs" title={lead.message}>
+                  {lead.message}
+                </div>
               </td>
 
               <td className="px-4 py-3 text-gray-500">
-                10 Jan 2026
+                {lead.createdAt ? new Date(lead.createdAt).toLocaleDateString() : "—"}
               </td>
 
               <td className="px-4 py-3">
+                <div className="flex gap-3 text-xs">
                 <button
-                  onClick={() => setScreen("lead-detail")}
+                  onClick={() => {
+                    setSelectedContactLead(lead);
+                    setScreen("lead-detail");
+                  }}
                   className="text-blue-600 text-xs hover:underline"
                 >
                   View
                 </button>
+                <button
+                  onClick={() => handleDeleteContactLead(lead._id)}
+                  className="text-red-600 text-xs hover:underline"
+                >
+                  Delete
+                </button>
+                </div>
               </td>
             </tr>
-          ))}
+          )))}
         </tbody>
       </table>
+    </div>
+    
+    <div className="flex justify-between items-center mt-6 text-sm">
+      <p className="text-gray-500">
+        Total Leads: {contactLeads.length}
+      </p>
     </div>
   </>
 )}
 
+
 {screen === "lead-detail" && (
+  selectedContactLead ? (
   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
     {/* ================= LEFT ================= */}
     <div className="bg-white rounded-xl shadow p-3 sm:p-4 md:p-6">
@@ -2224,86 +2410,53 @@ const downloadReport = () => {
       </h3>
 
       <div className="text-sm text-gray-600 space-y-2">
-        <p><b>Name:</b> Rohan Sharma</p>
-        <p><b>Email:</b> rohan@gmail.com</p>
-        <p><b>Phone:</b> 9876543210</p>
-        <p><b>Source:</b> Website</p>
-
-        <span className="inline-block mt-2 px-3 py-1 text-xs rounded bg-yellow-100 text-yellow-700">
-          New Lead
-        </span>
+        <p><b>Name:</b> {selectedContactLead.fullName}</p>
+        <p><b>Email:</b> {selectedContactLead.email}</p>
+        <p><b>Phone:</b> {selectedContactLead.phoneNumber}</p>
+        <p><b>Date:</b> {selectedContactLead.createdAt ? new Date(selectedContactLead.createdAt).toLocaleString() : "—"}</p>
       </div>
 
       {/* Actions */}
       <div className="mt-6 space-y-2">
-        <button className="w-full border rounded-lg py-2 text-sm hover:bg-gray-50">
-          Update Status
-        </button>
-        <button className="w-full border rounded-lg py-2 text-sm hover:bg-gray-50">
-          Assign Counselor
-        </button>
-        <button className="w-full bg-green-600 text-white rounded-lg py-2 text-sm hover:bg-green-700">
-          Convert to User
+        <button 
+          onClick={() => setScreen("leads")}
+          className="w-full border rounded-lg py-2 text-sm hover:bg-gray-50"
+        >
+          Back to Leads
         </button>
       </div>
     </div>
 
     {/* ================= RIGHT ================= */}
     <div className="lg:col-span-2 space-y-6">
-      {/* Course Interest */}
+      {/* Subject & Message */}
       <div className="bg-white rounded-xl shadow p-3 sm:p-4 md:p-6">
         <h3 className="font-semibold mb-3">
-          Course Interest
+          Inquiry Details
         </h3>
-        <p className="text-sm text-gray-600">
-          MBA – Marketing (Delhi University)
-        </p>
-      </div>
-
-      {/* Notes Timeline */}
-      <div className="bg-white rounded-xl shadow p-3 sm:p-4 md:p-6">
-        <h3 className="font-semibold mb-3">
-          Notes & Remarks
-        </h3>
-
-        <ul className="space-y-3 text-sm">
-          <li className="border-l-2 border-blue-600 pl-3">
-            <p className="text-gray-700">
-              Follow-up call done
-            </p>
-            <span className="text-xs text-gray-400">
-              Today, 11:00 AM
-            </span>
-          </li>
-
-          <li className="border-l-2 border-gray-300 pl-3">
-            <p className="text-gray-700">
-              Lead created
-            </p>
-            <span className="text-xs text-gray-400">
-              10 Jan 2026
-            </span>
-          </li>
-        </ul>
-      </div>
-
-      {/* Follow-up History */}
-      <div className="bg-white rounded-xl shadow p-3 sm:p-4 md:p-6">
-        <h3 className="font-semibold mb-3">
-          Follow-up History
-        </h3>
-
-        <p className="text-sm text-gray-500">
-          No pending follow-ups
-        </p>
+        <div className="space-y-4">
+          <div>
+            <p className="text-xs text-gray-500 uppercase font-semibold">Subject</p>
+            <p className="text-gray-800">{selectedContactLead.subject}</p>
+          </div>
+          <div>
+            <p className="text-xs text-gray-500 uppercase font-semibold">Message</p>
+            <p className="text-gray-800 whitespace-pre-wrap">{selectedContactLead.message}</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
+  ) : (
+    <div className="text-center py-10 text-gray-500">
+      No lead selected. <button onClick={() => setScreen("leads")} className="text-blue-600 hover:underline">Go back</button>
+    </div>
+  )
 )}
 
 
           {/* ================= PACKAGES (IMAGE MATCH) ================= */}
-          {screen === "packages" && (
+          {/* {screen === "packages" && (
             <>
               <div className="flex justify-between mb-6">
                 <div>
@@ -2340,7 +2493,7 @@ const downloadReport = () => {
 
               
             </>
-          )}
+          )} */}
 
           {/* ================= CREATE / EDIT PACKAGE ================= */}
 {/* ================= CREATE / EDIT PACKAGE ================= */}
@@ -2761,6 +2914,95 @@ const downloadReport = () => {
         <button className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
           Add Note
         </button>
+      </div>
+    </div>
+  );
+})()}
+
+{screen === "certification-admissions" && (
+  <>
+    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+      <h2 className="text-xl font-bold">
+       Certification Admission Requests
+      </h2>
+      <input
+        placeholder="Search by student or course..."
+        className="border rounded-lg px-4 py-2 text-sm max-w-xs focus:ring-2 focus:ring-blue-600 outline-none transition"
+      />
+    </div>
+    <div className="bg-white rounded-xl shadow overflow-x-auto">
+      <table className="w-full text-sm">
+        <thead className="bg-gray-50 text-gray-600">
+          <tr>
+            <th className="px-4 py-3 text-left">Name</th>
+            <th className="px-4 py-3 text-left">Email</th>
+            <th className="px-4 py-3 text-left">Phone</th>
+            <th className="px-4 py-3 text-left">Course</th>
+            <th className="px-4 py-3 text-left">City/State</th>
+            <th className="px-4 py-3 text-left">Request Date</th>
+            <th className="px-4 py-3 text-left">Action</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y">
+          {certificationLeadsLoading ? (
+            <tr><td colSpan={7} className="px-4 py-6 text-center text-gray-500">Loading requests...</td></tr>
+          ) : certificationLeads.length === 0 ? (
+            <tr><td colSpan={7} className="px-4 py-6 text-center text-gray-500">No admission requests found</td></tr>
+          ) : (
+            certificationLeads.map((lead: any) => (
+            <tr key={lead._id} className="hover:bg-blue-50 transition">
+              <td className="px-4 py-3 font-medium">{lead.fullName}</td>
+              <td className="px-4 py-3 text-gray-600">{lead.email}</td>
+              <td className="px-4 py-3">{lead.phoneNumber}</td>
+              <td className="px-4 py-3">{lead.courseName}</td>
+              <td className="px-4 py-3">{lead.cityState}</td>
+              <td className="px-4 py-3 text-gray-500">{lead.createdAt ? new Date(lead.createdAt).toLocaleDateString() : "—"}</td>
+              <td className="px-4 py-3">
+                <div className="flex gap-3 text-xs">
+                
+                <button
+                  onClick={() => handleDeleteCertificationLead(lead._id)}
+                  className="text-red-600 text-xs hover:underline"
+                >
+                  Delete
+                </button>
+                </div>
+              </td>
+            </tr>
+          )))}
+        </tbody>
+      </table>
+    </div>
+  </>
+)}
+
+{screen === "certification-admission-detail" && (() => {
+  const lead = selectedCertificationLead;
+  if (!lead) return <div className="p-6">No lead selected</div>;
+
+  return (
+    <div className="max-w-6xl mx-auto space-y-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-bold">Certification Admission Request Details</h2>
+          <p className="text-sm text-gray-500">Review student profile and application</p>
+        </div>
+        <div className="flex gap-3 flex-wrap">
+           <button onClick={() => setScreen("certification-admissions")} className="px-4 py-2 rounded-lg border hover:bg-gray-100 transition">Back</button>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-white rounded-xl shadow p-3 sm:p-4 md:p-6">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center text-2xl font-bold text-blue-700">{lead.fullName?.[0] || "S"}</div>
+            <div><h3 className="font-semibold">{lead.fullName}</h3><p className="text-sm text-gray-500">Student</p></div>
+          </div>
+          <div className="text-sm text-gray-600 space-y-2"><p><b>Email:</b> {lead.email}</p><p><b>Phone:</b> {lead.phoneNumber}</p><p><b>City/State:</b> {lead.cityState}</p></div>
+        </div>
+        <div className="bg-white rounded-xl shadow p-3 sm:p-4 md:p-6">
+          <h3 className="font-semibold mb-3">Course Details</h3>
+          <div className="text-sm text-gray-600 space-y-2"><p><b>Course Name:</b> {lead.courseName}</p><p><b>Course ID:</b> {lead.courseId}</p><p><b>Request Date:</b> {lead.createdAt ? new Date(lead.createdAt).toLocaleDateString() : "—"}</p></div>
+        </div>
       </div>
     </div>
   );
@@ -3595,6 +3837,131 @@ const downloadReport = () => {
   </div>
 )}
 
+{screen === "internship-applications" && (
+  <>
+    {/* ================= HEADER ================= */}
+    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
+      <div>
+        <h2 className="text-xl font-bold">
+          Internship Applications
+        </h2>
+        <p className="text-sm text-gray-500">
+          Review internship applications and candidates
+        </p>
+      </div>
+
+      {/* Internship Selector */}
+      <div>
+        <select
+          className="border rounded-lg px-4 py-2 text-sm focus:ring-2 focus:ring-blue-600 outline-none"
+          value={selectedInternshipIdForApp}
+          onChange={(e) => setSelectedInternshipIdForApp(e.target.value)}
+        >
+          <option value="">-- Select Internship to View Applications --</option>
+          {internships.map((internship) => (
+            <option key={internship._id} value={internship._id}>
+              {internship.title} ({internship.company?.name})
+            </option>
+          ))}
+        </select>
+      </div>
+    </div>
+
+    {/* ================= TABLE ================= */}
+    <div className="bg-white rounded-xl shadow overflow-x-auto">
+      <table className="w-full text-sm">
+        <thead className="bg-gray-50 text-gray-600">
+          <tr>
+            <th className="px-4 py-3 text-left">Candidate Name</th>
+            <th className="px-4 py-3 text-left">Internship Title</th>
+            <th className="px-4 py-3 text-left">Email</th>
+            <th className="px-4 py-3 text-left">Phone</th>
+            <th className="px-4 py-3 text-left">Status</th>
+            <th className="px-4 py-3 text-left">Applied Date</th>
+            <th className="px-4 py-3 text-left">Action</th>
+          </tr>
+        </thead>
+
+        <tbody className="divide-y">
+          {internshipApplicationsLoading ? (
+            <tr>
+              <td colSpan={7} className="px-4 py-6 text-center text-gray-500">
+                Loading applications...
+              </td>
+            </tr>
+          ) : internshipApplications.length === 0 ? (
+            <tr>
+              <td colSpan={7} className="px-4 py-6 text-center text-gray-500">
+                {selectedInternshipIdForApp ? "No applications found for this internship" : "Select an internship to view applications"}
+              </td>
+            </tr>
+          ) : (
+            internshipApplications.map((app: any) => (
+              <tr
+                key={app._id}
+                className="hover:bg-blue-50 transition"
+              >
+                <td className="px-4 py-3 font-medium">
+                  {app.fullName || (app.user ? `${app.user.firstName} ${app.user.lastName || ""}` : "Unknown")}
+                </td>
+                
+                <td className="px-4 py-3">
+                  {app.internship?.title || "—"}
+                </td>
+
+                <td className="px-4 py-3 text-gray-600">
+                  {app.email || app.user?.emailId || "—"}
+                </td>
+
+                <td className="px-4 py-3">
+                  {app.phoneNumber || app.user?.phoneNumber || "—"}
+                </td>
+
+                <td className="px-4 py-3">
+                  <select
+                    value={app.status}
+                    onChange={(e) => handleUpdateInternshipApplicationStatus(app._id, e.target.value)}
+                    className={`px-2 py-1 text-xs rounded border-0 cursor-pointer focus:ring-2 focus:ring-blue-500 outline-none
+                      ${(app.status === "New" || app.status === "Applied") ? "bg-yellow-100 text-yellow-700" : (app.status === "Reviewed" || app.status === "Shortlisted") ? "bg-blue-100 text-blue-700" : app.status === "Hired" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}
+                  >
+                    {['Applied', 'Shortlisted', 'Hired', 'Rejected'].map(s => (
+                      <option key={s} value={s} className="bg-white text-gray-800">{s}</option>
+                    ))}
+                  </select>
+                </td>
+
+                <td className="px-4 py-3 text-gray-500">
+                  {app.createdAt ? new Date(app.createdAt).toLocaleDateString() : "—"}
+                </td>
+
+                <td className="px-4 py-3">
+                  <div className="flex gap-3 text-xs">
+                    <button 
+                      onClick={() => handleUpdateInternshipApplicationStatus(app._id, 'Rejected')}
+                      className="text-red-600 hover:underline"
+                    >
+                      Reject
+                    </button>
+                    {app.resumeUrl && (
+                      <a 
+                        href={app.resumeUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-blue-600 hover:underline"
+                      >
+                        Resume
+                      </a>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
+  </>
+)}
 
 {screen === "blog-categories" && (
   <>
@@ -3968,9 +4335,9 @@ const downloadReport = () => {
 
 
 
-{screen === "testimonials" && (
+{/* {screen === "testimonials" && (
   <>
-    {/* ================= HEADER ================= */}
+    
     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
       <div>
         <h2 className="text-xl font-bold">
@@ -3983,7 +4350,7 @@ const downloadReport = () => {
      
     </div>
 
-    {/* ================= TABLE ================= */}
+    
     <div className="bg-white rounded-xl shadow overflow-x-auto">
       <table className="w-full text-sm">
         <thead className="bg-gray-50 text-gray-600">
@@ -4033,17 +4400,17 @@ const downloadReport = () => {
               key={i}
               className="hover:bg-blue-50 transition"
             >
-              {/* Name */}
+              
               <td className="px-4 py-3 font-medium">
                 {t.name}
               </td>
 
-              {/* Role */}
+              
               <td className="px-4 py-3">
                 {t.role}
               </td>
 
-              {/* Rating */}
+              
               <td className="px-4 py-3">
                 <div className="flex gap-1">
                   {Array.from({ length: t.rating }).map((_, idx) => (
@@ -4061,7 +4428,7 @@ const downloadReport = () => {
                 </div>
               </td>
 
-              {/* Status */}
+              
               <td className="px-4 py-3">
                 <span
                   className={`px-2 py-1 text-xs rounded
@@ -4076,12 +4443,12 @@ const downloadReport = () => {
                 </span>
               </td>
 
-              {/* Date */}
+              
               <td className="px-4 py-3 text-gray-500">
                 22 Jan 2026
               </td>
 
-              {/* Action */}
+              
               <td className="px-4 py-3">
                 <div className="flex gap-3 text-xs">
                   <button className="text-blue-600 hover:underline">
@@ -4098,7 +4465,9 @@ const downloadReport = () => {
       </table>
     </div>
   </>
-)}
+)} */}
+
+
 
 {screen === "Jobs" && (
   <>
@@ -4831,7 +5200,7 @@ const downloadReport = () => {
     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
       <div>
         <h2 className="text-xl font-bold">
-          Applications
+          Job Applications
         </h2>
         <p className="text-sm text-gray-500">
           Review job applications and candidates
@@ -4926,7 +5295,7 @@ const downloadReport = () => {
                       }
                     `}
                   >
-                    {['Applied', 'Shortlisted', 'Rejected', 'Hired'].map(s => (
+                    {[ 'Applied', 'Shortlisted', 'Hired', 'Rejected'].map(s => (
                       <option key={s} value={s} className="bg-white text-gray-800">{s}</option>
                     ))}
                   </select>
@@ -5384,14 +5753,16 @@ const downloadReport = () => {
           { label: "Companies", key: "companies", icon: Factory },
           { label: "Jobs", key: "Jobs", icon: Briefcase },
           { label: "Internships", key: "Internships", icon: Briefcase },
+          { label: "Internship Applications", key: "internship-applications", icon: FileText },
           { label: "Create Blog", key: "create-blog", icon: FileText },
           { label: "Blog Categories", key: "blog-categories", icon: FolderOpen },
-          { label: "Packages", key: "packages", icon: Package },
-          { label: "Admission Request", key: "admissions", icon: GraduationCap },
+          // { label: "Packages", key: "packages", icon: Package },
+          { label: "Campus Admission Request", key: "admissions", icon: GraduationCap },
+          { label: "Certification Admission", key: "certification-admissions", icon: GraduationCap },
           { label: "Certification Courses", key: "certification-courses", icon: BookOpen },
           { label: "Campus Courses", key: "courses", icon: BookOpen },
-          { label: "Testimonials", key: "testimonials", icon: Star },
-          { label: "Applications", key: "applications", icon: FileText },
+          // { label: "Testimonials", key: "testimonials", icon: Star },
+          { label: "Job Applications", key: "applications", icon: FileText },
           { label: "Reports", key: "reports", icon: FileBarChart },
           { label: "Settings", key: "settings", icon: Settings },
         ].map(({ label, key, icon: Icon }) => (

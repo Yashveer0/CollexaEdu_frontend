@@ -1,26 +1,76 @@
 "use client";
 
 import { useState } from "react";
-import {
-  FiMail,
-  FiPhone,
-  FiMapPin,
-  FiSend,
-} from "react-icons/fi";
+import { FiMail, FiPhone, FiMapPin, FiSend } from "react-icons/fi";
+import { useAuth } from "../context_api/AuthContext";
+import Swal from "sweetalert2";
+
 
 export default function ContactPage() {
   const [loading, setLoading] = useState(false);
+  const { submitContactForm } = useAuth();
+  const [formData, setFormData] = useState({
+    fullName: "",
+    email: "",
+    phoneNumber: "",
+    subject: "",
+    message: "",
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    // 🔗 API call yahan connect kar sakte ho
-    setTimeout(() => {
-      alert("Message sent successfully!");
-      setLoading(false);
-    }, 1200);
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
+
+  try {
+    const payload = {
+      ...formData,
+      phoneNumber:
+        formData.phoneNumber.trim() === ""
+          ? undefined
+          : formData.phoneNumber,
+    };
+
+    await submitContactForm(payload);
+
+    // ✅ Success SweetAlert
+    Swal.fire({
+      icon: "success",
+      title: "Message Sent!",
+      text: "Your message has been sent successfully.",
+      confirmButtonColor: "#1e3a8a",
+    });
+
+    setFormData({
+      fullName: "",
+      email: "",
+      phoneNumber: "",
+      subject: "",
+      message: "",
+    });
+  } catch (error: any) {
+    console.error("Failed to send message:", error);
+
+    // ❌ Error SweetAlert
+    Swal.fire({
+      icon: "error",
+      title: "Oops...",
+      text:
+        error.response?.data?.message ||
+        "Failed to send message. Please try again.",
+      confirmButtonColor: "#dc2626",
+    });
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="w-full bg-[#F7F9FC]">
@@ -107,11 +157,17 @@ export default function ContactPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <input
+                  name="fullName"
+                  value={formData.fullName}
+                  onChange={handleChange}
                   required
                   placeholder="Enter your full name"
                   className="border text-gray-900 rounded-md px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <input
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
                   type="email"
                   required
                   placeholder="Enter your email"
@@ -121,10 +177,16 @@ export default function ContactPage() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <input
+                  name="phoneNumber"
+                  value={formData.phoneNumber}
+                  onChange={handleChange}
                   placeholder="Enter your phone number"
                   className="border text-gray-900 rounded-md px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
                 />
                 <input
+                  name="subject"
+                  value={formData.subject}
+                  onChange={handleChange}
                   required
                   placeholder="What is this regarding?"
                   className="border text-gray-900 rounded-md px-4 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500"
@@ -132,6 +194,9 @@ export default function ContactPage() {
               </div>
 
               <textarea
+                name="message"
+                value={formData.message}
+                onChange={handleChange}
                 required
                 rows={4}
                 placeholder="Tell us how we can help you..."

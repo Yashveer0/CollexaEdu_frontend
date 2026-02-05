@@ -19,6 +19,62 @@ type UserType = {
   };
 };
 
+export type JobType = {
+  _id: string;
+  title: string;
+  description: string;
+  location: string;
+  type: string;
+  salaryMin: number;
+  salaryMax: number;
+  skillsRequired: string[];
+  openings: number;
+  experienceLevel: string;
+  company: {
+    _id: string;
+    name: string;
+    description: string;
+    location: string;
+    logoUrl: string;
+  };
+  isActive: boolean;
+  createdAt: string;
+};
+
+export type CampusCourseType = {
+  _id: string;
+  universityName: string;
+  courseName: string;
+  degreeType: string;
+  description: string;
+  rating: number;
+  duration: string;
+  enrolledCount: number;
+  level: string;
+  isTop: boolean;
+  location: string;
+  isActive: boolean;
+  createdAt: string;
+};
+
+export type CertificationCourseType = {
+  _id: string;
+  title: string;
+  instructor: string;
+  description?: string;
+  badge: string;
+  category: string;
+  currency: string;
+  currentPrice: number;
+  duration: string;
+  enrollLink: string;
+  image: string;
+  level: string;
+  originalPrice: number;
+  rating: number;
+  studentsEnrolled: number;
+  createdAt: string;
+};
 
 const AuthContext = createContext<any>(null);
 
@@ -335,6 +391,8 @@ const getPublicInternships = async (params?: {
       res.data?.data ||
       []
     );
+    
+    
   } catch (err: any) {
     console.error("getPublicInternships error:", err);
     throw err;
@@ -356,7 +414,7 @@ const getPublicCampusCourses = async (params?: {
       },
     });
 
-    console.log("getPublicCampusCourses response:", res.data);
+    
 
     return (
       res.data?.campusCourses ||
@@ -376,6 +434,7 @@ const getCertificationCourses = async (params?: {
   page?: number;
   limit?: number;
   category?: string;
+  keyword?: string;
 }) => {
   try {
     const res = await API.get("/api/certificatecourses/listAll", {
@@ -383,10 +442,11 @@ const getCertificationCourses = async (params?: {
         page: params?.page || 1,
         limit: params?.limit || 10,
         category: params?.category,
+        keyword: params?.keyword,
       },
     });
 
-    console.log("getCertificationCourses response:", res.data);
+    
 
     return (
       res.data?.courses ||
@@ -404,6 +464,11 @@ const getCertificationCourses = async (params?: {
 
 const applyForCampusCourse = async (data: any) => {
   const res = await API.post("/api/campuscourses/lead", data);
+  return res.data;
+};
+
+const applyForCertificationCourse = async (data: any) => {
+  const res = await API.post("/api/certificatecourses/createCertificateLead", data);
   return res.data;
 };
 
@@ -429,6 +494,16 @@ const getJobApplications = async (jobId: string) => {
   return res.data;
 };
 
+const submitContactForm = async (data: {
+  fullName: string;
+  email: string;
+  phoneNumber?: string;
+  subject: string;
+  message: string;
+}) => {
+  const res = await API.post("/api/contactus", data);
+  return res.data;
+};
 
   return (
     <AuthContext.Provider
@@ -454,7 +529,9 @@ const getJobApplications = async (jobId: string) => {
         getCertificationCourses,
         applyForJob,
         applyForCampusCourse,
+        applyForCertificationCourse,
         getJobApplications,
+        submitContactForm,
       }}
     >
       {children}

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaRocket, FaBuilding, FaUserFriends } from "react-icons/fa";
 import { FiSearch , FiUser , FiSend  , FiFilter } from "react-icons/fi";
 
@@ -17,22 +17,35 @@ import {
 
 
 import { MdMenuBook } from "react-icons/md";
+import { useAuth, JobType } from "../context_api/AuthContext";
+import JobApplyModal from "../(components)/JobApplyModal";
+
 export default function InternshipHero() {
 
-    // demo data 
-    
-  const demoInternships = [
-    { id: 1, role: "Frontend Developer Intern", company: "Google", location: "Remote" },
-    { id: 2, role: "MERN Stack Intern", company: "Amazon", location: "Bangalore" },
-    { id: 3, role: "React JS Intern", company: "Microsoft", location: "Hyderabad" },
-  ];
-
+  const { getPublicJobs } = useAuth();
   const [search, setSearch] = useState("");
+  const [jobs, setJobs] = useState<JobType[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const filtered = demoInternships.filter(j =>
-    j.role.toLowerCase().includes(search.toLowerCase()) ||
-    j.company.toLowerCase().includes(search.toLowerCase())
-  );
+  const fetchJobs = async () => {
+    setLoading(true);
+    try {
+      const data = await getPublicJobs({ keyword: search });
+      if (data?.jobs) {
+        setJobs(data.jobs);
+      } else {
+        setJobs([]);
+      }
+    } catch (error) {
+      console.error("Error fetching jobs:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchJobs();
+  }, []);
 
   return (
     <section className="w-full bg-[#F7FBFF] py-12 md:py-20">
@@ -233,14 +246,17 @@ export default function InternshipHero() {
             </button>
 
             <p className="text-gray-500">
-              {filtered.length} internships found
+              {jobs.length} jobs found
             </p>
           </div>
         </div>
 
         {/* Search Button */}
         <div className="text-center mt-8">
-          <button className="bg-[#0B2B6B] hover:bg-[#123c9c] text-white px-6 py-2 rounded-lg shadow">
+          <button 
+            onClick={() => fetchJobs()}
+            className="bg-[#0B2B6B] hover:bg-[#123c9c] text-white px-6 py-2 rounded-lg shadow"
+          >
             Search Jobs →
           </button>
         </div>
@@ -248,25 +264,27 @@ export default function InternshipHero() {
         {/* INTERNSHIP LIST */}
         <div className="max-w-4xl mx-auto mt-10 grid gap-4">
 
-          {filtered.map(job => (
+          {loading ? (
+            <p className="text-center text-gray-500 py-10">Loading jobs...</p>
+          ) : jobs.length > 0 ? (
+            jobs.map((job) => (
             <div
-              key={job.id}
+              key={job._id}
               className="border rounded-xl shadow-sm p-4 flex justify-between hover:shadow-md transition"
             >
               <div>
-                <p className="font-semibold text-[#0B2B6B]">{job.role}</p>
-                <p className="text-gray-600 text-sm">{job.company} · {job.location}</p>
+                <p className="font-semibold text-[#0B2B6B]">{job.title}</p>
+                <p className="text-gray-600 text-sm">
+                  {job.company?.name} · {job.location}
+                </p>
               </div>
 
-              <button className="text-[#0B2B6B] font-medium">
-                Apply →
-              </button>
+              <JobApplyModal title={job.title} btn_text="Apply" data={job} />
             </div>
-          ))}
-
-          {filtered.length === 0 && (
+          ))
+          ) : (
             <p className="text-center text-gray-500 py-10">
-              No internships match your search
+              No jobs match your search
             </p>
           )}
         </div>
