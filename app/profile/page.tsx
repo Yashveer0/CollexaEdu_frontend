@@ -101,7 +101,11 @@ useEffect(() => {
         firstName,
         lastName,
         phoneNumber,
-        profile: { location, headline, bio, resumeUrl, skills },
+        location,
+        headline,
+        bio,
+        resumeUrl,
+        skills,
       });
 
       Swal.fire({
@@ -129,24 +133,37 @@ useEffect(() => {
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setImageFile(file);
 
     try {
+      setSaving(true);
       const croppedImage = await cropImageToSquare(file);
-      setProfileImage(croppedImage);
+      setProfileImage(croppedImage); // Optimistic UI update
+
+      // Convert data URL back to a blob to upload
+      const response = await fetch(croppedImage);
+      const blob = await response.blob();
+      const imageFileToUpload = new File([blob], file.name, { type: file.type });
+
+      const formData = new FormData();
+      formData.append("profilePicture", imageFileToUpload);
+
+      await updateProfile(formData);
+
       Swal.fire({
         icon: "success",
-        title: "Image cropped",
-        text: "Profile image updated successfully!",
-        timer: 1000,
+        title: "Profile image updated!",
+        timer: 1200,
         showConfirmButton: false,
       });
     } catch (err) {
+      console.error("Image update failed:", err);
       Swal.fire({
         icon: "error",
-        title: "Image error",
-        text: "Failed to crop image.",
+        title: "Image Update Failed",
+        text: "Could not upload your new profile picture.",
       });
+    } finally {
+      setSaving(false);
     }
   };
 

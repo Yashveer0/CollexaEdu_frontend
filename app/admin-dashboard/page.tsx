@@ -512,9 +512,9 @@ const fetchContactLeads = async () => {
     const res = await API.get("/api/contactus", {
       headers: { Authorization: `Bearer ${token}` },
     });
-    const data = res.data?.leads || res.data?.data || res.data || [];
-    console.log(data)
-    setContactLeads(Array.isArray(data) ? data : []);
+    const data = res.data?.contacts || res.data?.leads || res.data?.data || res.data?.contactUs || [];
+    
+    setContactLeads(data);
   } catch (err) {
     console.error("Fetch contact leads failed", err);
     setContactLeads([]);
@@ -522,6 +522,7 @@ const fetchContactLeads = async () => {
     setContactLeadsLoading(false);
   }
 };
+
 
 const handleDeleteContactLead = async (id: string) => {
   const result = await Swal.fire({
@@ -964,7 +965,7 @@ useEffect(() => {
 
         const data = await fetchSingleUser(selectedUserId);
 
-        console.log("SINGLE USER DATA 👉", data);
+       
 
         setSelectedUser(data);
       } catch (err) {
@@ -1473,7 +1474,7 @@ const fetchCompanies = async () => {
       console.error("❌ Companies array not found", res.data);
     }
 
-    console.log("FINAL COMPANIES ARRAY 👉", companiesArray);
+    
 
     setCompanies(companiesArray);
   } catch (err: any) {
@@ -1722,7 +1723,7 @@ const downloadReport = () => {
       { label: "Leads", key: "leads", icon: PhoneCall },
       { label: "Companies", key: "companies", icon: Factory },
       { label: "Jobs", key: "Jobs", icon: Briefcase },
-       { label: "Job Applications", key: "applications", icon: FileText },
+      { label: "Job Applications", key: "applications", icon: FileText },
       { label: "Internships", key: "Internships", icon: Briefcase },
       { label: "Internship Applications", key: "internship-applications", icon: FileText },
       { label: "Create Blog", key: "create-blog", icon: FileText },
@@ -1876,7 +1877,7 @@ const downloadReport = () => {
         { title: "Total Users", value: dashboardStats.totalUsers, link: "users" },
         { title: "Total Leads", value: dashboardStats.totalLeads, link: "leads" },
 
-        { title: "Total Packages", value: dashboardStats.totalPackages, link: "packages" },
+       
         
         { title: "Active Subscriptions", value: dashboardStats.activeSubscriptions, link: "packages" },
         { title: "Monthly Revenue", value: `₹${dashboardStats.monthlyRevenue}`, link: "packages" },
@@ -2292,8 +2293,6 @@ const downloadReport = () => {
 )}
 
 
-
-
 {screen === "leads" && (
   <>
     {/* ================= HEADER ================= */}
@@ -2316,7 +2315,6 @@ const downloadReport = () => {
             <th className="px-4 py-3 text-left">Phone</th>
             <th className="px-4 py-3 text-left">Subject</th>
             <th className="px-4 py-3 text-left">Message</th>
-            <th className="px-4 py-3 text-left">Created</th>
             <th className="px-4 py-3 text-left">Action</th>
           </tr>
         </thead>
@@ -2324,13 +2322,14 @@ const downloadReport = () => {
         <tbody className="divide-y">
           {contactLeadsLoading ? (
             <tr>
-              <td colSpan={7} className="px-4 py-6 text-center text-gray-500">
+              <td colSpan={6} className="px-4 py-6 text-center text-gray-500">
                 Loading leads...
               </td>
             </tr>
           ) : contactLeads.length === 0 ? (
+            
             <tr>
-              <td colSpan={7} className="px-4 py-6 text-center text-gray-500">
+              <td colSpan={6} className="px-4 py-6 text-center text-gray-500">
                 No leads found
               </td>
             </tr>
@@ -2360,10 +2359,6 @@ const downloadReport = () => {
                 <div className="truncate max-w-xs" title={lead.message}>
                   {lead.message}
                 </div>
-              </td>
-
-              <td className="px-4 py-3 text-gray-500">
-                {lead.createdAt ? new Date(lead.createdAt).toLocaleDateString() : "—"}
               </td>
 
               <td className="px-4 py-3">
@@ -2640,12 +2635,7 @@ const downloadReport = () => {
 
     {/* ACTIONS */}
     <div className="mt-8 flex justify-end gap-3">
-      <button
-        onClick={() => setScreen("packages")}
-        className="px-5 py-2 rounded-lg border hover:bg-gray-100 transition"
-      >
-        Cancel
-      </button>
+  
 
       <button className="px-6 py-2 rounded-lg bg-blue-700 text-white hover:bg-blue-800 transition shadow">
         Save Package

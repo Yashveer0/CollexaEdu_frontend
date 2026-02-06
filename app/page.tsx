@@ -177,8 +177,9 @@ export default function Home() {
       if (getPublicJobs) {
         const data = await getPublicJobs({ keyword: activeJobTab });
         
-        
-        if (data && data.jobs) {
+        if (Array.isArray(data)) {
+          setFetchedJobs(data);
+        } else if (data && data.jobs) {
           setFetchedJobs(data.jobs);
         } else {
           setFetchedJobs([]);

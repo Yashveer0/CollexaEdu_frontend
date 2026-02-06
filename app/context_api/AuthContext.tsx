@@ -285,16 +285,30 @@ const getProfile = async () => {
 
 
  const updateProfile = async (data: any) => {
-  const res = await API.patch("/api/userprofile", data);
+  const token = localStorage.getItem("collexa_token");
+  if (!token) throw new Error("Not authenticated");
+
+  const res = await API.patch("/api/userprofile", data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 
   // 🔥 SAFETY CHECK
-  if (res.data?.data) {
-    setUser(res.data.data);
+  const updatedUser = res.data?.data || res.data?.user;
+
+  if (updatedUser) {
+    setUser(updatedUser);
     localStorage.setItem(
       "collexa_user",
-      JSON.stringify(res.data.data)
+      JSON.stringify(updatedUser)
     );
-    return res.data.data;
+    return updatedUser;
+  }
+
+  // If success but no user object (e.g. just message), re-fetch profile
+  if (res.status === 200 || res.status === 201) {
+    return await getProfile();
   }
 
   // ❌ agar backend data nahi bhej raha
