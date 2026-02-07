@@ -211,29 +211,21 @@ const [certificationCourseForm, setCertificationCourseForm] = useState({
 const [dashboardStats, setDashboardStats] = useState({
   totalUsers: 0,
   totalLeads: 0,
-  // totalPackages: 0,
-  activeSubscriptions: 0,
-  monthlyRevenue: 0,
+  totalJobApplications: 0,
+  totalInternshipApplications: 0,
+  totalCampusLeads: 0,
+  totalCertificationLeads: 0,
 });
 
 
 
 // dashboard 
 const [userGrowthData, setUserGrowthData] = useState([
-  { name: "Jan", users: 10 },
-  { name: "Feb", users: 25 },
-  { name: "Mar", users: 40 },
-  { name: "Apr", users: 65 },
-  { name: "May", users: 90 },
-  { name: "Jun", users: 120 },
+  { name: "Jan", users: 0 },
 ]);
 
 const [leadsData, setLeadsData] = useState([
-  { name: "Jan", leads: 80, conversions: 30 },
-  { name: "Feb", leads: 120, conversions: 55 },
-  { name: "Mar", leads: 160, conversions: 70 },
-  { name: "Apr", leads: 200, conversions: 95 },
-  { name: "May", leads: 260, conversions: 120 },
+  { name: "Contact", value: 0 },
 ]);
 
 
@@ -758,25 +750,66 @@ const fetchUsersCount = async () => {
 const fetchDashboardData = async () => {
   try {
     const token = localStorage.getItem("collexa_token");
-    const res = await API.get("/api/admin/dashboard", {
-      headers: { Authorization: `Bearer ${token}` },
+    const headers = { Authorization: `Bearer ${token}` };
+
+    const [
+      usersRes,
+      leadsRes,
+      jobAppsRes,
+      internAppsRes,
+      campusLeadsRes,
+      certLeadsRes
+    ] = await Promise.all([
+      API.get("/api/admin/users", { headers }).catch(() => ({ data: {} })),
+      API.get("/api/contactus", { headers }).catch(() => ({ data: {} })),
+      API.get("/api/applications", { headers }).catch(() => ({ data: {} })),
+      API.get("/api/internship-applications", { headers }).catch(() => ({ data: {} })),
+      API.get("/api/campuscourses/leads", { headers }).catch(() => ({ data: {} })),
+      API.get("/api/certificatecourses/leads", { headers }).catch(() => ({ data: {} }))
+    ]);
+
+    const usersData = usersRes.data?.users || usersRes.data?.data?.users || [];
+    const leadsData = leadsRes.data?.contacts || leadsRes.data?.leads || leadsRes.data?.data || leadsRes.data?.contactUs || [];
+    const jobAppsData = jobAppsRes.data?.applications || jobAppsRes.data?.data || [];
+    const internAppsData = internAppsRes.data?.applications || internAppsRes.data?.data || [];
+    const campusLeadsData = campusLeadsRes.data?.leads || campusLeadsRes.data?.data || [];
+    const certLeadsData = certLeadsRes.data?.leads || certLeadsRes.data?.data || [];
+
+    setDashboardStats({
+      totalUsers: usersData.length,
+      totalLeads: leadsData.length,
+      totalJobApplications: jobAppsData.length,
+      totalInternshipApplications: internAppsData.length,
+      totalCampusLeads: campusLeadsData.length,
+      totalCertificationLeads: certLeadsData.length,
     });
 
-    if (res.data) {
-      setDashboardStats({
-        totalUsers: res.data.totalUsers || res.data.stats?.totalUsers || 0,
-        totalLeads: res.data.totalLeads || res.data.stats?.totalLeads || 0,
-        // totalPackages: res.data.totalPackages || res.data.stats?.totalPackages || 0,
-        activeSubscriptions: res.data.activeSubscriptions || res.data.stats?.activeSubscriptions || 0,
-        monthlyRevenue: res.data.monthlyRevenue || res.data.stats?.monthlyRevenue || 0,
-      });
+    setUsers(usersData);
+    setAdmissionLeads(campusLeadsData);
 
-      if (res.data.userGrowth) setUserGrowthData(res.data.userGrowth);
-      if (res.data.leadsData) setLeadsData(res.data.leadsData);
-    }
+    // Process User Growth (Monthly)
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const currentYear = new Date().getFullYear();
+    const userCounts = new Array(12).fill(0);
+    usersData.forEach((u: any) => {
+      const d = new Date(u.createdAt);
+      if (d.getFullYear() === currentYear) {
+        userCounts[d.getMonth()]++;
+      }
+    });
+    setUserGrowthData(months.map((m, i) => ({ name: m, users: userCounts[i] })));
+
+    // Process Applications Data (Bar Chart)
+    setLeadsData([
+      { name: "Contact", value: leadsData.length },
+      { name: "Job Apps", value: jobAppsData.length },
+      { name: "Intern Apps", value: internAppsData.length },
+      { name: "Campus", value: campusLeadsData.length },
+      { name: "Cert", value: certLeadsData.length },
+    ]);
+
   } catch (err) {
-    console.warn("Dashboard API not available, using fallback data.");
-    fetchUsersCount();
+    console.error("Dashboard data fetch failed", err);
   }
 };
 
@@ -1633,6 +1666,24 @@ const handleGenerateReport = async () => {
       case "companies":
         endpoint = "/api/companies";
         break;
+      case "campus-courses":
+        endpoint = "/api/campuscourses";
+        break;
+      case "campus-leads":
+        endpoint = "/api/campuscourses/leads";
+        break;
+      case "certification-courses":
+        endpoint = "/api/certificatecourses/listAll";
+        break;
+      case "certification-leads":
+        endpoint = "/api/certificatecourses/leads";
+        break;
+      case "job-applications":
+        endpoint = "/api/applications";
+        break;
+      case "internship-applications":
+        endpoint = "/api/internship-applications";
+        break;
       default:
         endpoint = "/api/admin/users";
     }
@@ -1647,6 +1698,12 @@ const handleGenerateReport = async () => {
     else if (reportType === "jobs") data = res.data?.jobs || res.data?.data?.jobs || [];
     else if (reportType === "internships") data = res.data?.internships || res.data?.data?.internships || [];
     else if (reportType === "companies") data = res.data?.companies || res.data?.data?.companies || res.data || [];
+    else if (reportType === "campus-courses") data = res.data?.campusCourses || res.data?.courses || res.data?.data || [];
+    else if (reportType === "campus-leads") data = res.data?.leads || res.data?.data || [];
+    else if (reportType === "certification-courses") data = res.data?.courses || res.data?.certificateCourses || res.data?.data || [];
+    else if (reportType === "certification-leads") data = res.data?.leads || res.data?.data || [];
+    else if (reportType === "job-applications") data = res.data?.applications || res.data?.data || [];
+    else if (reportType === "internship-applications") data = res.data?.applications || res.data?.data || [];
 
     // Client-side Date Filtering
     if (startDate || endDate) {
@@ -1858,29 +1915,17 @@ const downloadReport = () => {
     {/* ================= DATE FILTER ================= */}
     <div className="flex justify-between items-center mb-6">
       <h2 className="text-xl font-bold">Dashboard Overview</h2>
-
-      <div className="flex gap-2">
-        {["Today", "7 Days", "30 Days"].map((d) => (
-          <button
-            key={d}
-            className="px-3 py-1 text-sm rounded-lg border hover:bg-blue-50 hover:text-blue-700"
-          >
-            {d}
-          </button>
-        ))}
-      </div>
     </div>
 
     {/* ================= STATS CARDS ================= */}
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
       {[
         { title: "Total Users", value: dashboardStats.totalUsers, link: "users" },
         { title: "Total Leads", value: dashboardStats.totalLeads, link: "leads" },
-
-       
-        
-        { title: "Active Subscriptions", value: dashboardStats.activeSubscriptions, link: "packages" },
-        { title: "Monthly Revenue", value: `₹${dashboardStats.monthlyRevenue}`, link: "packages" },
+        { title: "Job Applications", value: dashboardStats.totalJobApplications, link: "applications" },
+        { title: "Internship Applications", value: dashboardStats.totalInternshipApplications, link: "internship-applications" },
+        { title: "Campus Course Leads", value: dashboardStats.totalCampusLeads, link: "admissions" },
+        { title: "Certification Leads", value: dashboardStats.totalCertificationLeads, link: "certification-admissions" },
       ].map((item) => (
         <div
           key={item.title}
@@ -1923,7 +1968,7 @@ const downloadReport = () => {
 
       <div className="bg-white p-3 sm:p-4 md:p-6 rounded-xl shadow">
         <h3 className="font-semibold mb-3">
-          Leads vs Conversions
+          Applications Overview
         </h3>
         <div className="h-64">
   <ResponsiveContainer width="100%" height="100%">
@@ -1932,8 +1977,7 @@ const downloadReport = () => {
       <XAxis dataKey="name" />
       <YAxis />
       <Tooltip />
-      <Bar dataKey="leads" fill="#93c5fd" />
-      <Bar dataKey="conversions" fill="#2563eb" />
+      <Bar dataKey="value" fill="#2563eb" />
     </BarChart>
   </ResponsiveContainer>
 </div>
@@ -1958,9 +2002,9 @@ const downloadReport = () => {
         </div>
 
         <div className="space-y-2 text-sm text-gray-600">
-          <p>• John Doe (Student)</p>
-          <p>• Ayesha Khan (Employer)</p>
-          <p>• Rahul Verma (Student)</p>
+          {users.slice(0, 5).map((u: any) => (
+            <p key={u._id}>• {u.firstName} {u.lastName} ({u.role})</p>
+          ))}
         </div>
       </div>
 
@@ -5350,6 +5394,12 @@ const downloadReport = () => {
           <option value="jobs">Jobs Report</option>
           <option value="internships">Internships Report</option>
           <option value="companies">Companies Report</option>
+          <option value="campus-courses">Campus Courses Report</option>
+          <option value="campus-leads">Campus Leads Report</option>
+          <option value="certification-courses">Certification Courses Report</option>
+          <option value="certification-leads">Certification Leads Report</option>
+          <option value="job-applications">Job Applications Report</option>
+          <option value="internship-applications">Internship Applications Report</option>
         </select>
       </div>
 
