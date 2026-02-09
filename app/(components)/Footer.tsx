@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { FaFacebookF, FaInstagram, FaLinkedinIn, FaTwitter } from "react-icons/fa";
+import { FaFacebookF, FaInstagram, FaLinkedinIn } from "react-icons/fa";
+import { FaXTwitter } from "react-icons/fa6";
+
 
 
 export default function Footer() {
@@ -26,17 +28,32 @@ export default function Footer() {
           </p>
 
           <div className="flex gap-4 text-gray-600">
-            <Link href="#" aria-label="Facebook" className="hover:text-white hover:bg-blue-700 p-3  border border-gray-400 rounded-full">
+            <Link href="https://www.facebook.com/share/1CBnEBf9HD/" aria-label="Facebook" className="text-white bg-blue-700 p-3  border border-gray-400 rounded-full">
               <FaFacebookF size={18} />
             </Link>
-            <Link href="#" aria-label="Instagram" className="hover:text-white hover:bg-blue-700 p-3  border border-gray-400 rounded-full">
-              <FaInstagram size={18} />
-            </Link>
-            <Link href="#" aria-label="LinkedIn" className="hover:text-white hover:bg-blue-700 p-3  border border-gray-400 rounded-full">
+            <Link
+  href="https://www.instagram.com/collexa_edu?igsh=NXB0bmlmYnhncW9w"
+  aria-label="Instagram"
+  className="
+    p-3 
+    border border-gray-400 
+    text-white
+    rounded-full 
+    transition-all
+    bg-gradient-to-tr 
+    from-[#f58c37] 
+    via-[#db4a8b] 
+    to-[#8134af]
+  "
+>
+  <FaInstagram size={18} />
+</Link>
+
+            <Link href="#" aria-label="LinkedIn" className="text-white bg-blue-700 p-3  border border-gray-400 rounded-full">
               <FaLinkedinIn size={18} />
             </Link>
-            <Link href="#" aria-label="Twitter" className="hover:text-white hover:bg-blue-700 p-3  border border-gray-400 rounded-full">
-              <FaTwitter size={18} />
+            <Link href="#" aria-label="Twitter" className="text-white bg-black p-3  border border-gray-400 rounded-full">
+              <FaXTwitter size={18} />
             </Link>
           </div>
         </div>
