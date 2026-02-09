@@ -2537,7 +2537,7 @@ const downloadReport = () => {
           {/* ================= CREATE / EDIT PACKAGE ================= */}
 {/* ================= CREATE / EDIT PACKAGE ================= */}
 {screen === "create-package" && (
-  <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow p-3 sm:p-4 md:p-6 md:p-8">
+  <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow p-3 sm:p-4  md:p-8">
     {/* Header */}
     <div className="mb-6">
       <h2 className="text-xl font-bold">

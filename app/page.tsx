@@ -4,7 +4,7 @@ import Link from "next/link";
 import { FiUsers, FiHome, FiGlobe, FiBriefcase } from "react-icons/fi";
 import Image from "next/image";
 import { useRef } from "react";
-
+import EnquiryPopup from "./(components)/EnquiryPopup";
 import { useState } from "react";
 import {
   
@@ -251,12 +251,13 @@ export default function Home() {
   }, [activeSkillCategory, getCertificationCourses]);
 
   return (
-    <div className="bg-[#f7fbff] overflow-hidden">
+    <div className="bg-[#f7fbff] overflow-hidden ">
+      <EnquiryPopup />
       {/* ------------------------------------------------ */}
       {/* ⭐ HERO SECTION */}
       {/* ------------------------------------------------ */}
       <section className="max-w-7xl mx-auto  px-6 py-16 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
-        <div className="mt-30">
+        <div className="md:mt-30 mt-12">
           <h1 className="text-4xl md:text-5xl font-bold leading-tight text-gray-900">
             Launch your career <br />
             with <span className="text-blue-700">Collexa</span>
@@ -284,11 +285,11 @@ export default function Home() {
 
         <div className="flex justify-center">
           <Image
-            src="/Home1.png"
+            src="/main_img.png"
             width={450}
             height={450}
             alt="learning"           
-            className="drop-shadow-lg"
+            className="drop-shadow-lg mt-5"
           />
         </div>
       </section>
