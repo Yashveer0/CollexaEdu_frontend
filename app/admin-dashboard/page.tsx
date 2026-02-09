@@ -1804,7 +1804,7 @@ const downloadReport = () => {
         className={`flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition
           ${
             screen === key
-              ? "bg-blue-50 text-blue-700 font-medium"
+              ? " bg-[#143481] text-white font-medium"
               : "text-gray-700 hover:bg-gray-100"
           }`}
       >
@@ -1914,7 +1914,7 @@ const downloadReport = () => {
   <>
     {/* ================= DATE FILTER ================= */}
     <div className="flex justify-between items-center mb-6">
-      <h2 className="text-xl font-bold">Dashboard Overview</h2>
+      <h2 className="text-xl font-bold text-[#143481]">Dashboard Overview</h2>
     </div>
 
     {/* ================= STATS CARDS ================= */}
@@ -2037,7 +2037,7 @@ const downloadReport = () => {
   <>
     {/* ================= HEADER ================= */}
     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-      <h2 className="text-xl font-bold">Users</h2>
+      <h2 className="text-xl font-bold text-[#143481]">Users</h2>
 
       {/* Search + Filters */}
       <div className="flex flex-wrap gap-3">
@@ -2341,7 +2341,7 @@ const downloadReport = () => {
   <>
     {/* ================= HEADER ================= */}
     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-      <h2 className="text-xl font-bold">Leads</h2>
+      <h2 className="text-xl font-bold text-[#143481]">Leads</h2>
       
       <input
         placeholder="Search leads..."
@@ -2444,7 +2444,7 @@ const downloadReport = () => {
   <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
     {/* ================= LEFT ================= */}
     <div className="bg-white rounded-xl shadow p-3 sm:p-4 md:p-6">
-      <h3 className="font-semibold mb-4">
+      <h3 className="font-semibold mb-4 text-[#143481]">
         Lead Information
       </h3>
 
@@ -2693,7 +2693,7 @@ const downloadReport = () => {
   <>
     {/* ================= HEADER ================= */}
     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-      <h2 className="text-xl font-bold">
+      <h2 className="text-xl font-bold text-[#143481]">
        Campus Courses Admission Requests
       </h2>
 
@@ -2803,7 +2803,7 @@ const downloadReport = () => {
       {/* ================= HEADER ================= */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold">
+          <h2 className="text-xl font-bold text-[#143481]">
             Admission Request Details
           </h2>
           <p className="text-sm text-gray-500">
@@ -2956,7 +2956,7 @@ const downloadReport = () => {
 {screen === "certification-admissions" && (
   <>
     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-      <h2 className="text-xl font-bold">
+      <h2 className="text-xl font-bold text-[#143481]">
        Certification Admission Requests
       </h2>
       <input
@@ -3018,7 +3018,7 @@ const downloadReport = () => {
     <div className="max-w-6xl mx-auto space-y-6">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold">Certification Admission Request Details</h2>
+          <h2 className="text-xl font-bold text-[#143481]">Certification Admission Request Details</h2>
           <p className="text-sm text-gray-500">Review student profile and application</p>
         </div>
         <div className="flex gap-3 flex-wrap">
@@ -3047,7 +3047,7 @@ const downloadReport = () => {
   <>
     {/* ================= HEADER ================= */}
     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-      <h2 className="text-xl font-bold">Courses Courses</h2>
+      <h2 className="text-xl font-bold text-[#143481]">Courses Courses</h2>
 
       <button
         onClick={() => {
@@ -3172,7 +3172,7 @@ const downloadReport = () => {
   <>
     {/* ================= HEADER ================= */}
     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-      <h2 className="text-xl font-bold">Certification Courses</h2>
+      <h2 className="text-xl font-bold text-[#143481]">Certification Courses</h2>
 
       <button
         onClick={() => {
@@ -3291,7 +3291,7 @@ const downloadReport = () => {
 {screen === "add-certification-course" && (
   <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow p-3 sm:p-4 md:p-6 md:p-8">
     <div className="mb-6">
-      <h2 className="text-xl font-bold">
+      <h2 className="text-xl font-bold text-[#143481]">
         {editingCertificationCourse ? "Edit Certification Course" : "Add Certification Course"}
       </h2>
       <p className="text-sm text-gray-500">
@@ -3450,10 +3450,10 @@ const downloadReport = () => {
 
 
 {screen === "add-course" && (
-  <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow p-3 sm:p-4 md:p-6 md:p-8">
+  <div className="max-w-4xl mx-auto  bg-white rounded-2xl shadow p-3 sm:p-4 md:p-6 md:p-8">
     {/* ================= HEADER ================= */}
     <div className="mb-6">
-      <h2 className="text-xl font-bold">
+      <h2 className="text-xl font-bold text-[#143481]">
         {editingCampusCourse ? "Edit Course" : "Add Course"}
       </h2>
       <p className="text-sm text-gray-500">
@@ -3639,7 +3639,7 @@ const downloadReport = () => {
 
     {/* HEADER */}
     <div className="mb-6">
-      <h2 className="text-xl font-bold">
+      <h2 className="text-xl font-bold text-[#143481]" >
         {editingBlog ? "Edit Blog" : "Create Blog"}
       </h2>
       <p className="text-sm text-gray-500">
@@ -3876,7 +3876,7 @@ const downloadReport = () => {
     {/* ================= HEADER ================= */}
     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
       <div>
-        <h2 className="text-xl font-bold">
+        <h2 className="text-xl font-bold text-[#143481]">
           Internship Applications
         </h2>
         <p className="text-sm text-gray-500">
@@ -4002,7 +4002,7 @@ const downloadReport = () => {
     {/* ================= HEADER ================= */}
     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
       <div>
-        <h2 className="text-xl font-bold">
+        <h2 className="text-xl font-bold text-[#143481]">
           Blogs
         </h2>
         <p className="text-sm text-gray-500">
@@ -4120,7 +4120,7 @@ const downloadReport = () => {
     {/* ================= HEADER ================= */}
     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
       <div>
-        <h2 className="text-xl font-bold">Companies</h2>
+        <h2 className="text-xl font-bold text-[#143481]">Companies</h2>
         <p className="text-sm text-gray-500">
           Manage registered companies
         </p>
@@ -4239,7 +4239,7 @@ const downloadReport = () => {
 
     {/* ================= HEADER ================= */}
     <div className="mb-6">
-      <h2 className="text-xl font-bold">
+      <h2 className="text-xl font-bold text-[#143481]">
         {selectedCompany ? "Edit Company" : "Add Company"}
       </h2>
       <p className="text-sm text-gray-500">
@@ -4508,7 +4508,7 @@ const downloadReport = () => {
     {/* ================= HEADER ================= */}
     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
       <div>
-        <h2 className="text-xl font-bold">Jobs</h2>
+        <h2 className="text-xl font-bold text-[#143481]">Jobs</h2>
         <p className="text-sm text-gray-500">
           Manage job openings and hiring status
         </p>
@@ -4677,7 +4677,7 @@ const downloadReport = () => {
       
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-bold">Add New Job</h3>
+        <h3 className="text-lg font-bold text-[#143481] ">Add New Job</h3>
         <button
           onClick={() => setShowAddJobModal(false)}
           className="text-gray-500 hover:text-gray-700"
@@ -4832,7 +4832,7 @@ const downloadReport = () => {
     {/* ================= HEADER ================= */}
     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
       <div>
-        <h2 className="text-xl font-bold">Internships</h2>
+        <h2 className="text-xl font-bold text-[#143481]">Internships</h2>
         <p className="text-sm text-gray-500">
           Manage internship opportunities and applications
         </p>
@@ -5015,7 +5015,7 @@ const downloadReport = () => {
 
       {/* ================= HEADER ================= */}
       <div className="flex items-center justify-between px-6 py-5 border-b">
-        <h3 className="text-2xl font-bold text-gray-800">
+        <h3 className="text-2xl font-bold text-[#143481] ">
           {editingInternship ? "Edit Internship" : "Post New Internship"}
         </h3>
         <button
@@ -5233,7 +5233,7 @@ const downloadReport = () => {
     {/* ================= HEADER ================= */}
     <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
       <div>
-        <h2 className="text-xl font-bold">
+        <h2 className="text-xl font-bold text-[#143481]">
           Job Applications
         </h2>
         <p className="text-sm text-gray-500">
@@ -5376,7 +5376,7 @@ const downloadReport = () => {
     {/* Header */}
     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div>
-        <h2 className="text-xl font-bold">Reports</h2>
+        <h2 className="text-xl font-bold text-[#143481]">Reports</h2>
         <p className="text-sm text-gray-500">Generate and download system reports</p>
       </div>
     </div>
@@ -5486,7 +5486,7 @@ const downloadReport = () => {
   <div className="max-w-6xl mx-auto bg-white rounded-2xl shadow p-3 sm:p-4 md:p-6 md:p-8">
     {/* ================= HEADER ================= */}
     <div className="mb-6">
-      <h2 className="text-xl font-bold">Settings</h2>
+      <h2 className="text-xl font-bold text-[#143481]">Settings</h2>
       <p className="text-sm text-gray-500">
         Manage application and admin preferences
       </p>
