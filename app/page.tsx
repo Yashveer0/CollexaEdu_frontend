@@ -6,6 +6,8 @@ import Image from "next/image";
 import { useRef } from "react";
 import EnquiryPopup from "./(components)/EnquiryPopup";
 import { useState } from "react";
+
+
 import {
   
   Users,
@@ -121,38 +123,45 @@ export default function Home() {
  ];
 
 
- const features = [
+const features = [
   {
     title: "Unbiased Guidance",
     desc: "We provide transparent and honest recommendations, focused only on what’s best for your career — no hidden agendas, no favoritism.",
     icon: Scale,
+    bg: "/bg_Unbiased_Guidance.jpeg",
   },
   {
     title: "Expert Insights",
     desc: "Get advice and direction shaped by industry experts who understand real-world skills, hiring trends, and career pathways.",
     icon: UserCheck,
+    bg: "/bg_Expert_Insights.jpeg",
   },
   {
     title: "AI-Powered Intelligence",
     desc: "Our AI analyzes your profile, preferences, and goals to match you with the most relevant opportunities faster and smarter.",
     icon: Brain,
+    bg: "/bg_AI-Powered_Intelligence.jpeg",
   },
   {
     title: "End-to-End Solutions",
     desc: "From exploration and shortlisting to application and guidance — Collexa supports you at every step of your journey.",
     icon: Layers,
+    bg: "/bg_End-to-End_Solutions.jpeg",
   },
   {
     title: "Strong Industry Connections",
     desc: "Access opportunities through our growing network of trusted companies, universities, and hiring partners.",
     icon: Network,
+    bg: "/bg_industry_connections.jpeg",
   },
   {
     title: "Success-Focused Approach",
     desc: "We measure our success by yours — ensuring clarity, confidence, and outcomes that truly move your career forward.",
     icon: BadgeCheck,
+    bg: "/bg_success.jpeg",
   },
- ];
+];
+
 
  const images = [
     "/img1.jpeg",
@@ -170,6 +179,27 @@ export default function Home() {
   const [fetchedInternships, setFetchedInternships] = useState<any[]>([]);
   const [fetchedCampusCourses, setFetchedCampusCourses] = useState<any[]>([]);
   const [fetchedCertificationCourses, setFetchedCertificationCourses] = useState<any[]>([]);
+
+  const sliderRef = useRef<HTMLDivElement>(null);
+
+useEffect(() => {
+  const slider = sliderRef.current;
+  if (!slider) return;
+
+  const interval = setInterval(() => {
+    if (
+      slider.scrollLeft + slider.offsetWidth >=
+      slider.scrollWidth
+    ) {
+      slider.scrollTo({ left: 0, behavior: "smooth" });
+    } else {
+      slider.scrollBy({ left: 350, behavior: "smooth" });
+    }
+  }, 3000); // 3 seconds
+
+  return () => clearInterval(interval);
+}, []);
+
 
 //  job
   useEffect(() => {
@@ -299,33 +329,35 @@ export default function Home() {
       {/* ------------------------------------------------ */}
       {/* ⭐ STATS STRIP */}
       {/* ------------------------------------------------ */}
-      <section className="bg-[#83e0c6]  py-8">
-        <div className="max-w-7xl text-gray-700 mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
+      <section className="bg-gradient-to-r text-white from-blue-900 to-emerald-400  py-8">
+        <div className="max-w-7xl text-white mx-auto grid grid-cols-2 md:grid-cols-4 gap-6">
           {/* Students */}
           <div className="flex flex-col items-center text-center gap-2">
-            <FiUsers size={22} className="text-[#163683]" />
-            <Stat number="500+" label="Students" />
+            <FiUsers size={22} className="text-white" />
+          <Stat  number="500+" label="Students" />
           </div>
 
           {/* Institutions */}
           <div className="flex flex-col items-center text-center gap-2">
-            <FiHome size={22} className="text-[#163683]" />
+            <FiHome size={22} className="text-white" />
             <Stat number="150+" label="Institutions" />
           </div>
 
           {/* Countries */}
           <div className="flex flex-col items-center text-center gap-2">
-            <FiGlobe size={22} className="text-[#163683]" />
+            <FiGlobe size={22} className="text-text" />
             <Stat number="10+" label="Countries" />
           </div>
 
           {/* Recruiters */}
           <div className="flex flex-col items-center text-center gap-2">
-            <FiBriefcase size={22} className="text-[#163683]" />
+            <FiBriefcase size={22} className="text-white" />
             <Stat number="100+" label="Recruiters" />
           </div>
         </div>
       </section>
+
+
       {/* Universities Marquee */}
       <section className="bg-gray-100 py-10 overflow-hidden">
   <div className="max-w-7xl mx-auto px-4">
@@ -396,7 +428,7 @@ export default function Home() {
 
           {/* SLIDER */}
           <div
-            id="trending-slider"
+            ref={sliderRef}
             className="flex gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 scrollbar-hide"
           >
             {images.map((src, i) => (
@@ -429,6 +461,8 @@ export default function Home() {
             <ChevronRight />
           </button>
         </div>
+
+
       </section>
 
       
@@ -544,7 +578,7 @@ export default function Home() {
                 </div>
                   
                 <div className="mt-5 pt-4 border-t border-gray-100 flex justify-between items-center"> 
-                  <span className="text-xs font-semibold text-gray-600 bg-gray-100 px-3 py-1 rounded-full">
+                  <span className="text-xs font-semibold text-white bg-[#155DFC] px-4 py-2.5 rounded-md">
                     {c.level || "Beginner"}
                   </span>
                   
@@ -671,7 +705,7 @@ export default function Home() {
 
   {/* CTA ROW */}
   <div className="flex justify-between items-center">
-    <span className="border px-3 text-gray-700 py-1 rounded-full text-xs">
+    <span className="border text-white bg-[#155DFC] px-4 py-1.5 rounded-md ">
       Job
     </span>
 
@@ -801,7 +835,7 @@ export default function Home() {
                 </div>
 
                 <div className="flex justify-between items-center mt-6">
-                  <span className="border text-purple-700 px-3 py-1 rounded-full text-xs">
+                  <span className="border text-white bg-[#155DFC] px-4 py-1.5 rounded-md">
                     Internship
                   </span>
 
@@ -1034,27 +1068,43 @@ export default function Home() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((item, index) => (
             <div
-              key={index}
-              className="group bg-white border rounded-2xl p-6 shadow-sm hover:shadow-xl transition duration-300"
-            >
-              {/* Image */}
-              <div className="w-14 h-14 mb-4 rounded-xl bg-blue-50 flex items-center justify-center">
-                <item.icon className="w-8 h-8 text-blue-600" />
-              </div>
+  key={index}
+  className="relative group rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition duration-300"
+>
 
-              {/* Text */}
-              <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-blue-600 transition">
-                {item.title}
-              </h3>
-              <p className="text-sm text-gray-600 leading-relaxed">
-                {item.desc}
-              </p>
-            </div>
+  {/* Background Image */}
+  <div
+    className="absolute inset-0 bg-cover bg-center scale-105 group-hover:scale-110 transition duration-500"
+    style={{ backgroundImage: `url(${item.bg})` }}
+  ></div>
+
+  {/* Blur Overlay */}
+  <div className="absolute inset-0 bg-black/40 "></div>
+
+  {/* Content */}
+  <div className="relative z-10 p-6 text-white">
+    
+    <div className="w-14 h-14 mb-4 rounded-xl bg-white/20 flex items-center justify-center backdrop-blur-md">
+      <item.icon className="w-8 h-8 text-white" />
+    </div>
+
+    <h3 className="text-lg font-semibold mb-2 group-hover:text-blue-200 transition">
+      {item.title}
+    </h3>
+
+    <p className="text-md font-semibold text-gray-200 leading-relaxed">
+      {item.desc}
+    </p>
+
+  </div>
+</div>
+
           ))}
         </div>
 
       </div>
     </section>
+    
       {/* Testimonials Marquee */}
       <TestimonialsMarquee />
     </div>
@@ -1095,7 +1145,7 @@ function Stat({ number, label }: { number: string; label: string }) {
         {count}
         {suffix}
       </h3>
-      <p className="text-gray-500">{label}</p>
+      <p className="text-white  font-semibold">{label}</p>
     </div>
   );
 }
