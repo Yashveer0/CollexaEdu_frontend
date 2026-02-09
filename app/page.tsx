@@ -256,7 +256,7 @@ export default function Home() {
       {/* ------------------------------------------------ */}
       {/* ⭐ HERO SECTION */}
       {/* ------------------------------------------------ */}
-      <section className="max-w-7xl mx-auto  px-6 py-16 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+      <section  className="max-w-7xl mx-auto  px-6 py-16 grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
         <div className="md:mt-30 mt-12">
           <h1 className="text-4xl md:text-5xl font-bold leading-tight text-gray-900">
             Launch your career <br />
@@ -293,6 +293,9 @@ export default function Home() {
           />
         </div>
       </section>
+
+
+
       {/* ------------------------------------------------ */}
       {/* ⭐ STATS STRIP */}
       {/* ------------------------------------------------ */}

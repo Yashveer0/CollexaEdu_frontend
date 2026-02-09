@@ -193,7 +193,7 @@ const faqs = [
   {/* IMAGE CONTAINER */}
   <div className="rounded-2xl shadow-xl bg-gray-100 w-full h-[340px] md:h-[380px] overflow-hidden group">
     <img
-      src="/course.jpg"
+      src="/campus_img.jpeg"
       alt="Internship Illustration"
       className="w-full h-full object-contain md:object-cover transition-all duration-[1200ms] ease-[cubic-bezier(.17,.67,.27,1)] group-hover:scale-[1.03]"
     />
