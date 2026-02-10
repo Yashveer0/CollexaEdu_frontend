@@ -1021,12 +1021,12 @@ useEffect(() => {
           className="border border-gray-200 bg-white"
         >
           {/* University Image */}
-          <div className="relative w-full h-36 overflow-hidden">
+          <div className="relative w-full h-40 overflow-hidden">
             <Image
               src={uni.img}
               alt="University campus"
               fill
-              className="object-cover"
+              className="object-contain"
             />
           </div>
 
