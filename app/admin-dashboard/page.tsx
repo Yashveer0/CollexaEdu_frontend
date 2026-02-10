@@ -8,8 +8,7 @@ import { useRouter } from "next/navigation";
 import { Bell,  UserCircle } from "lucide-react";
 import { useAuth } from "../context_api/AuthContext";
 import { API } from "../lib/axios";
-// It's generally recommended to import global CSS files in your root layout (e.g., app/layout.tsx)
-// instead of a specific page component to avoid side effects and ensure consistent styling.
+
 import "../globals.css";
 
 
@@ -274,6 +273,7 @@ const [jobForm, setJobForm] = useState({
   description: "",
   companyId: "",
   companyName: "",   
+  category: "",
   location: "",
   type: "remote",
   salaryMin: "",
@@ -1051,6 +1051,7 @@ const resetJobForm = () => {
     description: "",
     companyId: "",
     companyName: "",
+    category: "",
     location: "",
     type: "remote",
     salaryMin: "",
@@ -1414,6 +1415,7 @@ const handleSaveInternship = async () => {
       title: internshipForm.title.trim(),
       description: internshipForm.description.trim(),
       companyName: internshipForm.companyName,
+      
       company: internshipForm.companyId,
       location: internshipForm.location.trim(),
       stipendMin: Number(internshipForm.stipendMin),
@@ -1595,6 +1597,7 @@ const handleSaveJob = async () => {
       !jobForm.title ||
       !jobForm.description ||
       !jobForm.companyId ||
+      !jobForm.category ||
       !jobForm.location ||
       !jobForm.salaryMin ||
       !jobForm.salaryMax ||
@@ -1615,6 +1618,7 @@ const handleSaveJob = async () => {
       title: jobForm.title.trim(),
       description: jobForm.description.trim(),
       company: jobForm.companyId,
+          category: jobForm.category?.trim(),
       companyName: jobForm.companyName,
       location: jobForm.location.trim(),
       type: jobForm.type,
@@ -4520,7 +4524,7 @@ const downloadReport = () => {
           resetJobForm();
           setShowAddJobModal(true);
         }}
-        className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+        className="px-4 py-2 rounded-lg bg-[#143481] text-white "
       >
         + Add Job
       </button>
@@ -4612,8 +4616,9 @@ const downloadReport = () => {
                         setJobForm({
                           title: job.title || "",
                           description: job.description || "",
-                          companyId: job.company || "",
-                          companyName: job.companyName || "",
+                          companyId: job.company?._id || job.company || "",
+                          companyName: job.company?.name || job.companyName || "",
+                          category: job.category || job.jobCategory || "",
                           location: job.location || "",
                           type: job.type || "remote",
                           salaryMin: job.salaryMin || "",
@@ -4670,162 +4675,234 @@ const downloadReport = () => {
   </>
 )}
 
-{/* job from */}
+{/* job form */}
 {showAddJobModal && (
-  <div className="fixed inset-0 z-50  bg-black/50 flex items-center justify-center">
-    <div className="bg-white text-black w-full max-w-2xl rounded-xl shadow-lg p-6 relative">
-      
+  <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center px-4">
+    
+    <div className="bg-white text-black w-full max-w-xl rounded-xl shadow-xl p-5 relative max-h-[90vh] overflow-y-auto">
+
       {/* Header */}
-      <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-bold text-[#143481] ">Add New Job</h3>
+      <div className="flex justify-between items-center mb-3">
+        <h3 className="text-lg font-semibold text-[#0A1A40]">
+          {editingJob ? "Update Job" : "Add New Job"}
+        </h3>
         <button
           onClick={() => setShowAddJobModal(false)}
-          className="text-gray-500 hover:text-gray-700"
+          className="text-gray-400 hover:text-gray-700 transition"
         >
           ✕
         </button>
       </div>
 
-      {/* Form */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Form Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
 
-        <input
-          placeholder="Job Title"
-          className="input"
-          value={jobForm.title}
-          onChange={(e) => setJobForm({ ...jobForm, title: e.target.value })}
-        />
+        {/* Job Title */}
+        <div>
+          <label className="block text-xs font-medium mb-1">Job Title</label>
+          <input
+            placeholder="Enter job title"
+            className="w-full border rounded-md px-3 py-1.5 text-sm focus:ring-2 focus:ring-[#0A1A40] outline-none transition"
+            value={jobForm.title}
+            onChange={(e) =>
+              setJobForm({ ...jobForm, title: e.target.value })
+            }
+          />
+        </div>
 
-       <select
-  className="input"
-  value={jobForm.companyId}
-  onChange={(e) => {
-    const selectedId = e.target.value;
-    const selectedCompany = companies.find(
-      (c) => c._id === selectedId
-    );
+        {/* Company */}
+        <div>
+          <label className="block text-xs font-medium mb-1">Company</label>
+          <select
+            className="w-full border rounded-md px-3 py-1.5 text-sm focus:ring-2 focus:ring-[#0A1A40] outline-none transition"
+            value={jobForm.companyId}
+            onChange={(e) => {
+              const selectedId = e.target.value;
+              const selectedCompany = companies.find(
+                (c) => c._id === selectedId
+              );
 
-    setJobForm({
-      ...jobForm,
-      companyId: selectedId,
-      companyName: selectedCompany?.name || "",
-    });
-  }}
->
-  <option value="">Select Company</option>
-  {companies.map((company) => (
-    <option key={company._id} value={company._id}>
-      {company.name}
-    </option>
-  ))}
-</select>
+              setJobForm({
+                ...jobForm,
+                companyId: selectedId,
+                companyName: selectedCompany?.name || "",
+              });
+            }}
+          >
+            <option value="">Select Company</option>
+            {companies.map((company) => (
+              <option key={company._id} value={company._id}>
+                {company.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
+        {/* Location */}
+        <div>
+          <label className="block text-xs font-medium mb-1">Location</label>
+          <input
+            placeholder="Enter location"
+            className="w-full border rounded-md px-3 py-1.5 text-sm focus:ring-2 focus:ring-[#0A1A40] outline-none transition"
+            value={jobForm.location}
+            onChange={(e) =>
+              setJobForm({ ...jobForm, location: e.target.value })
+            }
+          />
+        </div>
 
+        {/* Job Type */}
+        <div>
+          <label className="block text-xs font-medium mb-1">Job Type</label>
+          <select
+            className="w-full border rounded-md px-3 py-1.5 text-sm focus:ring-2 focus:ring-[#0A1A40] outline-none transition"
+            value={jobForm.type}
+            onChange={(e) =>
+              setJobForm({ ...jobForm, type: e.target.value })
+            }
+          >
+            <option value="remote">Remote</option>
+            <option value="full-time">Full Time</option>
+            <option value="on-site">Onsite</option>
+            <option value="hybrid">Hybrid</option>
+            <option value="part-time">Part Time</option>
+            <option value="contract">Contract</option>
+          </select>
+        </div>
 
-        <input
-          placeholder="Location"
-          className="input"
-          value={jobForm.location}
-          onChange={(e) =>
-            setJobForm({ ...jobForm, location: e.target.value })
-          }
-        />
+        {/* Category */}
+        <div>
+          <label className="block text-xs font-medium mb-1">Category</label>
+          <select
+            className="w-full border rounded-md px-3 py-1.5 text-sm focus:ring-2 focus:ring-[#0A1A40] outline-none transition"
+            value={jobForm.category}
+            onChange={(e) =>
+              setJobForm({ ...jobForm, category: e.target.value })
+            }
+          >
+            <option value="">Select Category</option>
+            <option value="Big brands">Big brands</option>
+            <option value="Work from home">Work from home</option>
+            <option value="Part-time">Part-time</option>
+            <option value="MBA">MBA</option>
+            <option value="Engineering">Engineering</option>
+            <option value="Media">Media</option>
+            <option value="Design">Design</option>
+            <option value="Data Science">Data Science</option>
+            <option value="Accounting">Accounting</option>
+          </select>
+        </div>
 
-        <select
-  className="input"
-  value={jobForm.type}
-  onChange={(e) =>
-    setJobForm({ ...jobForm, type: e.target.value })
-  }
->
-  <option value="remote">Remote</option>
-  <option value="full-time">Full Time</option>   
-  <option value="on-site">Onsite</option>   
-  <option value="hybrid">Hybrid</option>
-  <option value="part-time">Part Time</option>
-  <option value="contract">Contract</option>
-</select>
+        {/* Salary Min */}
+        <div>
+          <label className="block text-xs font-medium mb-1">Salary Min</label>
+          <input
+            className="w-full border rounded-md px-3 py-1.5 text-sm focus:ring-2 focus:ring-[#0A1A40] outline-none transition"
+            value={jobForm.salaryMin}
+            onChange={(e) =>
+              setJobForm({ ...jobForm, salaryMin: e.target.value })
+            }
+          />
+        </div>
 
-        <input
-          placeholder="Salary Min"
-          className="input"
-          value={jobForm.salaryMin}
-          onChange={(e) =>
-            setJobForm({ ...jobForm, salaryMin: e.target.value })
-          }
-        />
+        {/* Salary Max */}
+        <div>
+          <label className="block text-xs font-medium mb-1">Salary Max</label>
+          <input
+            className="w-full border rounded-md px-3 py-1.5 text-sm focus:ring-2 focus:ring-[#0A1A40] outline-none transition"
+            value={jobForm.salaryMax}
+            onChange={(e) =>
+              setJobForm({ ...jobForm, salaryMax: e.target.value })
+            }
+          />
+        </div>
 
-        <input
-          placeholder="Salary Max"
-          className="input"
-          value={jobForm.salaryMax}
-          onChange={(e) =>
-            setJobForm({ ...jobForm, salaryMax: e.target.value })
-          }
-        />
+        {/* Openings */}
+        <div>
+          <label className="block text-xs font-medium mb-1">Openings</label>
+          <input
+            className="w-full border rounded-md px-3 py-1.5 text-sm focus:ring-2 focus:ring-[#0A1A40] outline-none transition"
+            value={jobForm.openings}
+            onChange={(e) =>
+              setJobForm({ ...jobForm, openings: e.target.value })
+            }
+          />
+        </div>
 
-        <input
-          placeholder="Openings"
-          className="input"
-          value={jobForm.openings}
-          onChange={(e) =>
-            setJobForm({ ...jobForm, openings: e.target.value })
-          }
-        />
-
-        <select
-          className="input"
-          value={jobForm.experienceLevel}
-          onChange={(e) =>
-            setJobForm({ ...jobForm, experienceLevel: e.target.value })
-          }
-        >
-          <option value="Fresher">Fresher</option>
-          <option value="Junior">Junior</option>
-          <option value="Mid">Mid</option>
-          <option value="Senior">Senior</option>
-        </select>
+        {/* Experience */}
+        <div>
+          <label className="block text-xs font-medium mb-1">
+            Experience Level
+          </label>
+          <select
+            className="w-full border rounded-md px-3 py-1.5 text-sm focus:ring-2 focus:ring-[#0A1A40] outline-none transition"
+            value={jobForm.experienceLevel}
+            onChange={(e) =>
+              setJobForm({ ...jobForm, experienceLevel: e.target.value })
+            }
+          >
+            <option value="Fresher">Fresher</option>
+            <option value="Junior">Junior</option>
+            <option value="Mid">Mid</option>
+            <option value="Senior">Senior</option>
+          </select>
+        </div>
       </div>
 
-      <textarea
-        placeholder="Job Description"
-        className="input mt-4 w-full h-24"
-        value={jobForm.description}
-        onChange={(e) =>
-          setJobForm({ ...jobForm, description: e.target.value })
-        }
-      />
+      {/* Description */}
+      <div className="mt-3">
+        <label className="block text-xs font-medium mb-1">
+          Job Description
+        </label>
+        <textarea
+          rows={2}
+          className="w-full border rounded-md px-3 py-1.5 text-sm focus:ring-2 focus:ring-[#0A1A40] outline-none transition resize-none"
+          value={jobForm.description}
+          onChange={(e) =>
+            setJobForm({ ...jobForm, description: e.target.value })
+          }
+        />
+      </div>
 
-      <input
-        placeholder="Skills (comma separated)"
-        className="input mt-4 w-full"
-        value={jobForm.skillsRequired}
-        onChange={(e) =>
-          setJobForm({ ...jobForm, skillsRequired: e.target.value })
-        }
-      />
+      {/* Skills */}
+      <div className="mt-3">
+        <label className="block text-xs font-medium mb-1">
+          Skills (separate with commas) 
+        </label>
+        <input
+          className="w-full border rounded-md px-3 py-1.5 text-sm focus:ring-2 focus:ring-[#0A1A40] outline-none transition"
+          value={jobForm.skillsRequired}
+          onChange={(e) =>
+            setJobForm({ ...jobForm, skillsRequired: e.target.value })
+          }
+        />
+      </div>
 
       {/* Footer */}
-      <div className="flex justify-end gap-3 mt-6">
+      <div className="flex justify-end gap-3 mt-5">
         <button
           onClick={() => setShowAddJobModal(false)}
-          className="px-4 py-2 rounded border"
+          className="px-4 py-1.5 text-sm rounded-md border hover:bg-gray-100 transition"
         >
           Cancel
         </button>
 
         <button
-  disabled={loading}
-  onClick={handleSaveJob}
-  className="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700"
->
-  {loading ? "Saving..." : editingJob ? "Update Job" : "Create Job"}
-</button>
-
+          disabled={loading}
+          onClick={handleSaveJob}
+          className="px-5 py-1.5 text-sm rounded-md text-white bg-[#0A1A40] hover:opacity-90 transition disabled:opacity-50"
+        >
+          {loading
+            ? "Saving..."
+            : editingJob
+            ? "Update Job"
+            : "Create Job"}
+        </button>
       </div>
     </div>
   </div>
 )}
+
 
 {screen === "Internships" && (
   <>
@@ -4844,7 +4921,7 @@ const downloadReport = () => {
           resetInternshipForm();
           setShowAddInternshipModal(true);
         }}
-        className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700"
+        className="px-4 py-2 rounded-lg bg-[#143481] text-white "
       >
         + Add Internship
       </button>
@@ -5212,7 +5289,7 @@ const downloadReport = () => {
         <button
           disabled={internshipLoading}
           onClick={handleSaveInternship}
-          className="px-6 py-2 rounded-xl bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-60"
+          className="px-6 py-2 rounded-xl bg-[#143481] text-white font-medium  disabled:opacity-60"
         >
           {internshipLoading
             ? "Saving..."

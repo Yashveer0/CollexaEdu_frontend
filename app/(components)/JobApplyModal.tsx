@@ -181,7 +181,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       {/* Apply Button */}
       <button
         onClick={handleOpen}
-        className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
+        className="px-4 py-2 text-sm font-medium text-white bg-[#143481] rounded-lg"
       >
         {btn_text} →
       </button>

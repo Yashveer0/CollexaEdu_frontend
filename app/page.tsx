@@ -164,14 +164,14 @@ const features = [
 
 
  const images = [
-    "/img1.jpeg",
-    "/img2.jpeg",
-    "/img3.jpeg",
-    "/img4.jpeg",
-    "/img5.jpeg",
-    "/img6.jpeg",
-    "/img7.jpeg",
-    "/img9.jpeg"
+    "/img01.jpeg",
+    "/img02.jpeg",
+    "/img03.jpeg",
+    "/img04.jpeg",
+    "/img05.jpeg",
+    "/img06.jpeg",
+    "/img07.jpeg",
+    "/img09.jpeg"
   ];
 
   const [activeJobTab, setActiveJobTab] = useState("Work from home");
@@ -578,7 +578,7 @@ useEffect(() => {
                 </div>
                   
                 <div className="mt-5 pt-4 border-t border-gray-100 flex justify-between items-center"> 
-                  <span className="text-xs font-semibold text-white bg-[#155DFC] px-4 py-2.5 rounded-md">
+                  <span className="text-xs font-semibold text-white bg-[#143481] px-4 py-2.5 rounded-md">
                     {c.level || "Beginner"}
                   </span>
                   
@@ -705,7 +705,7 @@ useEffect(() => {
 
   {/* CTA ROW */}
   <div className="flex justify-between items-center">
-    <span className="border text-white bg-[#155DFC] px-4 py-1.5 rounded-md ">
+    <span className="border text-white bg-[#143481] px-4 py-1.5 rounded-md ">
       Job
     </span>
 
@@ -835,7 +835,7 @@ useEffect(() => {
                 </div>
 
                 <div className="flex justify-between items-center mt-6">
-                  <span className="border text-white bg-[#155DFC] px-4 py-1.5 rounded-md">
+                  <span className="border text-white bg-[#143481] px-4 py-1.5 rounded-md">
                     Internship
                   </span>
 

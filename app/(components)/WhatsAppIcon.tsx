@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { FaWhatsapp } from "react-icons/fa";
-
+import { FaWhatsapp } from "react-icons/fa"
 const WhatsAppIcon = () => {
   return (
     <Link
