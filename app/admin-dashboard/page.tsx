@@ -3058,7 +3058,7 @@ const downloadReport = () => {
           resetCampusCourseForm();
           setScreen("add-course");
         }}
-        className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+        className="px-4 py-2 rounded-lg bg-[#143481] text-white "
       >
         + Add Course
       </button>
@@ -3629,8 +3629,7 @@ const downloadReport = () => {
 
       <button
         onClick={handleSaveCampusCourse}
-        className="px-6 py-2 rounded-lg bg-blue-600 text-white
-          hover:bg-blue-700 transition shadow"
+        className="px-6 py-2 rounded-lg bg-[#143481] text-white"
       >
         {editingCampusCourse ? "Update Course" : "Save Course"}
       </button>
@@ -3861,7 +3860,7 @@ const downloadReport = () => {
                 setBlogLoading(false);
               }
             }}
-            className="w-full bg-blue-600 text-white rounded-lg py-2 hover:bg-blue-700 disabled:opacity-60"
+            className="w-full bg-[#143481] text-white rounded-lg py-2 "
           >
             {blogLoading
               ? "Saving..."
@@ -4027,7 +4026,7 @@ const downloadReport = () => {
           });
           setScreen("create-blog");
         }}
-        className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+        className="px-4 py-2 rounded-lg bg-[#143481] text-white "
       >
         + Add Blog
       </button>
@@ -4135,7 +4134,7 @@ const downloadReport = () => {
           setSelectedCompany(null);
           setScreen("create-company");
         }}
-        className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+        className="px-4 py-2 rounded-lg bg-[#143481] text-white  transition"
       >
         + Add Company
       </button>
@@ -4172,7 +4171,7 @@ const downloadReport = () => {
                     setScreen("create-company");
                   }}
                   className="inline-flex items-center px-4 py-2 rounded-lg
-                    bg-blue-600 text-white text-sm hover:bg-blue-700 transition"
+                    bg-[#143481] text-white text-sm  transition"
                 >
                   + Add Company
                 </button>
@@ -4215,7 +4214,7 @@ const downloadReport = () => {
                         setSelectedCompany(company);
                         setScreen("create-company");
                       }}
-                      className="text-blue-600 hover:underline"
+                      className="text-[#143481] hover:underline"
                     >
                       Edit
                     </button>
@@ -4358,8 +4357,8 @@ const downloadReport = () => {
       <button
         disabled={loading}
         onClick={handleSaveCompany}
-        className="px-6 py-2 rounded-lg bg-blue-600 text-white
-          hover:bg-blue-700 transition disabled:opacity-60"
+        className="px-6 py-2 rounded-lg bg-[#143481] text-white
+           transition disabled:opacity-60"
       >
         {loading
           ? "Saving..."
@@ -4370,140 +4369,6 @@ const downloadReport = () => {
     </div>
   </div>
 )}
-
-
-
-{/* {screen === "testimonials" && (
-  <>
-    
-    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
-      <div>
-        <h2 className="text-xl font-bold">
-          Testimonials
-        </h2>
-        <p className="text-sm text-gray-500">
-          Manage user testimonials and reviews
-        </p>
-      </div>
-     
-    </div>
-
-    
-    <div className="bg-white rounded-xl shadow overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead className="bg-gray-50 text-gray-600">
-          <tr>
-            <th className="px-4 py-3 text-left">Name</th>
-            <th className="px-4 py-3 text-left">Role</th>
-            <th className="px-4 py-3 text-left">Rating</th>
-            <th className="px-4 py-3 text-left">Status</th>
-            <th className="px-4 py-3 text-left">Date</th>
-            <th className="px-4 py-3 text-left">Action</th>
-          </tr>
-        </thead>
-
-        <tbody className="divide-y">
-          {[
-            {
-              name: "Aman Gupta",
-              role: "Student",
-              rating: 2,
-              status: "Active",
-            },
-            {
-              name: "Neha Sharma",
-              role: "Parent",
-              rating: 5,
-              status: "Inactive",
-            },
-            {
-              name: "Rohit Verma",
-              role: "Employer",
-              rating: 3,
-              status: "Active",
-            },
-            {
-              name: "Rohit Verma",
-              role: "Employer",
-              rating: 4,
-              status: "Active",
-            },{
-              name: "Rohit Verma",
-              role: "Employer",
-              rating: 2,
-              status: "Active",
-            },
-          ].map((t, i) => (
-            <tr
-              key={i}
-              className="hover:bg-blue-50 transition"
-            >
-              
-              <td className="px-4 py-3 font-medium">
-                {t.name}
-              </td>
-
-              
-              <td className="px-4 py-3">
-                {t.role}
-              </td>
-
-              
-              <td className="px-4 py-3">
-                <div className="flex gap-1">
-                  {Array.from({ length: t.rating }).map((_, idx) => (
-                    <span
-                      key={idx}
-                      className={`text-sm ${
-                        idx < t.rating
-                          ? "text-yellow-500"
-                          : "text-gray-300"
-                      }`}
-                    >
-                      ★
-                    </span>
-                  ))}
-                </div>
-              </td>
-
-              
-              <td className="px-4 py-3">
-                <span
-                  className={`px-2 py-1 text-xs rounded
-                    ${
-                      t.status === "Active"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-red-100 text-red-700"
-                    }
-                  `}
-                >
-                  {t.status}
-                </span>
-              </td>
-
-              
-              <td className="px-4 py-3 text-gray-500">
-                22 Jan 2026
-              </td>
-
-              
-              <td className="px-4 py-3">
-                <div className="flex gap-3 text-xs">
-                  <button className="text-blue-600 hover:underline">
-                    Edit
-                  </button>
-                  <button className="text-red-600 hover:underline">
-                    Delete
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </>
-)} */}
 
 
 

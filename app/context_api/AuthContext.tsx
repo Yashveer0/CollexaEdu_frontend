@@ -508,6 +508,7 @@ const getJobApplications = async (jobId: string) => {
   return res.data;
 };
 
+
 const submitContactForm = async (data: {
   fullName: string;
   email: string;
