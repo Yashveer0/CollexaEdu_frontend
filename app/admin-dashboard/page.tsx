@@ -3184,7 +3184,7 @@ const downloadReport = () => {
           setEditingCertificationCourse(null);
           setScreen("add-certification-course");
         }}
-        className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
+        className="px-4 py-2 rounded-lg bg-[#143481] text-white "
       >
         + Add Certification Course
       </button>
@@ -3444,7 +3444,7 @@ const downloadReport = () => {
       </button>
       <button
         onClick={handleSaveCertificationCourse}
-        className="px-6 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition shadow"
+        className="px-6 py-2 rounded-lg bg-[#143481] text-white"
       >
         {editingCertificationCourse ? "Update Course" : "Save Course"}
       </button>
@@ -5040,7 +5040,7 @@ const downloadReport = () => {
                         });
                         setShowAddInternshipModal(true);
                       }}
-                      className="text-blue-600 hover:underline"
+                      className="text-[#143481] hover:underline"
                     >
                       Edit
                     </button>
@@ -5504,7 +5504,7 @@ const downloadReport = () => {
         <button 
           onClick={handleGenerateReport}
           disabled={reportLoading}
-          className="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 transition disabled:opacity-60"
+          className="flex-1 bg-[#143481] text-white px-4 py-2 rounded-lg text-sm hover:bg-[#0f2a6a] transition disabled:opacity-60"
         >
           {reportLoading ? "Loading..." : "Generate"}
         </button>
@@ -5653,7 +5653,7 @@ const downloadReport = () => {
             />
           </div>
 
-          <button className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+          <button className="mt-4 px-4 py-2 bg-[#143481] text-white rounded-lg transition">
             Update Password
           </button>
         </div>
@@ -5720,7 +5720,7 @@ const downloadReport = () => {
 
     {/* ================= SAVE ================= */}
     <div className="mt-10 flex justify-end">
-      <button className="px-6 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition shadow">
+      <button className="px-6 py-2 rounded-lg bg-[#143481] text-white  ">
         Save Settings
       </button>
     </div>
