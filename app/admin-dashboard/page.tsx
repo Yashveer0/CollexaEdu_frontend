@@ -288,6 +288,7 @@ const [internshipForm, setInternshipForm] = useState({
   description: "",
   companyId: "",
   companyName: "",
+  category: "",
   location: "",
   stipendMin: "",
   stipendMax: "",
@@ -304,6 +305,7 @@ const resetInternshipForm = () => {
     description: "",
     companyId: "",
     companyName: "",
+    category: "",
     location: "",
     stipendMin: "",
     stipendMax: "",
@@ -1381,6 +1383,7 @@ const handleSaveInternship = async () => {
     if (
       !internshipForm.title ||
       !internshipForm.description ||
+      !internshipForm.category ||
       !internshipForm.companyId ||
       !internshipForm.location ||
       !internshipForm.stipendMin ||
@@ -1416,6 +1419,7 @@ const handleSaveInternship = async () => {
       description: internshipForm.description.trim(),
       companyName: internshipForm.companyName,
       
+      category: internshipForm.category,
       company: internshipForm.companyId,
       location: internshipForm.location.trim(),
       stipendMin: Number(internshipForm.stipendMin),
@@ -4654,7 +4658,7 @@ const downloadReport = () => {
             <option value="Media">Media</option>
             <option value="Design">Design</option>
             <option value="Data Science">Data Science</option>
-            <option value="Accounting">Accounting</option>
+           
           </select>
         </div>
 
@@ -4893,11 +4897,17 @@ const downloadReport = () => {
                           description: internship.description || "",
                           companyId: internship.company || "",
                           companyName: internship.companyName || "",
+                          companyId: internship.company?._id || internship.company || "",
+                          companyName: internship.company?.name || internship.companyName || "",
+                          category: internship.category || "",
                           location: internship.location || "",
                           stipendMin: internship.stipendMin || "",
                           stipendMax: internship.stipendMax || "",
                           duration: internship.duration || "",
                           startDate: internship.startDate || "",
+                          startDate: internship.startDate
+                            ? new Date(internship.startDate).toISOString().split("T")[0]
+                            : "",
                           openings: internship.openings || "",
                           mode: internship.mode || "remote",
                           skillsRequired:
@@ -5018,6 +5028,31 @@ const downloadReport = () => {
               </select>
             </div>
           </div>
+
+          {/* Category */}
+          <div className="mt-5">
+            <label className="text-sm font-medium text-gray-600">
+              Category *
+            </label>
+            <select
+              className="mt-1 w-full rounded-xl border px-4 py-3 focus:ring-2 focus:ring-blue-500 outline-none"
+              value={internshipForm.category}
+              onChange={(e) =>
+                setInternshipForm({ ...internshipForm, category: e.target.value })
+              }
+            >
+              <option value="">Select Category</option>
+              {[
+                "Big brands", "Work from home", "Part-time", "MBA",
+                "Engineering", "Media", "Design", "Data Science", "Accounting"
+              ].map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
+          </div>
+
         </div>
 
         {/* LOCATION & MODE */}

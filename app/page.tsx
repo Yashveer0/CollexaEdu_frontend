@@ -42,7 +42,7 @@ import { useAuth } from "./context_api/AuthContext";
 export default function Home() {
   const { getPublicJobs, getPublicInternships , getPublicCampusCourses, getCertificationCourses } = useAuth();
 
-  const tabs = [
+  const internshipTabs = [
     "Big brands",
     "Work from home",
     "Part-time",
@@ -54,7 +54,7 @@ export default function Home() {
     "Accounting",
   ];
 
-  const [active, setActive] = useState("Big brands");
+  const [activeInternshipTab, setActiveInternshipTab] = useState("Big brands");
 
   const categories = [
     "Digital Skills",
@@ -174,7 +174,7 @@ const features = [
     "/img09.jpeg"
   ];
 
-  const [activeJobTab, setActiveJobTab] = useState("Work from home");
+  const [activeJobTab, setActiveJobTab] = useState("Big brands");
   const [fetchedJobs, setFetchedJobs] = useState<any[]>([]);
   const [fetchedInternships, setFetchedInternships] = useState<any[]>([]);
   const [fetchedCampusCourses, setFetchedCampusCourses] = useState<any[]>([]);
@@ -205,7 +205,8 @@ useEffect(() => {
   useEffect(() => {
     const fetchJobs = async () => {
       if (getPublicJobs) {
-        const data = await getPublicJobs({ keyword: activeJobTab });
+        const data = await getPublicJobs({ category: activeJobTab });
+        
         
         if (Array.isArray(data)) {
           setFetchedJobs(data);
@@ -222,7 +223,7 @@ useEffect(() => {
   useEffect(() => {
     const fetchInternships = async () => {
       if (getPublicInternships) {
-        const data = await getPublicInternships({ keyword: active });
+        const data = await getPublicInternships({ category: activeInternshipTab });
         
         
         if (Array.isArray(data)) {
@@ -235,7 +236,7 @@ useEffect(() => {
       }
     };
     fetchInternships();
-  }, [active, getPublicInternships]);
+  }, [activeInternshipTab, getPublicInternships]);
   
 
   const [activeCourseTab, setActiveCourseTab] = useState("Engineering");
@@ -766,15 +767,15 @@ useEffect(() => {
         scrollbar-hide
       "
         >
-          {tabs.map((tab) => (
+          {internshipTabs.map((tab) => (
             <button
               key={tab}
-              onClick={() => setActive(tab)}
+              onClick={() => setActiveInternshipTab(tab)}
               className={`
             px-5 py-2  rounded-full border text-sm whitespace-nowrap
             transition
             ${
-              active === tab
+              activeInternshipTab === tab
                 ? "bg-emerald-500 text-white border-emerald-500"
                 : "bg-white text-gray-700 hover:bg-gray-100"
             }

@@ -36,13 +36,25 @@ export default function InternshipHero() {
 
   const { getPublicCampusCourses } = useAuth();
   const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("");
+  const [showFilters, setShowFilters] = useState(false);
   const [courses, setCourses] = useState<CampusCourseType[]>([]);
   const [loading, setLoading] = useState(false);
+
+  const categories = [
+    "Engineering",
+    "Management",
+    "Technology",
+    "Business",
+    "Design",
+    "Arts",
+    "Science",
+  ];
 
   const fetchCourses = async () => {
     setLoading(true);
     try {
-      const data = await getPublicCampusCourses({ keyword: search });
+      const data = await getPublicCampusCourses({ keyword: search, category: category });
       // Handle response structure { success: true, count: 3, courses: [...] }
       if (data?.courses) {
         setCourses(data.courses);
@@ -60,7 +72,7 @@ export default function InternshipHero() {
 
   useEffect(() => {
     fetchCourses();
-  }, []);
+  }, [category]);
   
   /* Reusable Card */
 function FeatureCard({
@@ -335,7 +347,10 @@ const faqs = [
           </div>
 
           <div className="flex items-center justify-between mt-3 text-sm">
-            <button className="border text-gray-600 px-3 py-1.5 rounded-lg flex items-center justify-center gap-1">
+            <button 
+              onClick={() => setShowFilters(!showFilters)}
+              className={`border px-3 py-1.5 rounded-lg flex items-center justify-center gap-1 transition ${showFilters ? 'bg-blue-50 border-blue-200 text-blue-700' : 'text-gray-600 hover:bg-gray-50'}`}
+            >
               <FiFilter /> Advanced Filters
             </button>
 
@@ -343,6 +358,39 @@ const faqs = [
               {courses.length} Courses found
             </p>
           </div>
+
+          {/* Filters Dropdown */}
+          <AnimatePresence>
+            {showFilters && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="mt-4 p-5 bg-white border rounded-xl shadow-sm">
+                  <p className="text-sm font-semibold text-gray-700 mb-3">Filter by Category</p>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => setCategory("")}
+                      className={`px-4 py-1.5 text-xs font-medium rounded-full border transition-all ${category === "" ? "bg-[#0B2B6B] text-white border-[#0B2B6B]" : "bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-700"}`}
+                    >
+                      All Categories
+                    </button>
+                    {categories.map((cat) => (
+                      <button
+                        key={cat}
+                        onClick={() => setCategory(cat)}
+                        className={`px-4 py-1.5 text-xs font-medium rounded-full border transition-all ${category === cat ? "bg-[#0B2B6B] text-white border-[#0B2B6B]" : "bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-700"}`}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Search Button */}

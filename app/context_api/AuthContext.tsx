@@ -348,6 +348,7 @@ const getPublicJobs = async (params?: {
   type?: "job" | "internship";
   keyword?: string;
   location?: string;
+  category?: string;
 }) => {
   try {
     const res = await API.get("/api/jobs/listingjob", {
@@ -357,6 +358,7 @@ const getPublicJobs = async (params?: {
         type: params?.type,
         keyword: params?.keyword,
         location: params?.location,
+        category: params?.category,
       },
     });
 
@@ -388,6 +390,7 @@ const getPublicInternships = async (params?: {
   limit?: number;
   keyword?: string;
   location?: string;
+  category?: string;
 }) => {
   try {
     const res = await API.get("/api/internship/listinginternship", {
@@ -396,6 +399,7 @@ const getPublicInternships = async (params?: {
         limit: params?.limit || 10,
         keyword: params?.keyword,
         location: params?.location,
+        category: params?.category,
       },
     });
  
@@ -418,6 +422,7 @@ const getPublicCampusCourses = async (params?: {
   page?: number;
   limit?: number;
   category?: string;
+  keyword?: string;
 }) => {
   try {
     const res = await API.get("/api/campuscourses", {
@@ -425,6 +430,7 @@ const getPublicCampusCourses = async (params?: {
         page: params?.page || 1,
         limit: params?.limit || 10,
         category: params?.category,
+        keyword: params?.keyword,
       },
     });
 
