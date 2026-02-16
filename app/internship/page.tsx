@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { FaRocket, FaBuilding, FaUserFriends } from "react-icons/fa";
 import { FiSearch , FiUser , FiSend , FiTrendingUp  } from "react-icons/fi";
+import { motion, AnimatePresence } from "framer-motion";
 
 
 
@@ -13,13 +14,29 @@ export default function InternshipHero() {
 
   const { getPublicInternships } = useAuth();
   const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("");
+const [showFilters, setShowFilters] = useState(false);
+
+const internshipTabs = [
+  "Big brands",
+  "Work from home",
+  "Part-time",
+  "MBA",
+  "Engineering",
+  "Media",
+  "Design",
+  "Data Science",
+  "Accounting",
+];
+
   const [internships, setInternships] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   const fetchInternships = async () => {
     setLoading(true);
     try {
-      const data = await getPublicInternships({ keyword: search });
+      const data = await getPublicInternships({ keyword: search,
+  category: category, });
       if (Array.isArray(data)) {
         setInternships(data);
       } else {
@@ -33,8 +50,9 @@ export default function InternshipHero() {
   };
 
   useEffect(() => {
-    fetchInternships();
-  }, []);
+  fetchInternships();
+}, [category]);
+
 
   return (
     <section className="w-full bg-[#F7FBFF] py-12 md:py-20">
@@ -242,9 +260,18 @@ export default function InternshipHero() {
           </div>
 
           <div className="flex items-center justify-between mt-3 text-sm">
-            <button className="border text-gray-600 px-3 py-1.5 rounded-lg flex items-center gap-1">
-              ⚙ Advanced Filters
-            </button>
+            
+            <button
+  onClick={() => setShowFilters(!showFilters)}
+  className={`border px-3 py-1.5 rounded-lg flex items-center gap-1 transition ${
+    showFilters
+      ? "bg-blue-50 border-blue-200 text-blue-700"
+      : "text-gray-600 hover:bg-gray-50"
+  }`}
+>
+  ⚙ Advanced Filters
+</button>
+
 
             <p className="text-gray-500">
               {internships.length} internships found
@@ -261,6 +288,51 @@ export default function InternshipHero() {
             Search Internships →
           </button>
         </div>
+        <AnimatePresence>
+  {showFilters && (
+    <motion.div
+      initial={{ height: 0, opacity: 0 }}
+      animate={{ height: "auto", opacity: 1 }}
+      exit={{ height: 0, opacity: 0 }}
+      transition={{ duration: 0.3 }}
+      className="overflow-hidden"
+    >
+      <div className="mt-4 p-5 bg-white border rounded-xl shadow-sm">
+        <p className="text-sm font-semibold text-gray-700 mb-3">
+          Filter by Category
+        </p>
+
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setCategory("")}
+            className={`px-4 py-1.5 text-xs rounded-full border ${
+              category === ""
+                ? "bg-[#0B2B6B] text-white border-[#0B2B6B]"
+                : "bg-white text-gray-600 border-gray-200"
+            }`}
+          >
+            All
+          </button>
+
+          {internshipTabs.map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setCategory(tab)}
+              className={`px-4 py-1.5 text-xs rounded-full border ${
+                category === tab
+                  ? "bg-[#0B2B6B] text-white border-[#0B2B6B]"
+                  : "bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-700"
+              }`}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  )}
+</AnimatePresence>
+
 
         {/* INTERNSHIP LIST */}
         <div className="max-w-4xl mx-auto mt-10 grid gap-4">

@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import { FaRocket, FaBuilding, FaUserFriends } from "react-icons/fa";
 import { FiSearch , FiUser , FiSend  , FiFilter } from "react-icons/fi";
+import { AnimatePresence, motion } from "framer-motion";
+
 
 import {
   FiTrendingUp,
@@ -27,25 +29,47 @@ export default function InternshipHero() {
   const [jobs, setJobs] = useState<JobType[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const fetchJobs = async () => {
-    setLoading(true);
-    try {
-      const data = await getPublicJobs({ keyword: search });
-      if (data?.jobs) {
-        setJobs(data.jobs);
-      } else {
-        setJobs([]);
-      }
-    } catch (error) {
-      console.error("Error fetching jobs:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [jobType, setJobType] = useState("");
+const [location, setLocation] = useState("");
+const [showFilters, setShowFilters] = useState(false);
 
-  useEffect(() => {
-    fetchJobs();
-  }, []);
+const jobTypes = ["Big brands",
+    "Work from home",
+    "Part-time",
+    "MBA",
+    "Engineering",
+    "Media",
+    "Design",
+    "Data Science"];
+
+
+ const fetchJobs = async () => {
+  setLoading(true);
+  try {
+    const data = await getPublicJobs({
+      keyword: search,
+      category: jobType,
+      location: location,
+    });
+
+    if (data?.jobs) {
+      setJobs(data.jobs);
+    } else {
+      setJobs([]);
+    }
+  } catch (error) {
+    console.error("Error fetching jobs:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+useEffect(() => {
+  fetchJobs();
+}, [jobType, location, search]);
+
+
 
   return (
     <section className="w-full bg-[#F7FBFF] py-12 md:py-20">
@@ -241,9 +265,17 @@ export default function InternshipHero() {
           </div>
 
           <div className="flex items-center justify-between mt-3 text-sm">
-            <button className="border text-gray-600 px-3 py-1.5 rounded-lg flex items-center justify-center gap-1">
-              <FiFilter /> Advanced Filters
-            </button>
+            <button
+  onClick={() => setShowFilters(!showFilters)}
+  className={`border px-3 py-1.5 rounded-lg flex items-center justify-center gap-1 transition ${
+    showFilters
+      ? "bg-blue-50 border-blue-200 text-blue-700"
+      : "text-gray-600 hover:bg-gray-50"
+  }`}
+>
+  <FiFilter /> Advanced Filters
+</button>
+
 
             <p className="text-gray-500">
               {jobs.length} jobs found
@@ -261,7 +293,54 @@ export default function InternshipHero() {
           </button>
         </div>
 
-        {/* INTERNSHIP LIST */}
+        <AnimatePresence>
+  {showFilters && (
+    <motion.div
+      initial={{ height: 0, opacity: 0 }}
+      animate={{ height: "auto", opacity: 1 }}
+      exit={{ height: 0, opacity: 0 }}
+      transition={{ duration: 0.3 }}
+      className="overflow-hidden"
+    >
+      <div className="mt-4 p-5 bg-white border rounded-xl shadow-sm">
+        
+        {/* Job Type Filter */}
+        <p className="text-sm font-semibold text-gray-700 mb-3">
+          Filter by Job Type
+        </p>
+        <div className="flex flex-wrap gap-2 mb-5">
+          <button
+            onClick={() => setJobType("")}
+            className={`px-4 py-1.5 text-xs font-medium rounded-full border ${
+              jobType === ""
+                ? "bg-[#0B2B6B] text-white border-[#0B2B6B]"
+                : "bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-700"
+            }`}
+          >
+            All
+          </button>
+
+          {jobTypes.map((type) => (
+            <button
+              key={type}
+              onClick={() => setJobType(type)}
+              className={`px-4 py-1.5 text-xs font-medium rounded-full border ${
+                jobType === type
+                  ? "bg-[#0B2B6B] text-white border-[#0B2B6B]"
+                  : "bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-700"
+              }`}
+            >
+              {type}
+            </button>
+          ))}
+        </div>
+
+        
+      </div>
+    </motion.div>
+  )}
+</AnimatePresence>
+
         <div className="max-w-4xl mx-auto mt-10 grid gap-4">
 
           {loading ? (

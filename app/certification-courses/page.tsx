@@ -10,6 +10,20 @@ import JobApplyModal from "../(components)/JobApplyModal";
 export default function CertificationCoursesPage() {
   const { getCertificationCourses } = useAuth();
   const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("");
+const [showFilters, setShowFilters] = useState(false);
+
+const categories = [
+  "Digital Skills",
+  "Communication",
+  "Leadership",
+  "Technical Skills",
+  "Creative Skills",
+  "Business Skills",
+  "Personal Development",
+  "Industry Specific",
+];
+
   const [courses, setCourses] = useState<CertificationCourseType[]>([]);
   const [loading, setLoading] = useState(false);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
@@ -17,7 +31,8 @@ export default function CertificationCoursesPage() {
   const fetchCourses = async () => {
     setLoading(true);
     try {
-      const data = await getCertificationCourses({ keyword: search });
+      const data = await getCertificationCourses({ keyword: search,
+  category: category,});
       if (Array.isArray(data)) {
         setCourses(data);
       } else if (data?.courses) {
@@ -33,8 +48,9 @@ export default function CertificationCoursesPage() {
   };
 
   useEffect(() => {
-    fetchCourses();
-  }, []);
+  fetchCourses();
+}, [category]);
+
 
   /* Reusable Card */
   function FeatureCard({
@@ -177,9 +193,17 @@ export default function CertificationCoursesPage() {
             </div>
 
             <div className="flex items-center justify-between mt-3 text-sm">
-              <button className="border text-gray-600 px-3 py-1.5 rounded-lg flex items-center justify-center gap-1">
-                <FiFilter /> Advanced Filters
-              </button>
+             <button
+  onClick={() => setShowFilters(!showFilters)}
+  className={`border px-3 py-1.5 rounded-lg flex items-center gap-1 transition ${
+    showFilters
+      ? "bg-blue-50 border-blue-200 text-blue-700"
+      : "text-gray-600 hover:bg-gray-50"
+  }`}
+>
+  <FiFilter /> Advanced Filters
+</button>
+
               <p className="text-gray-500">{courses.length} Courses found</p>
             </div>
           </div>
@@ -193,6 +217,50 @@ export default function CertificationCoursesPage() {
               Search Courses →
             </button>
           </div>
+          <AnimatePresence>
+  {showFilters && (
+    <motion.div
+      initial={{ height: 0, opacity: 0 }}
+      animate={{ height: "auto", opacity: 1 }}
+      exit={{ height: 0, opacity: 0 }}
+      transition={{ duration: 0.3 }}
+      className="overflow-hidden"
+    >
+      <div className="mt-4 p-5 bg-white border rounded-xl shadow-sm">
+        <p className="text-sm font-semibold text-gray-700 mb-3">
+          Filter by Category
+        </p>
+
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => setCategory("")}
+            className={`px-4 py-1.5 text-xs rounded-full border ${
+              category === ""
+                ? "bg-[#0B2B6B] text-white border-[#0B2B6B]"
+                : "bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-700"
+            }`}
+          >
+            All
+          </button>
+
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setCategory(cat)}
+              className={`px-4 py-1.5 text-xs rounded-full border ${
+                category === cat
+                  ? "bg-[#0B2B6B] text-white border-[#0B2B6B]"
+                  : "bg-white text-gray-600 border-gray-200 hover:border-blue-300 hover:text-blue-700"
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  )}
+</AnimatePresence>
 
           {/* COURSES GRID */}
           <div className="max-w-6xl mx-auto mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
