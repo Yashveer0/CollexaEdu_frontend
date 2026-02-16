@@ -4895,8 +4895,8 @@ const downloadReport = () => {
                         setInternshipForm({
                           title: internship.title || "",
                           description: internship.description || "",
-                          companyId: internship.company || "",
-                          companyName: internship.companyName || "",
+                          
+                          
                           companyId: internship.company?._id || internship.company || "",
                           companyName: internship.company?.name || internship.companyName || "",
                           category: internship.category || "",
@@ -4904,7 +4904,7 @@ const downloadReport = () => {
                           stipendMin: internship.stipendMin || "",
                           stipendMax: internship.stipendMax || "",
                           duration: internship.duration || "",
-                          startDate: internship.startDate || "",
+                          
                           startDate: internship.startDate
                             ? new Date(internship.startDate).toISOString().split("T")[0]
                             : "",
