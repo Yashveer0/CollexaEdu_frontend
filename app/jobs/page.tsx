@@ -282,17 +282,6 @@ useEffect(() => {
             </p>
           </div>
         </div>
-
-        {/* Search Button */}
-        <div className="text-center mt-8">
-          <button 
-            onClick={() => fetchJobs()}
-            className="bg-[#0B2B6B] hover:bg-[#123c9c] text-white px-6 py-2 rounded-lg shadow"
-          >
-            Search Jobs →
-          </button>
-        </div>
-
         <AnimatePresence>
   {showFilters && (
     <motion.div
@@ -340,6 +329,18 @@ useEffect(() => {
     </motion.div>
   )}
 </AnimatePresence>
+
+        {/* Search Button */}
+        <div className="text-center mt-8">
+          <button 
+            onClick={() => fetchJobs()}
+            className="bg-[#0B2B6B] hover:bg-[#123c9c] text-white px-6 py-2 rounded-lg shadow"
+          >
+            Search Jobs →
+          </button>
+        </div>
+
+        
 
         <div className="max-w-4xl mx-auto mt-10 grid gap-4">
 

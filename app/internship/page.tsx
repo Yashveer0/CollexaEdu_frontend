@@ -278,17 +278,7 @@ const internshipTabs = [
             </p>
           </div>
         </div>
-
-        {/* Search Button */}
-        <div className="text-center mt-8">
-          <button 
-            onClick={() => fetchInternships()}
-            className="bg-[#0B2B6B] hover:bg-[#123c9c] text-white px-6 py-2 rounded-lg shadow"
-          >
-            Search Internships →
-          </button>
-        </div>
-        <AnimatePresence>
+<AnimatePresence>
   {showFilters && (
     <motion.div
       initial={{ height: 0, opacity: 0 }}
@@ -332,6 +322,16 @@ const internshipTabs = [
     </motion.div>
   )}
 </AnimatePresence>
+        {/* Search Button */}
+        <div className="text-center mt-8">
+          <button 
+            onClick={() => fetchInternships()}
+            className="bg-[#0B2B6B] hover:bg-[#123c9c] text-white px-6 py-2 rounded-lg shadow"
+          >
+            Search Internships →
+          </button>
+        </div>
+        
 
 
         {/* INTERNSHIP LIST */}

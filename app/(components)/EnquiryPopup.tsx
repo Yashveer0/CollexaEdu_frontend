@@ -11,8 +11,11 @@ export default function EnquiryPopup() {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const num1 = 4;
-  const num2 = 10;
+  const [num1, setNum1] = useState(0);
+  const [num2, setNum2] = useState(0);
+
+  
+
 
   const [captchaInput, setCaptchaInput] = useState("");
   const [agreed, setAgreed] = useState(false);
@@ -25,12 +28,23 @@ export default function EnquiryPopup() {
     state: "",
   });
 
+  const generateCaptcha = () => {
+  const n1 = Math.floor(Math.random() * 10) + 1; // 1–10
+  const n2 = Math.floor(Math.random() * 10) + 1;
+  setNum1(n1);
+  setNum2(n2);
+};
+
   // Auto Open
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsOpen(true);
     }, 1000);
     return () => clearTimeout(timer);
+    }, []);
+
+  useEffect(() => {
+    generateCaptcha();
   }, []);
 
   const handleChange = (
@@ -44,9 +58,12 @@ export default function EnquiryPopup() {
     e.preventDefault();
 
     if (parseInt(captchaInput) !== num1 + num2) {
-      Swal.fire("Invalid Captcha", "Please solve captcha correctly", "error");
-      return;
-    }
+  generateCaptcha();
+  setCaptchaInput("");
+  Swal.fire("Invalid Captcha", "Please solve captcha correctly", "error");
+  return;
+}
+
 
     if (!agreed) {
       Swal.fire("Agreement Required", "Please accept terms", "warning");
@@ -66,14 +83,15 @@ export default function EnquiryPopup() {
 
       await submitContactForm(payload);
 
-      Swal.fire({
-        icon: "success",
-        title: "Enquiry Submitted!",
-        text: "We will contact you soon.",
-        confirmButtonColor: "#1e3a8a",
-      });
+Swal.fire({
+  icon: "success",
+  title: "Enquiry Submitted!",
+  text: "We will contact you soon.",
+  confirmButtonColor: "#1e3a8a",
+});
 
-      setIsOpen(false);
+generateCaptcha();   
+
 
       setFormData({
         fullName: "",

@@ -44,6 +44,10 @@ export default function NaukriProfileUI() {
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
 
+  const [applications, setApplications] = useState<any[]>([]);
+const [appLoading, setAppLoading] = useState(false);
+
+
   /* ==================== EFFECTS ==================== */
 
 
@@ -55,6 +59,8 @@ useEffect(() => {
 
     try {
       const latestUser = await getProfile();
+      
+      await fetchMyApplications();
 
       // only set initial values once
       setFirstName(latestUser.firstName || "");
@@ -93,6 +99,29 @@ useEffect(() => {
   }
 }, [loading, user, getProfile, router, hasFetched]);
   /* ==================== HANDLERS ==================== */
+
+  const fetchMyApplications = async () => {
+  try {
+    setAppLoading(true);
+
+    const res = await fetch("/api/applications/my-applications", {
+      credentials: "include",
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      setApplications(data.applications || []);
+    } else {
+      console.error(data.message);
+    }
+  } catch (err) {
+    console.error("Error fetching applications:", err);
+  } finally {
+    setAppLoading(false);
+  }
+};
+
 
   const saveProfile = async () => {
     try {
@@ -377,6 +406,53 @@ useEffect(() => {
               </EditBox>
             )}
           </Section>
+
+          {/* APPLICATIONS */}
+          {/* MY APPLICATIONS */}
+<Section title="My Applications">
+  {appLoading ? (
+    <p className="text-gray-500">Loading applications...</p>
+  ) : applications.length === 0 ? (
+    <p className="text-gray-400">You haven't applied to any jobs yet.</p>
+  ) : (
+    <div className="space-y-4">
+      {applications.map((app) => (
+        <div
+          key={app._id}
+          className="border rounded-xl p-4 hover:shadow-md transition"
+        >
+          <div className="flex justify-between items-start">
+            <div>
+              <h4 className="font-semibold text-lg">
+                {app.job?.title || "Job Title"}
+              </h4>
+
+              <p className="text-sm text-gray-600">
+                {app.job?.company?.name || "Company Name"}
+              </p>
+
+              {app.job?.location && (
+                <p className="text-sm text-gray-500 mt-1 flex items-center gap-1">
+                  <MapPin size={14} />
+                  {app.job.location}
+                </p>
+              )}
+            </div>
+
+            <span className="text-xs bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
+              Applied
+            </span>
+          </div>
+
+          <div className="mt-2 text-xs text-gray-400">
+            Applied on {new Date(app.createdAt).toLocaleDateString()}
+          </div>
+        </div>
+      ))}
+    </div>
+  )}
+</Section>
+
         </main>
       </div>
     </div>

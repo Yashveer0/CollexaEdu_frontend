@@ -207,17 +207,7 @@ const categories = [
               <p className="text-gray-500">{courses.length} Courses found</p>
             </div>
           </div>
-
-          {/* Search Button */}
-          <div className="text-center mt-8">
-            <button
-              onClick={() => fetchCourses()}
-              className="bg-[#0B2B6B] hover:bg-[#123c9c] text-white px-6 py-2 rounded-lg shadow"
-            >
-              Search Courses →
-            </button>
-          </div>
-          <AnimatePresence>
+<AnimatePresence>
   {showFilters && (
     <motion.div
       initial={{ height: 0, opacity: 0 }}
@@ -261,6 +251,16 @@ const categories = [
     </motion.div>
   )}
 </AnimatePresence>
+          {/* Search Button */}
+          <div className="text-center mt-8">
+            <button
+              onClick={() => fetchCourses()}
+              className="bg-[#0B2B6B] hover:bg-[#123c9c] text-white px-6 py-2 rounded-lg shadow"
+            >
+              Search Courses →
+            </button>
+          </div>
+          
 
           {/* COURSES GRID */}
           <div className="max-w-6xl mx-auto mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
