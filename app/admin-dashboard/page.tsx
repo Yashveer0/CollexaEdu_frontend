@@ -764,7 +764,7 @@ const fetchDashboardData = async () => {
     ] = await Promise.all([
       API.get("/api/admin/users", { headers }).catch(() => ({ data: {} })),
       API.get("/api/contactus", { headers }).catch(() => ({ data: {} })),
-      API.get("/api/applications", { headers }).catch(() => ({ data: {} })),
+      API.get("/api/applications/job-applications/all", { headers }).catch(() => ({ data: {} })),
       API.get("/api/internship-applications", { headers }).catch(() => ({ data: {} })),
       API.get("/api/campuscourses/leads", { headers }).catch(() => ({ data: {} })),
       API.get("/api/certificatecourses/leads", { headers }).catch(() => ({ data: {} }))
@@ -887,11 +887,17 @@ const handleUpdateInternshipApplicationStatus = async (appId: string, newStatus:
 };
 
 const fetchApplications = async (jobId: string) => {
-  if (!jobId) return;
   try {
     setApplicationsLoading(true);
-    const data = await getJobApplications(jobId);
-    setApplications(data.applications || []);
+      const token = localStorage.getItem("collexa_token");
+      const endpoint = jobId
+        ? `/api/applications/job-applications/${jobId}`
+        : `/api/applications/job-applications/all`;
+
+      const res = await API.get(endpoint, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setApplications(res.data.applications || []);
   } catch (err: any) {
     console.error("Fetch applications failed", err);
     Swal.fire("Error", err.response?.data?.message || "Failed to fetch applications", "error");
@@ -1027,9 +1033,8 @@ useEffect(() => {
 
 useEffect(() => {
   if (screen === "applications") {
-    if (selectedJobIdForApp) {
       fetchApplications(selectedJobIdForApp);
-    } else if (jobs.length === 0) {
+      if (jobs.length === 0) {
       fetchJobs(); // Fetch jobs to populate dropdown if no job selected
     }
   }
@@ -1687,7 +1692,7 @@ const handleGenerateReport = async () => {
         endpoint = "/api/certificatecourses/leads";
         break;
       case "job-applications":
-        endpoint = "/api/applications";
+        endpoint = "/api/applications/job-applications/all";
         break;
       case "internship-applications":
         endpoint = "/api/internship-applications";
@@ -5225,7 +5230,7 @@ const downloadReport = () => {
           value={selectedJobIdForApp}
           onChange={(e) => setSelectedJobIdForApp(e.target.value)}
         >
-          <option value="">-- Select Job to View Applications --</option>
+          <option value="">All Jobs</option>
           {jobs.map((job) => (
             <option key={job._id} value={job._id}>
               {job.title} ({job.company?.name})
@@ -5260,7 +5265,7 @@ const downloadReport = () => {
           ) : applications.length === 0 ? (
             <tr>
               <td colSpan={7} className="px-4 py-6 text-center text-gray-500">
-                {selectedJobIdForApp ? "No applications found for this job" : "Select a job to view applications"}
+                No applications found
               </td>
             </tr>
           ) : (
