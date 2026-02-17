@@ -22,13 +22,11 @@ export default function StudentLogin() {
 
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e: any) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleLogin = async (e: any) => {
-    e.preventDefault();
-
+  const handleLogin = async () => {
     if (!form.email || !form.password) {
       Swal.fire({
         icon: "warning",
@@ -170,11 +168,13 @@ export default function StudentLogin() {
               placeholder="Enter your password"
               className="w-full px-3 py-2 outline-none"
             />
-            {showPass ? (
-              <EyeOff onClick={() => setShowPass(false)} />
-            ) : (
-              <Eye onClick={() => setShowPass(true)} />
-            )}
+            <button
+              type="button"
+              onClick={() => setShowPass(!showPass)}
+              className="text-gray-500"
+            >
+              {showPass ? <EyeOff size={20} /> : <Eye size={20} />}
+            </button>
           </div>
 
           <button

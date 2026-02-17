@@ -765,7 +765,7 @@ const fetchDashboardData = async () => {
       API.get("/api/admin/users", { headers }).catch(() => ({ data: {} })),
       API.get("/api/contactus", { headers }).catch(() => ({ data: {} })),
       API.get("/api/applications/job-applications/all", { headers }).catch(() => ({ data: {} })),
-      API.get("/api/internship-applications", { headers }).catch(() => ({ data: {} })),
+      API.get("/api/internship-applications/internship-applications/all", { headers }).catch(() => ({ data: {} })),
       API.get("/api/campuscourses/leads", { headers }).catch(() => ({ data: {} })),
       API.get("/api/certificatecourses/leads", { headers }).catch(() => ({ data: {} }))
     ]);
@@ -846,11 +846,14 @@ const handleUpdateApplicationStatus = async (appId: string, newStatus: string) =
 };
 
 const fetchInternshipApplications = async (internshipId: string) => {
-  if (!internshipId) return;
   try {
     setInternshipApplicationsLoading(true);
     const token = localStorage.getItem("collexa_token");
-    const res = await API.get(`/api/internship-applications/all-applications/${internshipId}`, {
+    const endpoint = internshipId
+      ? `/api/internship-applications/all-applications/${internshipId}`
+      : `/api/internship-applications/internship-applications/all`;
+
+    const res = await API.get(endpoint, {
       headers: { Authorization: `Bearer ${token}` },
     });
     setInternshipApplications(res.data.applications || []);
@@ -1045,9 +1048,7 @@ useEffect(() => {
     if (internships.length === 0) {
       fetchInternships();
     }
-    if (selectedInternshipIdForApp) {
-      fetchInternshipApplications(selectedInternshipIdForApp);
-    }
+    fetchInternshipApplications(selectedInternshipIdForApp);
   }
 }, [screen, selectedInternshipIdForApp]);
 
@@ -1695,7 +1696,7 @@ const handleGenerateReport = async () => {
         endpoint = "/api/applications/job-applications/all";
         break;
       case "internship-applications":
-        endpoint = "/api/internship-applications";
+        endpoint = "/api/internship-applications/internship-applications/all";
         break;
       default:
         endpoint = "/api/admin/users";
@@ -3903,7 +3904,7 @@ const downloadReport = () => {
           value={selectedInternshipIdForApp}
           onChange={(e) => setSelectedInternshipIdForApp(e.target.value)}
         >
-          <option value="">-- Select Internship to View Applications --</option>
+          <option value="">All Internship to View Applications</option>
           {internships.map((internship) => (
             <option key={internship._id} value={internship._id}>
               {internship.title} ({internship.company?.name})
@@ -3938,7 +3939,7 @@ const downloadReport = () => {
           ) : internshipApplications.length === 0 ? (
             <tr>
               <td colSpan={7} className="px-4 py-6 text-center text-gray-500">
-                {selectedInternshipIdForApp ? "No applications found for this internship" : "Select an internship to view applications"}
+                No applications found
               </td>
             </tr>
           ) : (
@@ -5814,4 +5815,5 @@ const downloadReport = () => {
     </div>
   );
 } 
+ 
  
