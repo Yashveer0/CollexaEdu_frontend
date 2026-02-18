@@ -178,6 +178,7 @@ export default function StudentLogin() {
           </div>
 
           <button
+            type="button"
             onClick={() => setOpen(true)}
             className="text-sm text-blue-700 hover:underline mt-2"
           >

@@ -300,11 +300,11 @@ export default function AboutPage() {
           {/* Card 1 */}
           <div className="bg-white border rounded-2xl p-8 hover:shadow-lg transition">
             <div className="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center text-[#0B2B6B] font-semibold mb-4">
-              RK
+              AR
             </div>
 
             <h4 className="font-semibold text-[#0B2B6B]">
-              Rhea Kapoor
+              Abhishek Raj
             </h4>
             <p className="text-sm text-gray-500 mt-1">
               Co-founder & CEO
@@ -316,43 +316,7 @@ export default function AboutPage() {
             </p>
           </div>
 
-          {/* Card 2 */}
-          <div className="bg-white border rounded-2xl p-8 hover:shadow-lg transition">
-            <div className="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center text-[#0B2B6B] font-semibold mb-4">
-              AM
-            </div>
-
-            <h4 className="font-semibold text-[#0B2B6B]">
-              Arjun Mehta
-            </h4>
-            <p className="text-sm text-gray-500 mt-1">
-              Co-founder & CTO
-            </p>
-
-            <p className="text-sm text-gray-600 mt-4 leading-relaxed">
-              Built talent platforms for Fortune 500 firms; now focused on
-              equitable hiring tech.
-            </p>
-          </div>
-
-          {/* Card 3 */}
-          <div className="bg-white border rounded-2xl p-8 hover:shadow-lg transition">
-            <div className="w-14 h-14 rounded-full bg-gray-200 flex items-center justify-center text-[#0B2B6B] font-semibold mb-4">
-              NS
-            </div>
-
-            <h4 className="font-semibold text-[#0B2B6B]">
-              Neha Sharma
-            </h4>
-            <p className="text-sm text-gray-500 mt-1">
-              Head of University Success
-            </p>
-
-            <p className="text-sm text-gray-600 mt-4 leading-relaxed">
-              Former dean of student success, championing career readiness at
-              scale.
-            </p>
-          </div>
+          
 
         </div>
       </div>

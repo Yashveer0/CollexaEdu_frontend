@@ -15,6 +15,20 @@ import {
 } from "lucide-react";
 import Swal from "sweetalert2";
 
+interface Application {
+  _id: string;
+  job: {
+    _id: string;
+    title: string;
+    company?: {
+      name: string;
+    };
+    location?: string;
+  };
+  status: string;
+  createdAt: string;
+}
+
 /* ==================== MAIN COMPONENT ==================== */
 
 export default function NaukriProfileUI() {
@@ -44,8 +58,8 @@ export default function NaukriProfileUI() {
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [imageFile, setImageFile] = useState<File | null>(null);
 
-  const [applications, setApplications] = useState<any[]>([]);
-const [appLoading, setAppLoading] = useState(false);
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [appLoading, setAppLoading] = useState(false);
 
 
   /* ==================== EFFECTS ==================== */
@@ -103,9 +117,12 @@ useEffect(() => {
   const fetchMyApplications = async () => {
   try {
     setAppLoading(true);
+    const token = localStorage.getItem("collexa_token");
 
-    const res = await fetch("/api/applications/my-applications", {
-      credentials: "include",
+    const res = await fetch("https://collexa-backend.onrender.com/api/applications/my-applications", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     const data = await res.json();
@@ -439,8 +456,16 @@ useEffect(() => {
               )}
             </div>
 
-            <span className="text-xs bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
-              Applied
+            <span
+              className={`text-xs px-3 py-1 rounded-full ${
+                app.status === "Hired"
+                  ? "bg-green-100 text-green-800"
+                  : app.status === "Rejected"
+                  ? "bg-red-100 text-red-800"
+                  : "bg-blue-100 text-blue-800"
+              }`}
+            >
+              {app.status || "Applied"}
             </span>
           </div>
 

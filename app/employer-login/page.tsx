@@ -187,6 +187,7 @@ export default function EmployerLogin() {
 
           {/* Trigger Button Example */}
           <button
+            type="button"
             onClick={() => setOpen(true)}
             className="text-sm text-blue-700 hover:underline"
           >

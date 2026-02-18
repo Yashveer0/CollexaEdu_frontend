@@ -1391,7 +1391,7 @@ export default function Navbar() {
 
             {/* LEARN SKILLS */}
             <Link
-              href="/skills"
+              href="/certification-courses"
               onClick={() => setMobileOpen(false)}
               className="flex items-center gap-3 py-2"
             >

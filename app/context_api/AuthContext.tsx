@@ -317,29 +317,28 @@ const getProfile = async () => {
 };
 
 const forgotPassword = async (emailId: string) => {
-  try {
-    const res = await API.post("/api/auth/forgetPassword", { emailId });
-    return res.data; // { message: "Reset link sent" }
-  } catch (err: any) {
-    throw err;
-  }
+  const res = await API.post("/api/auth/forgetPassword", {
+    emailId,
+  });
+
+  return res.data; // { message: "OTP sent" }
 };
+
 
 const resetPassword = async (
-  token: string,
+  emailId: string,
+  otp: string,
   newPassword: string
 ) => {
-  try {
-    const res = await API.post("/api/auth/resetPassword", {
-      token,
-      password: newPassword,
-    });
+  const res = await API.post("/api/auth/resetPassword", {
+    emailId,
+    otp,
+    newPassword,
+  });
 
-    return res.data; // { message: "Password reset successful" }
-  } catch (err: any) {
-    throw err;
-  }
+  return res.data;
 };
+
 
 // 🌍 PUBLIC JOB LIST (no auth required)
 const getPublicJobs = async (params?: {
