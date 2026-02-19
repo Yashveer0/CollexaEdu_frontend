@@ -363,7 +363,7 @@ useEffect(() => {
       <section className="bg-gray-100 py-10 overflow-hidden">
   <div className="max-w-7xl mx-auto px-4">
 
-    {/* Heading (optional – hata bhi sakte ho) */}
+    
     
 
     {/* Marquee Container */}
@@ -482,33 +482,35 @@ useEffect(() => {
           </p>
         </div>
 
-        {/* TABS */}
-        <div
-          className="
-          flex gap-3 justify-center md:justify-center
-          mt-6 px-6
-          flex-nowrap md:flex-wrap
-          overflow-x-auto md:overflow-visible
-          scrollbar-hide
-        "
-        >
-          {courseTabs.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveCourseTab(tab)}
-              className={`
-              px-5 py-2 rounded-full border text-sm whitespace-nowrap transition
-              ${
-                activeCourseTab === tab
-                  ? "bg-emerald-500 text-white border-emerald-500"
-                  : "bg-white text-gray-700 hover:bg-gray-100"
-              }
-            `}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
+    {/* TABS */}
+<div
+  className="
+    flex gap-3
+    mt-6 px-4
+    flex-nowrap md:flex-wrap
+    overflow-x-auto md:overflow-visible
+    scrollbar-hide
+    justify-start md:justify-center
+  "
+>
+  {courseTabs.map((tab) => (
+    <button
+      key={tab}
+      onClick={() => setActiveCourseTab(tab)}
+      className={`
+        px-5 py-2 rounded-full border text-sm whitespace-nowrap transition shrink-0
+        ${
+          activeCourseTab === tab
+            ? "bg-emerald-500 text-white border-emerald-500"
+            : "bg-white text-gray-700 hover:bg-gray-100"
+        }
+      `}
+    >
+      {tab}
+    </button>
+  ))}
+</div>
+
 
         {/* SLIDER CONTAINER */}
         <div className="relative max-w-7xl mx-auto mt-10 px-6">
@@ -539,19 +541,28 @@ useEffect(() => {
                 <div>
                   {/* HEADER */}
                   <div className="flex justify-between items-start mb-3">
+                    
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-700 shrink-0">
                         <GraduationCap size={20} />
                       </div>
-                      <div className="overflow-hidden">
-                        <p className="font-bold text-gray-800 text-sm truncate">
-                          {c.university || c.universityName || "University"}
-                        </p>
+                      <div className="flex-1 min-w-0 ">
+                        <p className="font-bold text-gray-800 text-sm md:truncate">
+  {(() => {
+    const name = c.university || c.universityName || "University";
+    return window.innerWidth < 768 && name.length > 28
+      ? name.slice(0, 28) + "..."
+      : name;
+  })()}
+</p>
+
                         <span className="text-[10px] font-medium bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full inline-block mt-0.5">
                           {c.type || "Course"}
                         </span>
                       </div>
                     </div>
+
+
                   </div>
 
                   {/* TITLE */}
@@ -608,6 +619,8 @@ useEffect(() => {
             ▶
           </button>
         </div>
+
+        
       </div>{" "}
 
        
@@ -625,31 +638,33 @@ useEffect(() => {
 
         {/* TABS */}
         <div
-          className="
-          flex gap-3 justify-center md:justify-center
-          mt-6 px-6
-          flex-nowrap md:flex-wrap
-          overflow-x-auto md:overflow-visible
-          scrollbar-hide
-        "
-        >
-          {jobTabs.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveJobTab(tab)}
-              className={`
-              px-5 py-2 rounded-full border text-sm whitespace-nowrap transition
-              ${
-                activeJobTab === tab
-                  ? "bg-emerald-500 text-white border-emerald-500"
-                  : "bg-white text-gray-700 hover:bg-gray-100"
-              }
-            `}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
+  className="
+    flex gap-3
+    mt-6 px-4
+    flex-nowrap md:flex-wrap
+    overflow-x-auto md:overflow-visible
+    scrollbar-hide
+    justify-start md:justify-center
+  "
+>
+  {jobTabs.map((tab) => (
+    <button
+      key={tab}
+      onClick={() => setActiveJobTab(tab)}
+      className={`
+        px-5 py-2 rounded-full border text-sm whitespace-nowrap transition shrink-0
+        ${
+          activeJobTab === tab
+            ? "bg-emerald-500 text-white border-emerald-500"
+            : "bg-white text-gray-700 hover:bg-gray-100"
+        }
+      `}
+    >
+      {tab}
+    </button>
+  ))}
+</div>
+
 
         {/* SLIDER CONTAINER */}
         <div className="relative max-w-7xl mx-auto mt-10 px-6">
@@ -759,32 +774,34 @@ useEffect(() => {
 
         {/* FILTER TABS */}
         <div
-          className="
-        flex gap-3 justify-center md:justify-center
-        mt-6 
-        flex-nowrap md:flex-wrap
-        overflow-x-auto md:overflow-visible
-        scrollbar-hide
-      "
-        >
-          {internshipTabs.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveInternshipTab(tab)}
-              className={`
-            px-5 py-2  rounded-full border text-sm whitespace-nowrap
-            transition
-            ${
-              activeInternshipTab === tab
-                ? "bg-emerald-500 text-white border-emerald-500"
-                : "bg-white text-gray-700 hover:bg-gray-100"
-            }
-          `}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
+  className="
+    flex gap-3
+    mt-6 px-4
+    flex-nowrap md:flex-wrap
+    overflow-x-auto md:overflow-visible
+    scrollbar-hide
+    justify-start md:justify-center
+  "
+>
+  {internshipTabs.map((tab) => (
+    <button
+      key={tab}
+      onClick={() => setActiveInternshipTab(tab)}
+      className={`
+        px-5 py-2 rounded-full border text-sm whitespace-nowrap
+        transition shrink-0
+        ${
+          activeInternshipTab === tab
+            ? "bg-emerald-500 text-white border-emerald-500"
+            : "bg-white text-gray-700 hover:bg-gray-100"
+        }
+      `}
+    >
+      {tab}
+    </button>
+  ))}
+</div>
+
 
         {/* SLIDER WRAPPER */}
         <div className="relative max-w-7xl mx-auto mt-10 px-6">
@@ -879,31 +896,34 @@ useEffect(() => {
 
         {/* TABS */}
         <div
-          className="
-      flex gap-3 justify-center md:justify-center
-      mt-6 px-6
-      flex-nowrap md:flex-wrap
-      overflow-x-auto md:overflow-visible
-      scrollbar-hide
-    "
-        >
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setActiveSkillCategory(cat)}
-              className={`
-          px-5 py-2 rounded-full border text-sm whitespace-nowrap transition
-          ${
-            activeSkillCategory === cat
-              ? "bg-emerald-500 text-white border-emerald-500"
-              : "bg-white text-gray-700 hover:bg-gray-100"
-          }
-        `}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
+  className="
+    flex gap-3
+    mt-6 px-4
+    flex-nowrap md:flex-wrap
+    overflow-x-auto md:overflow-visible
+    scrollbar-hide
+    justify-start md:justify-center
+  "
+>
+  {categories.map((cat) => (
+    <button
+      key={cat}
+      onClick={() => setActiveSkillCategory(cat)}
+      className={`
+        px-5 py-2 rounded-full border text-sm whitespace-nowrap
+        transition shrink-0
+        ${
+          activeSkillCategory === cat
+            ? "bg-emerald-500 text-white border-emerald-500"
+            : "bg-white text-gray-700 hover:bg-gray-100"
+        }
+      `}
+    >
+      {cat}
+    </button>
+  ))}
+</div>
+
 
         {/* SLIDER CONTAINER */}
         <div className="relative max-w-7xl mx-auto mt-10 px-6">
