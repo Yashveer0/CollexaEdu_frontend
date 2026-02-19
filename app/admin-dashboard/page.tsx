@@ -2507,48 +2507,6 @@ const downloadReport = () => {
   )
 )}
 
-
-          {/* ================= PACKAGES (IMAGE MATCH) ================= */}
-          {/* {screen === "packages" && (
-            <>
-              <div className="flex justify-between mb-6">
-                <div>
-                  <h2 className="text-xl font-bold">
-                    Packages & Plans
-                  </h2>
-                  <p className="text-sm text-gray-500">
-                    Manage subscription plans for employers.
-                  </p>
-                </div>
-                <button
-                  onClick={() => setScreen("create-package")}
-                  className="bg-blue-700 text-white px-4 py-2 rounded-lg"
-                >
-                  + Create Package
-                </button>
-              </div>
-
-              <div className="grid md:grid-cols-3 gap-6 mb-6">
-                {[
-                  "Total Packages",
-                  "Active Plans",
-                  "Inactive Plans",
-                ].map((t) => (
-                  <div
-                    key={t}
-                    className="bg-white p-3 sm:p-4 md:p-6 rounded-xl shadow"
-                  >
-                    <p className="text-sm text-gray-500">{t}</p>
-                    <h2 className="text-2xl font-bold mt-2">0</h2>
-                  </div>
-                ))}
-              </div>
-
-              
-            </>
-          )} */}
-
-          {/* ================= CREATE / EDIT PACKAGE ================= */}
 {/* ================= CREATE / EDIT PACKAGE ================= */}
 {screen === "create-package" && (
   <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow p-3 sm:p-4  md:p-8">
