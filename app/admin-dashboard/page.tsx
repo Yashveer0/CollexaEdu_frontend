@@ -3301,12 +3301,16 @@ const downloadReport = () => {
       </div>
       <div>
         <label className="text-sm font-medium">Category</label>
-        <input
+        <select
           value={certificationCourseForm.category}
           onChange={(e) => setCertificationCourseForm({ ...certificationCourseForm, category: e.target.value })}
           className="w-full mt-1 border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-600 outline-none"
-          placeholder="e.g. Development"
-        />
+        >
+          <option value="">Select Category</option>
+          {['Digital Skills', 'Communication', 'Leadership', 'Technical Skills', 'Creative Skills', 'Business Skills', 'Personal Development', 'Industry Specific'].map((cat) => (
+            <option key={cat} value={cat}>{cat}</option>
+          ))}
+        </select>
       </div>
       <div>
         <label className="text-sm font-medium">Duration</label>
@@ -3327,6 +3331,7 @@ const downloadReport = () => {
           <option value="Beginner">Beginner</option>
           <option value="Intermediate">Intermediate</option>
           <option value="Advanced">Advanced</option>
+          <option value="All Levels">All Levels</option>
         </select>
       </div>
       <div>
