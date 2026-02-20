@@ -205,7 +205,7 @@ export default function AboutPage() {
             </div>
 
             <div className="bg-white rounded-xl shadow-sm p-6 w-full">
-              <span className="text-xs text-gray-500">2021</span>
+              <span className="text-xs text-gray-500">2025</span>
               <h4 className="text-sm font-semibold text-blue-700 mt-1">
                 Collexa is born
               </h4>
@@ -225,7 +225,7 @@ export default function AboutPage() {
             </div>
 
             <div className="bg-white rounded-xl shadow-sm p-6 w-full">
-              <span className="text-xs text-gray-500">2022</span>
+              <span className="text-xs text-gray-500">2025</span>
               <h4 className="text-sm font-semibold text-blue-700 mt-1">
                 First 10 universities
               </h4>
@@ -245,7 +245,7 @@ export default function AboutPage() {
             </div>
 
             <div className="bg-white rounded-xl shadow-sm p-6 w-full">
-              <span className="text-xs text-gray-500">2023</span>
+              <span className="text-xs text-gray-500">2026</span>
               <h4 className="text-sm font-semibold text-blue-700 mt-1">
                 Marketplace expansion
               </h4>
